@@ -184,6 +184,7 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task SelectOtherDirectory()
         {
+            OutputLocationIndex = 2;
             FolderOpenViewModel folderOpenVm = new FolderOpenViewModel {
                 Title = null,
                 InitialDirectory = OutputDirectory

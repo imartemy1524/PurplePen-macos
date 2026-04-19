@@ -40,7 +40,7 @@
                     Click="OkButton_Click"/>
             <Button x:Name="cancelButton"
                     Grid.Column="2"
-                    Content="{resx:Localize MiscText_CancelButtonText}"
+                    Content="{resx:Localize CancelButton}"
                     MinWidth="90"
                     Margin="8,0,0,0"
                     HorizontalContentAlignment="Center"
@@ -132,20 +132,25 @@
                     <StackPanel Spacing="8">
                         <TextBlock Text="{resx:Localize CreatePdfCourses_folderGroupBox_Text}"
                                    FontWeight="SemiBold"/>
-                        <ComboBox SelectedIndex="{Binding OutputLocationIndex, Mode=TwoWay}">
-                            <ComboBoxItem Content="{resx:Localize CreatePdfCourses_mapDirectory_Text}"/>
-                            <ComboBoxItem Content="{resx:Localize CreatePdfCourses_coursesDirectory_Text}"/>
-                            <ComboBoxItem Content="{resx:Localize CreatePdfCourses_otherDirectory_Text}"/>
-                        </ComboBox>
-
-                        <Grid ColumnDefinitions="*,Auto"
-                              IsVisible="{Binding IsOtherDirectoryVisible}">
-                            <TextBox Grid.Column="0"
-                                     Text="{Binding OutputDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
-                            <Button Grid.Column="1"
+                        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto" RowSpacing="8">
+                            <ComboBox Grid.Row="0" Grid.Column="0"
+                                      SelectedIndex="{Binding OutputLocationIndex, Mode=TwoWay}">
+                                <ComboBoxItem Content="{resx:Localize CreatePdfCourses_mapDirectory_Text}"/>
+                                <ComboBoxItem Content="{resx:Localize CreatePdfCourses_coursesDirectory_Text}"/>
+                                <ComboBoxItem Content="{resx:Localize CreatePdfCourses_otherDirectory_Text}"/>
+                            </ComboBox>
+                            <Button Grid.Row="0" Grid.Column="1"
                                     Margin="8,0,0,0"
+                                    VerticalAlignment="Center"
                                     Content="{resx:Localize CreatePdfCourses_selectOtherDirectoryButton_Text}"
                                     Command="{Binding SelectOtherDirectoryCommand}"/>
+
+                            <Grid Grid.Row="1" Grid.ColumnSpan="2"
+                                  ColumnDefinitions="*,Auto"
+                                  IsVisible="{Binding IsOtherDirectoryVisible}">
+                                <TextBox Grid.Column="0"
+                                         Text="{Binding OutputDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                            </Grid>
                         </Grid>
                     </StackPanel>
                 </Border>
