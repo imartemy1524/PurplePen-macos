@@ -41,6 +41,8 @@
     <Window.KeyBindings>
         <KeyBinding Gesture="Ctrl+O" Command="{Binding FileOpenPurplePenFileCommand}"/>
         <KeyBinding Gesture="F4" Command="{Binding ToggleAllControlsCommand}"/>
+        <KeyBinding Gesture="{OnPlatform 'Delete', macOS='Meta+Back'}"
+                    Command="{Binding DeleteSelectionCommand}"/>
     </Window.KeyBindings>
 
     <DockPanel LastChildFill="True">
@@ -100,7 +102,9 @@
                     <MenuItem.Icon><Image Source="/Assets/Toolbar/redo.png" Width="16" Height="16"/></MenuItem.Icon>
                 </MenuItem>
                 <Separator/>
-                <MenuItem x:Name="deleteMenu" Header="{resx:Localize MainFrame_deleteMenu_Text}" InputGesture="Delete" Command="{Binding DeleteSelectionCommand}">
+                <MenuItem x:Name="deleteMenu" Header="{resx:Localize MainFrame_deleteMenu_Text}"
+                          InputGesture="{OnPlatform 'Delete', macOS='Meta+Back'}"
+                          Command="{Binding DeleteSelectionCommand}">
                     <MenuItem.Icon><Image Source="/Assets/Toolbar/delete.png" Width="16" Height="16"/></MenuItem.Icon>
                 </MenuItem>
             </MenuItem>
@@ -297,7 +301,8 @@
 
             <!-- === Item Menu === -->
             <MenuItem x:Name="itemMenu" Header="{resx:Localize MainFrame_itemMenu_Text}">
-                <MenuItem x:Name="deleteItemMenu" Header="{resx:Localize MainFrame_deleteItemMenu_Text}" InputGesture="Delete"
+                <MenuItem x:Name="deleteItemMenu" Header="{resx:Localize MainFrame_deleteItemMenu_Text}"
+                          InputGesture="{OnPlatform 'Delete', macOS='Meta+Back'}"
                           Command="{Binding DeleteSelectionCommand}">
                     <MenuItem.Icon><Image Source="/Assets/Toolbar/delete.png" Width="16" Height="16"/></MenuItem.Icon>
                 </MenuItem>
