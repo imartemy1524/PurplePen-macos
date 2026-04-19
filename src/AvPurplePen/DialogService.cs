@@ -51,6 +51,10 @@ namespace AvPurplePen
                 return await ShowFileOpenSingleAsync(fileOpenVm);
             }
 
+            if (viewModel is FileSaveViewModel fileSaveVm) {
+                return await ShowFileSaveAsync(fileSaveVm);
+            }
+
             // Resolve the View type from the ViewModel type using the same convention as ViewLocator.
             string viewModelName = typeof(TViewModel).FullName!;
             string viewName = viewModelName
@@ -135,6 +139,36 @@ namespace AvPurplePen
             }
 
             return filters;
+        }
+
+        /// <summary>
+        /// Shows the platform file-save dialog.
+        /// Translates <see cref="FileSaveViewModel"/> options into Avalonia's
+        /// <see cref="FilePickerSaveOptions"/> and writes the result back to the ViewModel.
+        /// </summary>
+        private async Task<bool> ShowFileSaveAsync(FileSaveViewModel viewModel)
+        {
+            IStorageProvider storage = ownerWindow.StorageProvider;
+
+            FilePickerSaveOptions options = new FilePickerSaveOptions {
+                Title = viewModel.Title,
+                FileTypeChoices = ParseFileFilters(viewModel.FileFilters),
+                SuggestedFileName = viewModel.SuggestedFileName,
+                DefaultExtension = viewModel.DefaultExtension
+            };
+
+            if (viewModel.InitialDirectory != null) {
+                options.SuggestedStartLocation = await storage.TryGetFolderFromPathAsync(viewModel.InitialDirectory);
+            }
+
+            IStorageFile? file = await storage.SaveFilePickerAsync(options);
+            if (file != null) {
+                viewModel.SelectedFile = file.Path.LocalPath;
+                return true;
+            }
+
+            viewModel.SelectedFile = null;
+            return false;
         }
     }
 }

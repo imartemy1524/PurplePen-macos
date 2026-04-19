@@ -46,7 +46,7 @@ namespace AvPurplePen
             services.AddSingleton<IFileLoaderProvider, SkiaFileLoaderProvider>();
             services.AddSingleton<IPdfWriter, PdfWriter>();
             services.AddSingleton<IApplicationIdleService, ApplicationIdleServiceAdapter>();
-            //services.AddSingleton<IPdfLoadingStatus, PdfLoadingUI>();
+            services.AddTransient<IPdfLoadingStatus, PdfLoadingStatus>();
 
             // IDialogService depends on the MainWindow, which is created later by App.
             // The factory defers construction until first use, by which time App.MainWindow is set.

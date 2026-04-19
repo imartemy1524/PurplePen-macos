@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-using Microsoft.Win32;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace PurplePen
 {
@@ -99,16 +99,19 @@ namespace PurplePen
         public ConversionStatus BeginUncachedConversion(string fileName, int resolution)
         {
             try {
-                string converterExe = FindPdfConverterExe();
-                if (converterExe == null) {
+                string converterPath = FindPdfConverterExe();
+                if (converterPath == null) {
                     conversionOutput = MiscText.PdfConverterNotFound;
                     status = ConversionStatus.Failure;
                     return status;
                 }
 
-                string arguments = String.Format(
-                    "{2} \"{0}\" \"{1}\"",
-                    pdfFileName, fileName, resolution);
+                string converterExe = converterPath;
+                string arguments = String.Format("{2} \"{0}\" \"{1}\"", pdfFileName, fileName, resolution);
+                if (Path.GetExtension(converterPath).Equals(".dll", StringComparison.OrdinalIgnoreCase)) {
+                    converterExe = GetDotNetHostPath();
+                    arguments = String.Format("\"{0}\" {3} \"{1}\" \"{2}\"", converterPath, pdfFileName, fileName, resolution);
+                }
 
                 stderrOutput = new StringBuilder();
                 ProcessStartInfo startInfo = new ProcessStartInfo(converterExe, arguments);
@@ -173,7 +176,40 @@ namespace PurplePen
         {
             Uri uri = new Uri(typeof(PdfMapFile).Assembly.Location);
             string applicationDirectory = Path.GetDirectoryName(uri.LocalPath);
-            return Path.Combine(applicationDirectory, "PdfConverter.exe");
+            string dllPath = Path.Combine(applicationDirectory, "PdfConverter.dll");
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && IsCurrentProcessDotNetHost() && File.Exists(dllPath))
+                return dllPath;
+
+            string windowsExePath = Path.Combine(applicationDirectory, "PdfConverter.exe");
+            if (File.Exists(windowsExePath))
+                return windowsExePath;
+
+            string unixExePath = Path.Combine(applicationDirectory, "PdfConverter");
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && File.Exists(unixExePath))
+                return unixExePath;
+
+            if (File.Exists(dllPath))
+                return dllPath;
+
+            return null;
+        }
+
+        private static bool IsCurrentProcessDotNetHost()
+        {
+            string processPath = Environment.ProcessPath;
+            if (string.IsNullOrEmpty(processPath))
+                return false;
+
+            string fileName = Path.GetFileNameWithoutExtension(processPath);
+            return string.Equals(fileName, "dotnet", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string GetDotNetHostPath()
+        {
+            if (IsCurrentProcessDotNetHost())
+                return Environment.ProcessPath;
+
+            return "dotnet";
         }
 
         internal string GetCacheFileName(string path)

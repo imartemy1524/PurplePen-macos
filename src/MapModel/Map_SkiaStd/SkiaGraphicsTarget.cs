@@ -752,13 +752,45 @@ namespace PurplePen.MapModel
             "Segoe UI Historic",     // Miscellaneous letters, like runic
         };
 
+        private readonly string[] fallbackFontsMac = new string[] {
+            ".AppleSystemUIFont",
+            "Helvetica Neue",
+            "Arial",
+            "Arial Unicode MS",
+            "PingFang SC",
+            "PingFang TC",
+            "Hiragino Sans",
+            "Hiragino Kaku Gothic ProN",
+            "Apple SD Gothic Neo",
+            "Geeza Pro",
+            "Kohinoor Devanagari",
+            "Kohinoor Bangla",
+            "Kohinoor Telugu",
+            "Tamil Sangam MN",
+            "Lao Sangam MN",
+            "Khmer Sangam MN",
+            "Apple Symbols",
+            "Apple Color Emoji",
+        };
+
+        private readonly string[] fallbackFontsLinux = new string[] {
+            "DejaVu Sans",
+            "Noto Sans",
+            "Noto Sans CJK SC",
+            "Noto Sans CJK TC",
+            "Noto Sans CJK JP",
+            "Noto Sans CJK KR",
+            "Noto Color Emoji",
+            "Arial",
+        };
+
         private ConcurrentDictionary<TextEffects, ShapedTypeface[]> fallbackTypefaceCache = new ConcurrentDictionary<TextEffects, ShapedTypeface[]>();
 
         public SkiaFont(string familyName, float emHeight, TextEffects effects)
         {
             ShapedTypeface[] fallbackTypefaces = fallbackTypefaceCache.GetOrAdd(effects, (te) => {
                 List<ShapedTypeface> list = new List<ShapedTypeface>();
-                foreach (string fallbackFamily in fallbackFontsWindows) {
+                foreach (string fallbackFamily in GetPlatformFallbackFonts()) {
                     ShapedTypeface shapedTypeface = ShapedTypeface.Get(fallbackFamily, GetSKFontStyleWeight(effects), SKFontStyleWidth.Normal, GetSKFontStyleSlant(effects));
                     if (shapedTypeface != null)
                         list.Add(shapedTypeface);
@@ -770,6 +802,17 @@ namespace PurplePen.MapModel
             this.shapedTypeface = ShapedTypeface.Get(familyName, GetSKFontStyleWeight(effects), SKFontStyleWidth.Normal, GetSKFontStyleSlant(effects));
             this.enhancedTypeface = new EnhancedTypeface(this.shapedTypeface, fallbackTypefaces, harfBuzzProperties);
             this.underline = ((effects & TextEffects.Underline) != 0);
+        }
+
+        private string[] GetPlatformFallbackFonts()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                return fallbackFontsMac;
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return fallbackFontsLinux;
+
+            return fallbackFontsWindows;
         }
 
         public EnhancedTypeface EnhancedTypeface { 

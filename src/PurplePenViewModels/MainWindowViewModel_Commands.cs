@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 
 namespace PurplePen.ViewModels
@@ -118,23 +119,31 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private void Save()
         {
-#if !PORTING
+            if (controller == null) { return; }
+
             controller.Save();
-#endif
         }
 
         /// <summary>
         /// Executes the File/Save As command. Shows a Save File dialog.
         /// </summary>
         [RelayCommand]
-        private void SaveAs()
+        private async Task SaveAs()
         {
-#if !PORTING
-            string newFileName = GetSaveFileName(controller.FileName);
-            if (newFileName != null) {
+            if (controller == null) { return; }
+
+            FileSaveViewModel fileSaveVm = new FileSaveViewModel {
+                SuggestedFileName = Path.GetFileName(controller.FileName),
+                InitialDirectory = Path.GetDirectoryName(controller.FileName),
+                FileFilters = MiscText.OpenFileDialog_PurplePenFilter,
+                DefaultExtension = "ppen"
+            };
+
+            bool result = await Services.DialogService.ShowDialogAsync(fileSaveVm);
+            if (result && fileSaveVm.SelectedFile != null) {
+                string newFileName = fileSaveVm.SelectedFile;
                 controller.SaveAs(newFileName);
             }
-#endif
         }
 
         /// <summary>
@@ -158,7 +167,8 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private void Cancel()
         {
-#if !PORTING
+            if (controller == null) { return; }
+
             // Clear selection and cancel current mode use the same menu item.
             if (controller.CanCancelMode()) {
                 controller.CancelMode();
@@ -166,7 +176,6 @@ namespace PurplePen.ViewModels
             else {
                 controller.ClearSelection();
             }
-#endif
         }
 
         /// <summary>
@@ -175,12 +184,12 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private void Undo()
         {
-#if !PORTING
+            if (controller == null) { return; }
+
             UndoStatus status = controller.GetUndoStatus();
 
             if (status.CanUndo)
                 controller.Undo();
-#endif
         }
 
         /// <summary>
@@ -189,12 +198,12 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private void Redo()
         {
-#if !PORTING
+            if (controller == null) { return; }
+
             UndoStatus status = controller.GetUndoStatus();
 
             if (status.CanRedo)
                 controller.Redo();
-#endif
         }
 
         /// <summary>
@@ -203,9 +212,9 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task DeleteSelection()
         {
-#if !PORTING
+            if (controller == null) { return; }
+
             await controller.DeleteSelection();
-#endif
         }
 
         /// <summary>
