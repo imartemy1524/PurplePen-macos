@@ -486,23 +486,19 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task AddVariation()
         {
-#if !PORTING
+            if (controller == null) { return; }
+
             string reason;
             if (controller.CanAddVariation(out reason) != CommandStatus.Enabled) {
                 await ErrorMessage(reason);
                 return;
             }
 
-            AddForkDialog addForkDialog = new AddForkDialog();
-
-            DialogResult result = addForkDialog.ShowDialog(this);
-
-            if (result == DialogResult.OK) {
-                await controller.AddVariation(addForkDialog.Loop, addForkDialog.NumberOfBranches);
+            AddForkDialogViewModel viewModel = new AddForkDialogViewModel();
+            bool result = await Services.DialogService.ShowDialogAsync(viewModel);
+            if (result) {
+                await controller.AddVariation(viewModel.Loop, viewModel.BranchCount);
             }
-
-            addForkDialog.Dispose();
-#endif
         }
 
         /// <summary>

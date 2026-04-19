@@ -1,0 +1,87 @@
+<!--
+    AddForkDialog.axaml
+
+    Dialog for choosing whether to add a fork or loop variation.
+-->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:PurplePen.ViewModels"
+        xmlns:resx="using:AvPurplePen"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        x:Class="AvPurplePen.Views.AddForkDialog"
+        x:DataType="vm:AddForkDialogViewModel"
+        Classes="dialog"
+        Title="{resx:Localize AddForkDialog_Text}"
+        Icon="/Assets/transparent.ico"
+        d:DesignWidth="420" d:DesignHeight="260"
+        Width="420"
+        SizeToContent="Height"
+        CanResize="False"
+        CanMinimize="False"
+        CanMaximize="False"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+    <Design.DataContext>
+        <vm:AddForkDialogViewModel/>
+    </Design.DataContext>
+
+    <DockPanel Margin="12">
+        <StackPanel DockPanel.Dock="Bottom"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Spacing="8"
+                    Margin="0,20,0,0">
+            <Button x:Name="okButton"
+                    Content="{resx:Localize OKButton}"
+                    Width="85"
+                    HorizontalContentAlignment="Center"
+                    IsDefault="True"
+                    Click="OkButton_Click"/>
+            <Button x:Name="cancelButton"
+                    Content="{resx:Localize CancelButton}"
+                    Width="85"
+                    HorizontalContentAlignment="Center"
+                    IsCancel="True"
+                    Click="CancelButton_Click"/>
+        </StackPanel>
+
+        <StackPanel Spacing="12">
+            <TextBlock Text="{resx:Localize AddForkDialog_labelWhichType_Text}"
+                       TextWrapping="Wrap"/>
+
+            <StackPanel Spacing="8">
+                <RadioButton x:Name="forkRadioButton"
+                             GroupName="AddVariationType"
+                             Content="{resx:Localize AddForkDialog_radioButtonFork_Text}"
+                             IsChecked="{Binding IsFork, Mode=TwoWay}"/>
+                <RadioButton x:Name="loopRadioButton"
+                             GroupName="AddVariationType"
+                             Content="{resx:Localize AddForkDialog_radioButtonLoop_Text}"
+                             IsChecked="{Binding IsLoop, Mode=TwoWay}"/>
+            </StackPanel>
+
+            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto,Auto" ColumnSpacing="8" RowSpacing="8">
+                <TextBlock Grid.Row="0" Grid.Column="0"
+                           Text="{resx:Localize AddForkDialog_labelNumberBranches_Text}"
+                           VerticalAlignment="Center"
+                           IsVisible="{Binding IsFork}"/>
+                <TextBlock Grid.Row="0" Grid.Column="0"
+                           Text="{resx:Localize AddForkDialog_labelNumberLoops_Text}"
+                           VerticalAlignment="Center"
+                           IsVisible="{Binding IsLoop}"/>
+                <ComboBox Grid.Row="0" Grid.Column="1"
+                          ItemsSource="{Binding NumberBranchOptions}"
+                          SelectedItem="{Binding NumberOfBranches, Mode=TwoWay}"/>
+
+                <TextBlock Grid.Row="1" Grid.Column="0"
+                           Grid.ColumnSpan="2"
+                           Text="{Binding SummaryText}"
+                           TextWrapping="Wrap"
+                           Margin="0,4,0,0"/>
+            </Grid>
+        </StackPanel>
+    </DockPanel>
+</Window>
