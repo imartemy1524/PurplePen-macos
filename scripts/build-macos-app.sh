@@ -7,6 +7,9 @@ CONFIGURATION="${CONFIGURATION:-Release}"
 RUNTIME_IDENTIFIER="${RUNTIME_IDENTIFIER:-osx-arm64}"
 OUTPUT_DIR="${OUTPUT_DIR:-$ROOT_DIR/artifacts/AvPurplePen-${RUNTIME_IDENTIFIER}}"
 APP_DIR="${APP_DIR:-$ROOT_DIR/artifacts/PurplePen.app}"
+ICONSET_DIR="${ICONSET_DIR:-$ROOT_DIR/artifacts/PurplePen.iconset}"
+APP_ICON_FILE="${APP_ICON_FILE:-PurplePen.icns}"
+APP_ICON_SOURCE="${APP_ICON_SOURCE:-$ROOT_DIR/src/AvPurplePen/Assets/PurplePenIcon.png}"
 APP_NAME="${APP_NAME:-PurplePen}"
 EXECUTABLE_NAME="${EXECUTABLE_NAME:-AvPurplePen}"
 IDENTITY="${CODESIGN_IDENTITY:-${1:--}}"
@@ -32,7 +35,23 @@ echo "Restoring and publishing $APP_NAME for $RUNTIME_IDENTIFIER..."
 
 echo "Assembling .app bundle..."
 rm -rf "$APP_DIR"
+rm -rf "$ICONSET_DIR"
 mkdir -p "$APP_DIR/Contents/MacOS"
+mkdir -p "$APP_DIR/Contents/Resources"
+
+echo "Generating macOS app icon from $APP_ICON_SOURCE..."
+mkdir -p "$ICONSET_DIR"
+sips -z 16 16 "$APP_ICON_SOURCE" --out "$ICONSET_DIR/icon_16x16.png" >/dev/null
+sips -z 32 32 "$APP_ICON_SOURCE" --out "$ICONSET_DIR/icon_16x16@2x.png" >/dev/null
+sips -z 32 32 "$APP_ICON_SOURCE" --out "$ICONSET_DIR/icon_32x32.png" >/dev/null
+sips -z 64 64 "$APP_ICON_SOURCE" --out "$ICONSET_DIR/icon_32x32@2x.png" >/dev/null
+sips -z 128 128 "$APP_ICON_SOURCE" --out "$ICONSET_DIR/icon_128x128.png" >/dev/null
+sips -z 256 256 "$APP_ICON_SOURCE" --out "$ICONSET_DIR/icon_128x128@2x.png" >/dev/null
+sips -z 256 256 "$APP_ICON_SOURCE" --out "$ICONSET_DIR/icon_256x256.png" >/dev/null
+sips -z 512 512 "$APP_ICON_SOURCE" --out "$ICONSET_DIR/icon_256x256@2x.png" >/dev/null
+sips -z 512 512 "$APP_ICON_SOURCE" --out "$ICONSET_DIR/icon_512x512.png" >/dev/null
+sips -z 1024 1024 "$APP_ICON_SOURCE" --out "$ICONSET_DIR/icon_512x512@2x.png" >/dev/null
+iconutil -c icns "$ICONSET_DIR" -o "$APP_DIR/Contents/Resources/$APP_ICON_FILE"
 
 cat > "$APP_DIR/Contents/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -47,6 +66,8 @@ cat > "$APP_DIR/Contents/Info.plist" <<EOF
     <string>org.purplepen.AvPurplePen</string>
     <key>CFBundleExecutable</key>
     <string>$EXECUTABLE_NAME</string>
+    <key>CFBundleIconFile</key>
+    <string>${APP_ICON_FILE%.icns}</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>

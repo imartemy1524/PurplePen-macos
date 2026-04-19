@@ -1218,48 +1218,28 @@ namespace PurplePen.ViewModels
         /// Executes the Course/Course Variation Report command.
         /// </summary>
         [RelayCommand]
-        private void ShowCourseVariationReport()
+        private async Task ShowCourseVariationReport()
         {
             if (controller == null) { return; }
 
-#if !PORTING
-            RelaySettings relaySettings = controller.GetRelayParameters();
-            bool hideVariationsOnMap = controller.GetHideVariationsOnMap();
-            TeamVariationsForm reportForm = new TeamVariationsForm();
-            reportForm.FirstTeamNumber = relaySettings.firstTeamNumber;
-            reportForm.NumberOfTeams = relaySettings.relayTeams;
-            reportForm.NumberOfLegs = relaySettings.relayLegs;
-            reportForm.FixedBranchAssignments = relaySettings.relayBranchAssignments;
-            reportForm.HideVariationsOnMap = hideVariationsOnMap;
-            reportForm.DefaultExportFileName = controller.GetDefaultVariationExportFileName();
-
-            SetVariationReportBody(reportForm);
-
-            reportForm.CalculateVariationsPressed += (reportSender, reportEventArgs) => {
-                SetVariationReportBody(reportForm);
-            };
-
-            reportForm.AssignLegsPressed += (reportSender, reportEventArgs) => {
-                ShowAssignLegs(reportForm);
-            };
-
-            reportForm.ExportFilePressed += (reportSender, reportEventArgs) => {
-                ExportVariationReport(reportForm, reportEventArgs.FileType, reportEventArgs.FileName);
-            };
-
-            reportForm.ShowDialog(this);
-
-            if (relaySettings.firstTeamNumber != reportForm.FirstTeamNumber ||
-                relaySettings.relayTeams != reportForm.NumberOfTeams ||
-                relaySettings.relayLegs != reportForm.NumberOfLegs ||
-                hideVariationsOnMap != reportForm.HideVariationsOnMap ||
-                !object.Equals(relaySettings.relayBranchAssignments, reportForm.FixedBranchAssignments))
-            {
-                controller.SetRelayParameters(reportForm.RelaySettings, reportForm.HideVariationsOnMap);
+            RelaySettings? relaySettings = controller.GetRelayParameters();
+            if (relaySettings == null) {
+                return;
             }
 
-            reportForm.Dispose();
-#endif
+            bool hideVariationsOnMap = controller.GetHideVariationsOnMap();
+            TeamVariationsDialogViewModel vm = new TeamVariationsDialogViewModel();
+            vm.Initialize(controller, relaySettings, hideVariationsOnMap, controller.GetDefaultVariationExportFileName());
+
+            bool result = await Services.DialogService.ShowDialogAsync(vm);
+            if (result && (relaySettings.firstTeamNumber != vm.FirstTeamNumber ||
+                relaySettings.relayTeams != vm.NumberOfTeams ||
+                relaySettings.relayLegs != vm.NumberOfLegs ||
+                hideVariationsOnMap != vm.HideVariationsOnMap ||
+                !object.Equals(relaySettings.relayBranchAssignments, vm.FixedBranchAssignments)))
+            {
+                controller.SetRelayParameters(vm.RelaySettings, vm.HideVariationsOnMap);
+            }
         }
 
         /// <summary>
@@ -1684,36 +1664,25 @@ namespace PurplePen.ViewModels
         /// Executes the File/Create Description PDF command.
         /// </summary>
         [RelayCommand]
-        private void CreateDescriptionPdf()
+        private async Task CreateDescriptionPdf()
         {
-#if !PORTING
-            // Initialize dialog
-            PrintDescriptions printDescDialog = new PrintDescriptions(controller.GetEventDB(), true);
-            printDescDialog.controller = controller;
-            printDescDialog.PrintSettings = descPrintSettings;
-            printDescDialog.PrinterPageSettings = descPrintPageSettings;
+            if (controller == null) { return; }
 
-            // show the dialog, on success, print.
-            if (printDescDialog.ShowDialog(this) == DialogResult.OK) {
-                // Figure out filename
-                SaveFileDialog savePdfDialog = new SaveFileDialog();
-                savePdfDialog.Filter = MiscText.PdfFilter;
-                savePdfDialog.FilterIndex = 1;
-                savePdfDialog.DefaultExt = "pdf";
-                savePdfDialog.OverwritePrompt = true;
-                savePdfDialog.InitialDirectory = Path.GetDirectoryName(controller.FileName);
+            DescriptionPrintSettings settings = new DescriptionPrintSettings {
+                CourseIds = QueryEvent.SortedCourseIds(controller.GetEventDB(), true),
+                AllCourses = true
+            };
 
-                if (savePdfDialog.ShowDialog(this) == DialogResult.OK) {
-                    // Save the settings for the next invocation of the dialog.
-                    descPrintSettings = printDescDialog.PrintSettings;
-                    descPrintPageSettings = printDescDialog.PrinterPageSettings;
-                    controller.CreateDescriptionsPdf(descPrintSettings, WindowsUtil.PrintingPaperSizeWithMarginsFromPageSettings(descPrintPageSettings), savePdfDialog.FileName);
-                }
+            FileSaveViewModel savePdfDialog = new FileSaveViewModel {
+                FileFilters = MiscText.PdfFilter,
+                DefaultExtension = "pdf",
+                InitialDirectory = Path.GetDirectoryName(controller.FileName),
+                SuggestedFileName = Path.GetFileNameWithoutExtension(controller.FileName) + "-descriptions.pdf"
+            };
+
+            if (await Services.DialogService.ShowDialogAsync(savePdfDialog) && savePdfDialog.SelectedFile != null) {
+                controller.CreateDescriptionsPdf(settings, GetDefaultPrintingPaperSizeWithMargins(), savePdfDialog.SelectedFile);
             }
-
-            // And the dialog is done.
-            printDescDialog.Dispose();
-#endif
         }
 
         /// <summary>
@@ -1722,62 +1691,35 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private void PrintPunchCards()
         {
-#if !PORTING
-            PrintPunches printPunchesDialog = new PrintPunches(controller.GetEventDB(), false);
-            printPunchesDialog.controller = controller;
-            printPunchesDialog.PrintSettings = punchPrintSettings;
-            printPunchesDialog.PrinterPageSettings = punchPrintPageSettings;
-            printPunchesDialog.PrintSettings.Count = 1;
-
-            // show the dialog, on success, print.
-            if (printPunchesDialog.ShowDialog(this) == DialogResult.OK) {
-                // Save the settings for the next invocation of the dialog.
-                punchPrintSettings = printPunchesDialog.PrintSettings;
-                punchPrintPageSettings = printPunchesDialog.PrinterPageSettings;
-                controller.PrintPunches(WindowsUtil.GetWinFormsPrintTarget(punchPrintPageSettings, this, false),
-                                        punchPrintSettings,
-                                        WindowsUtil.PrintingPaperSizeWithMarginsFromPageSettings(punchPrintPageSettings));
-            }
-
-            // And the dialog is done.
-            printPunchesDialog.Dispose();
-#endif
+            if (controller == null) { return; }
+            // The macOS port does not yet include the interactive punch-card print dialog.
+            // Leave this command inert instead of silently exporting a PDF.
         }
 
         /// <summary>
         /// Executes the File/Create Punchcard PDF command.
         /// </summary>
         [RelayCommand]
-        private void CreatePunchcardPdf()
+        private async Task CreatePunchcardPdf()
         {
-#if !PORTING
-            PrintPunches printPunchesDialog = new PrintPunches(controller.GetEventDB(), true);
-            printPunchesDialog.controller = controller;
-            printPunchesDialog.PrintSettings = punchPrintSettings;
-            printPunchesDialog.PrinterPageSettings = punchPrintPageSettings;
-            printPunchesDialog.PrintSettings.Count = 1;
+            if (controller == null) { return; }
 
-            // show the dialog, on success, print.
-            if (printPunchesDialog.ShowDialog(this) == DialogResult.OK) {
-                // Figure out filename
-                SaveFileDialog savePdfDialog = new SaveFileDialog();
-                savePdfDialog.Filter = MiscText.PdfFilter;
-                savePdfDialog.FilterIndex = 1;
-                savePdfDialog.DefaultExt = "pdf";
-                savePdfDialog.OverwritePrompt = true;
-                savePdfDialog.InitialDirectory = Path.GetDirectoryName(controller.FileName);
+            CorePunchPrintSettings settings = new CorePunchPrintSettings {
+                CourseIds = QueryEvent.SortedCourseIds(controller.GetEventDB(), true),
+                AllCourses = true,
+                Count = 1
+            };
 
-                if (savePdfDialog.ShowDialog(this) == DialogResult.OK) {
-                    // Save the settings for the next invocation of the dialog.
-                    punchPrintSettings = printPunchesDialog.PrintSettings;
-                    punchPrintPageSettings = printPunchesDialog.PrinterPageSettings;
-                    controller.CreatePunchesPdf(punchPrintSettings, WindowsUtil.PrintingPaperSizeWithMarginsFromPageSettings(punchPrintPageSettings), savePdfDialog.FileName);
-                }
+            FileSaveViewModel savePdfDialog = new FileSaveViewModel {
+                FileFilters = MiscText.PdfFilter,
+                DefaultExtension = "pdf",
+                InitialDirectory = Path.GetDirectoryName(controller.FileName),
+                SuggestedFileName = Path.GetFileNameWithoutExtension(controller.FileName) + "-punchcards.pdf"
+            };
+
+            if (await Services.DialogService.ShowDialogAsync(savePdfDialog) && savePdfDialog.SelectedFile != null) {
+                controller.CreatePunchesPdf(settings, GetDefaultPrintingPaperSizeWithMargins(), savePdfDialog.SelectedFile);
             }
-
-            // And the dialog is done.
-            printPunchesDialog.Dispose();
-#endif
         }
 
         /// <summary>
@@ -1824,60 +1766,71 @@ namespace PurplePen.ViewModels
         /// Executes the File/Create Course PDF command.
         /// </summary>
         [RelayCommand]
-        private void CreateCoursePdf()
+        private async Task CreateCoursePdf()
         {
-#if !PORTING
-            if (! CheckForNonRenderableObjects(false, true))
-                return;
+            if (controller == null) { return; }
 
-            bool isPdfMap = controller.MapType == MapType.PDF;
+            string[] nonRenderableObjects = controller.NonrenderableObjects(false);
+            if (nonRenderableObjects != null && nonRenderableObjects.Length > 0) {
+                bool continueResult = await YesNoQuestion(
+                    "The following objects cannot be rendered in a PDF and will be omitted:\n\n" +
+                    string.Join("\n", nonRenderableObjects) + "\n\nContinue?",
+                    false);
+                if (!continueResult) {
+                    return;
+                }
+            }
 
-            CoursePdfSettings settings;
-            if (coursePdfSettings != null)
-                settings = coursePdfSettings.Clone();
-            else {
-                // Default settings: creating in file directory
-                settings = new CoursePdfSettings();
-
+            CoursePdfSettings settings = coursePdfSettingsPrevious != null ? coursePdfSettingsPrevious.Clone() : new CoursePdfSettings();
+            if (coursePdfSettingsPrevious == null) {
                 settings.fileDirectory = true;
                 settings.mapDirectory = false;
-                settings.outputDirectory = Path.GetDirectoryName(controller.FileName);
+                settings.outputDirectory = Path.GetDirectoryName(controller.FileName) ?? "";
             }
-
-            if (isPdfMap) {
-                // If the map file is a PDF, then created PDF must use that paper size, zero margins, and crop courses to that size.
+            settings.AllCourses = true;
+            settings.CourseIds = QueryEvent.SortedCourseIds(controller.GetEventDB(), true);
+            if (controller.MapType == MapType.PDF) {
                 settings.CropLargePrintArea = true;
-                RectangleF bounds = controller.MapDisplay.MapBounds;
             }
 
-            // Initialize dialog
-            CreatePdfCourses createPdfDialog = new CreatePdfCourses(controller.GetEventDB(), controller.AnyMultipart());
-            createPdfDialog.controller = controller;
-            createPdfDialog.PdfSettings = settings;
-            if (isPdfMap) {
-                createPdfDialog.EnableChangeCropping = false;
+            CreatePdfCoursesViewModel viewModel = new CreatePdfCoursesViewModel();
+            viewModel.Initialize(controller.GetEventDB(), controller.AnyMultipart(), settings);
+            if (controller.MapType == MapType.PDF) {
+                viewModel.CanChangeCropping = false;
+                viewModel.MultiPageIndex = 0;
             }
 
-            // show the dialog, on success, print.
-            while (createPdfDialog.ShowDialog(this) == DialogResult.OK) {
-                List<string> overwritingFiles = controller.OverwritingPdfFiles(createPdfDialog.PdfSettings);
-                if (overwritingFiles.Count > 0) {
-                    OverwritingOcadFilesDialog overwriteDialog = new OverwritingOcadFilesDialog();
-                    overwriteDialog.Filenames = overwritingFiles;
-                    if (overwriteDialog.ShowDialog(this) == DialogResult.Cancel)
-                        continue;
+            bool result = await Services.DialogService.ShowDialogAsync(viewModel);
+            if (!result) {
+                return;
+            }
+
+            settings = viewModel.BuildSettings();
+            List<string> overwritingFiles = controller.OverwritingPdfFiles(settings);
+            if (overwritingFiles.Count > 0) {
+                bool continueResult = await YesNoQuestion(
+                    "The following files already exist and will be overwritten:\n\n" + string.Join("\n", overwritingFiles) + "\n\nContinue?",
+                    false);
+                if (!continueResult) {
+                    return;
                 }
-
-                // Save the settings for the next invocation of the dialog.
-                coursePdfSettings = createPdfDialog.PdfSettings;
-                controller.CreateCoursePdfs(coursePdfSettings);
-
-                break;
             }
 
-            // And the dialog is done.
-            createPdfDialog.Dispose();
-#endif
+            coursePdfSettingsPrevious = settings;
+            controller.CreateCoursePdfs(settings);
+        }
+
+        /// <summary>
+        /// Gets the default page size and margins for PDF creation based on the current culture.
+        /// </summary>
+        private PrintingPaperSizeWithMargins GetDefaultPrintingPaperSizeWithMargins()
+        {
+            bool metric = Util.IsCurrentCultureMetric();
+            PrintingPaperSize paperSize = PrintingStandards.StandardPaperSizes[
+                metric ? PrintingStandards.DefaultMetricPaperSizeindex : PrintingStandards.DefaultEnglighPaperSizeIndex];
+            PrintingMarginSize marginSize = new PrintingMarginSize(
+                metric ? PrintingStandards.DefaultMetricMarginInHundreths : PrintingStandards.DefaultEnglishMarginInHundreths);
+            return new PrintingPaperSizeWithMargins(paperSize, marginSize);
         }
 
         /// <summary>

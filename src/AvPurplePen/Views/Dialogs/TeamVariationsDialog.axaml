@@ -1,0 +1,208 @@
+<!--
+    TeamVariationsDialog.axaml
+
+    Relay team variations report dialog.
+    Migrated from WinForms PurplePen/TeamVariationsForm.cs.
+-->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:PurplePen.ViewModels"
+        xmlns:resx="using:AvPurplePen"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        x:Class="AvPurplePen.Views.TeamVariationsDialog"
+        Classes="dialog"
+        x:DataType="vm:TeamVariationsDialogViewModel"
+        Title="{resx:Localize TeamVariationsForm_Text}"
+        Icon="/Assets/transparent.ico"
+        Width="820"
+        Height="640"
+        CanResize="True"
+        CanMinimize="False"
+        CanMaximize="False"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+    <Design.DataContext>
+        <vm:TeamVariationsDialogViewModel/>
+    </Design.DataContext>
+
+    <DockPanel Margin="12">
+        <StackPanel DockPanel.Dock="Bottom"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Spacing="8"
+                    Margin="0,20,0,0">
+            <Button x:Name="buttonExport"
+                    Content="{resx:Localize TeamVariationsForm_buttonExport_Text}"
+                    Width="92"
+                    HorizontalContentAlignment="Center"
+                    Command="{Binding ExportCommand}"/>
+            <Button x:Name="buttonPrint"
+                    Content="{resx:Localize TeamVariationsForm_buttonPrint_Text}"
+                    Width="82"
+                    HorizontalContentAlignment="Center"
+                    Command="{Binding PrintCommand}"/>
+            <Button x:Name="buttonPrintPreview"
+                    Content="{resx:Localize TeamVariationsForm_buttonPrintPreview_Text}"
+                    Width="114"
+                    HorizontalContentAlignment="Center"
+                    Command="{Binding PrintPreviewCommand}"/>
+            <Button x:Name="buttonClose"
+                    Content="{resx:Localize TeamVariationsForm_buttonClose_Text}"
+                    Width="85"
+                    HorizontalContentAlignment="Center"
+                    IsDefault="True"
+                    Click="ButtonClose_Click"/>
+        </StackPanel>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Auto">
+            <StackPanel Spacing="12">
+                <Grid ColumnDefinitions="Auto,120,Auto,120,Auto,*"
+                      RowDefinitions="Auto,Auto,Auto">
+                    <TextBlock Grid.Row="0" Grid.Column="0"
+                               Text="{resx:Localize TeamVariationsForm_label1_Text}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,8,6"/>
+                    <NumericUpDown Grid.Row="0" Grid.Column="1"
+                                   Value="{Binding NumberOfTeams}"
+                                   Minimum="0"
+                                   Maximum="9999"
+                                   FormatString="0"
+                                   HorizontalAlignment="Stretch"
+                                   Margin="0,0,12,6"/>
+                    <TextBlock Grid.Row="0" Grid.Column="2"
+                               Text="{resx:Localize TeamVariationsForm_label2_Text}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,8,6"/>
+                    <NumericUpDown Grid.Row="0" Grid.Column="3"
+                                   Value="{Binding NumberOfLegs}"
+                                   Minimum="1"
+                                   Maximum="20"
+                                   FormatString="0"
+                                   HorizontalAlignment="Stretch"
+                                   Margin="0,0,12,6"/>
+                    <Button Grid.Row="0" Grid.Column="4"
+                            Content="{resx:Localize TeamVariationsForm_buttonCalculate_Text}"
+                            Width="95"
+                            HorizontalContentAlignment="Center"
+                            Command="{Binding CalculateCommand}"
+                            Margin="0,0,0,6"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0"
+                               Text="{resx:Localize TeamVariationsForm_label3_Text}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,8,6"/>
+                    <NumericUpDown Grid.Row="1" Grid.Column="1"
+                                   Value="{Binding FirstTeamNumber}"
+                                   Minimum="1"
+                                   Maximum="99999"
+                                   FormatString="0"
+                                   HorizontalAlignment="Stretch"
+                                   Margin="0,0,12,6"/>
+                    <Button Grid.Row="1" Grid.Column="4"
+                            Grid.ColumnSpan="2"
+                            Content="{resx:Localize TeamVariationsForm_fixedLegsLink_Text}"
+                            HorizontalAlignment="Left"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Command="{Binding AssignLegsCommand}"
+                            Margin="0,0,0,6"/>
+
+                    <CheckBox Grid.Row="2" Grid.Column="0"
+                              Grid.ColumnSpan="6"
+                              Content="{resx:Localize TeamVariationsForm_checkBoxHideVariationsFromMap_Text}"
+                              IsChecked="{Binding HideVariationsOnMap}"/>
+                </Grid>
+
+                <Border BorderBrush="{DynamicResource DarkGreyBorder}"
+                        BorderThickness="1"
+                        Padding="10">
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="{Binding ReportTitle}"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   TextWrapping="Wrap"/>
+
+                        <TextBlock Text="{Binding ReportStatusText}"
+                                   TextWrapping="Wrap"/>
+
+                        <ItemsControl ItemsSource="{Binding BranchWarnings}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:RelayVariationWarningViewModel">
+                                    <TextBlock Text="{Binding Text}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,0,0,4"
+                                               Foreground="#8A4B00"/>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <Grid ColumnDefinitions="Auto,*">
+                            <TextBlock Text=""/>
+                            <ItemsControl Grid.Column="1"
+                                          ItemsSource="{Binding LegHeaders}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <StackPanel Orientation="Horizontal"/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="{DynamicResource DarkGreyBorder}"
+                                                BorderThickness="0,0,0,1"
+                                                Padding="0,0,10,6"
+                                                MinWidth="70">
+                                            <TextBlock Text="{Binding}"
+                                                       FontWeight="SemiBold"
+                                                       TextAlignment="Right"
+                                                       HorizontalAlignment="Stretch"/>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </Grid>
+
+                        <ItemsControl ItemsSource="{Binding Rows}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:RelayVariationRowViewModel">
+                                    <Grid ColumnDefinitions="Auto,*" Margin="0,0,0,4">
+                                        <Border BorderBrush="{DynamicResource DarkGreyBorder}"
+                                                BorderThickness="0,0,0,1"
+                                                Padding="0,0,10,4">
+                                            <TextBlock Text="{Binding TeamNumber, StringFormat={}{0}}"
+                                                       TextAlignment="Left"
+                                                       VerticalAlignment="Center"/>
+                                        </Border>
+                                        <ItemsControl Grid.Column="1"
+                                                      ItemsSource="{Binding LegCodes}">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Horizontal"/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border BorderBrush="{DynamicResource DarkGreyBorder}"
+                                                            BorderThickness="0,0,0,1"
+                                                            Padding="0,0,10,4"
+                                                            MinWidth="70">
+                                                        <TextBlock Text="{Binding}"
+                                                                   TextAlignment="Right"
+                                                                   VerticalAlignment="Center"/>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </Grid>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
+</Window>

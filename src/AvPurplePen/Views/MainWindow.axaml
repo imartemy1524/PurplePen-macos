@@ -38,13 +38,6 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <Window.KeyBindings>
-        <KeyBinding Gesture="Ctrl+O" Command="{Binding FileOpenPurplePenFileCommand}"/>
-        <KeyBinding Gesture="F4" Command="{Binding ToggleAllControlsCommand}"/>
-        <KeyBinding Gesture="{OnPlatform 'Delete', macOS='Meta+Back'}"
-                    Command="{Binding DeleteSelectionCommand}"/>
-    </Window.KeyBindings>
-
     <DockPanel LastChildFill="True">
 
         <!-- ==================== MAIN MENU ==================== -->
@@ -53,11 +46,17 @@
             <!-- === File Menu === -->
             <MenuItem x:Name="fileMenu" Header="{resx:Localize MainFrame_fileMenu_Text}">
                 <MenuItem x:Name="newEventMenu" Header="{resx:Localize MainFrame_newEventMenu_Text}" Command="{Binding NewEventCommand}"/>
-                <MenuItem x:Name="openMenu" Header="{resx:Localize MainFrame_openMenu_Text}" InputGesture="Ctrl+O" Command="{Binding FileOpenPurplePenFileCommand}">
+                <MenuItem x:Name="openMenu" Header="{resx:Localize MainFrame_openMenu_Text}"
+                          InputGesture="{OnPlatform 'Ctrl+O', macOS='Cmd+O'}"
+                          HotKey="{OnPlatform 'Ctrl+O', macOS='Meta+O'}"
+                          Command="{Binding FileOpenPurplePenFileCommand}">
                     <MenuItem.Icon><Image Source="/Assets/Toolbar/open.png" Width="16" Height="16"/></MenuItem.Icon>
                 </MenuItem>
                 <Separator/>
-                <MenuItem x:Name="saveMenu" Header="{resx:Localize MainFrame_saveMenu_Text}" InputGesture="Ctrl+S" Command="{Binding SaveCommand}">
+                <MenuItem x:Name="saveMenu" Header="{resx:Localize MainFrame_saveMenu_Text}"
+                          InputGesture="{OnPlatform 'Ctrl+S', macOS='Cmd+S'}"
+                          HotKey="{OnPlatform 'Ctrl+S', macOS='Meta+S'}"
+                          Command="{Binding SaveCommand}">
                     <MenuItem.Icon><Image Source="/Assets/Toolbar/save.png" Width="16" Height="16"/></MenuItem.Icon>
                 </MenuItem>
                 <MenuItem x:Name="saveAsMenu" Header="{resx:Localize MainFrame_saveAsMenu_Text}" Command="{Binding SaveAsCommand}"/>
@@ -76,7 +75,10 @@
                 <MenuItem x:Name="createGPXFileMenu" Header="{resx:Localize MainFrame_createGPXFileMenu_Text}" Command="{Binding CreateGpxCommand}"/>
                 <MenuItem x:Name="createKMLFileMenu" Header="{resx:Localize MainFrame_createKMLFileMenu_Text}" Command="{Binding CreateKmlFilesCommand}"/>
                 <Separator/>
-                <MenuItem x:Name="printDescriptionsMenu" Header="{resx:Localize MainFrame_printDescriptionsMenu_Text}" InputGesture="Ctrl+P" Command="{Binding PrintDescriptionsCommand}"/>
+                <MenuItem x:Name="printDescriptionsMenu" Header="{resx:Localize MainFrame_printDescriptionsMenu_Text}"
+                          InputGesture="{OnPlatform 'Ctrl+P', macOS='Cmd+P'}"
+                          HotKey="{OnPlatform 'Ctrl+P', macOS='Meta+P'}"
+                          Command="{Binding PrintDescriptionsCommand}"/>
                 <MenuItem x:Name="printPunchCardsMenu" Header="{resx:Localize MainFrame_printPunchCardsMenu_Text}" Command="{Binding PrintPunchCardsCommand}"/>
                 <MenuItem x:Name="printCoursesMenu" Header="{resx:Localize MainFrame_printCoursesMenu_Text}" Command="{Binding PrintCoursesCommand}"/>
                 <MenuItem x:Name="setPrintAreaMenu" Header="{resx:Localize MainFrame_setPrintAreaMenu_Text}">
@@ -95,15 +97,22 @@
             <MenuItem x:Name="editMenu" Header="{resx:Localize MainFrame_editMenu_Text}">
                 <MenuItem x:Name="cancelMenu" Header="{resx:Localize MainFrame_cancelMenu_Text}" Command="{Binding CancelCommand}"/>
                 <Separator/>
-                <MenuItem x:Name="undoMenu" Header="{resx:Localize MainFrame_undoMenu_Text}" InputGesture="Ctrl+Z" Command="{Binding UndoCommand}">
+                <MenuItem x:Name="undoMenu" Header="{resx:Localize MainFrame_undoMenu_Text}"
+                          InputGesture="{OnPlatform 'Ctrl+Z', macOS='Cmd+Z'}"
+                          HotKey="{OnPlatform 'Ctrl+Z', macOS='Meta+Z'}"
+                          Command="{Binding UndoCommand}">
                     <MenuItem.Icon><Image Source="/Assets/Toolbar/undo.png" Width="16" Height="16"/></MenuItem.Icon>
                 </MenuItem>
-                <MenuItem x:Name="redoMenu" Header="{resx:Localize MainFrame_redoMenu_Text}" InputGesture="Ctrl+Y" Command="{Binding RedoCommand}">
+                <MenuItem x:Name="redoMenu" Header="{resx:Localize MainFrame_redoMenu_Text}"
+                          InputGesture="{OnPlatform 'Ctrl+Y', macOS='Cmd+Shift+Z'}"
+                          HotKey="{OnPlatform 'Ctrl+Y', macOS='Meta+Shift+Z'}"
+                          Command="{Binding RedoCommand}">
                     <MenuItem.Icon><Image Source="/Assets/Toolbar/redo.png" Width="16" Height="16"/></MenuItem.Icon>
                 </MenuItem>
                 <Separator/>
                 <MenuItem x:Name="deleteMenu" Header="{resx:Localize MainFrame_deleteMenu_Text}"
-                          InputGesture="{OnPlatform 'Delete', macOS='Meta+Back'}"
+                          InputGesture="{OnPlatform 'Delete', macOS='Cmd+Back'}"
+                          HotKey="{OnPlatform 'Delete', macOS='Meta+Back'}"
                           Command="{Binding DeleteSelectionCommand}">
                     <MenuItem.Icon><Image Source="/Assets/Toolbar/delete.png" Width="16" Height="16"/></MenuItem.Icon>
                 </MenuItem>
@@ -111,8 +120,14 @@
 
             <!-- === View Menu === -->
             <MenuItem x:Name="viewMenu" Header="{resx:Localize MainFrame_viewMenu_Text}">
-                <MenuItem x:Name="entireCourseMenu" Header="{resx:Localize MainFrame_entireCourseMenu_Text}" InputGesture="F2" Command="{Binding ViewEntireCourseCommand}"/>
-                <MenuItem x:Name="entireMapMenu" Header="{resx:Localize MainFrame_entireMapMenu_Text}" InputGesture="F3" Command="{Binding ViewEntireMapCommand}"/>
+                <MenuItem x:Name="entireCourseMenu" Header="{resx:Localize MainFrame_entireCourseMenu_Text}"
+                          InputGesture="F2"
+                          HotKey="F2"
+                          Command="{Binding ViewEntireCourseCommand}"/>
+                <MenuItem x:Name="entireMapMenu" Header="{resx:Localize MainFrame_entireMapMenu_Text}"
+                          InputGesture="F3"
+                          HotKey="F3"
+                          Command="{Binding ViewEntireMapCommand}"/>
                 <MenuItem x:Name="zoomMenu" Header="{resx:Localize MainFrame_zoomMenu_Text}">
                     <MenuItem x:Name="zoom50Menu" Header="{resx:Localize MainFrame_zoom50Menu_Text}" Command="{Binding SetZoomCommand}"
                               CommandParameter="{Binding Source=0.5, Converter={x:Static avutil:StringToDoubleConverter.Instance}}"
@@ -171,11 +186,19 @@
 
                 <Separator/>
 
-                <MenuItem x:Name="allControlsMenu" Header="{resx:Localize MainFrame_allControlsMenu_Text}" InputGesture="F4" 
+                <MenuItem x:Name="allControlsMenu" Header="{resx:Localize MainFrame_allControlsMenu_Text}"
+                          InputGesture="F4"
+                          HotKey="F4" 
                           Command="{Binding ToggleAllControlsCommand}"
                           ToggleType="CheckBox" IsChecked="{Binding ViewAllControlsChecked}"/>
-                <MenuItem x:Name="otherCoursesMenu" Header="{resx:Localize MainFrame_otherCoursesMenu_Text}" InputGesture="F5" Command="{Binding ShowOtherCoursesCommand}"/>
-                <MenuItem x:Name="clearOtherCoursesMenu" Header="{resx:Localize MainFrame_clearOtherCoursesMenu_Text}" InputGesture="Shift+F5" Command="{Binding ClearOtherCoursesCommand}"/>
+                <MenuItem x:Name="otherCoursesMenu" Header="{resx:Localize MainFrame_otherCoursesMenu_Text}"
+                          InputGesture="F5"
+                          HotKey="F5"
+                          Command="{Binding ShowOtherCoursesCommand}"/>
+                <MenuItem x:Name="clearOtherCoursesMenu" Header="{resx:Localize MainFrame_clearOtherCoursesMenu_Text}"
+                          InputGesture="Shift+F5"
+                          HotKey="Shift+F5"
+                          Command="{Binding ClearOtherCoursesCommand}"/>
             </MenuItem>
 
             <!-- === Add Menu === -->
@@ -183,7 +206,10 @@
                 <MenuItem x:Name="addStartMenu" Header="{resx:Localize MainFrame_addStartMenu_Text}" Command="{Binding AddStartCommand}">
                     <MenuItem.Icon><Image Source="/Assets/Toolbar/addStart.png" Width="16" Height="16"/></MenuItem.Icon>
                 </MenuItem>
-                <MenuItem x:Name="addControlMenu" Header="{resx:Localize MainFrame_addControlMenu_Text}" InputGesture="Ctrl+A" Command="{Binding AddControlCommand}">
+                <MenuItem x:Name="addControlMenu" Header="{resx:Localize MainFrame_addControlMenu_Text}"
+                          InputGesture="{OnPlatform 'Ctrl+A', macOS='Cmd+A'}"
+                          HotKey="{OnPlatform 'Ctrl+A', macOS='Meta+A'}"
+                          Command="{Binding AddControlCommand}">
                     <MenuItem.Icon><Image Source="/Assets/Toolbar/addControl.png" Width="16" Height="16"/></MenuItem.Icon>
                 </MenuItem>
                 <MenuItem x:Name="addFinishMenu" Header="{resx:Localize MainFrame_addFinishMenu_Text}" Command="{Binding AddFinishCommand}">
@@ -302,7 +328,8 @@
             <!-- === Item Menu === -->
             <MenuItem x:Name="itemMenu" Header="{resx:Localize MainFrame_itemMenu_Text}">
                 <MenuItem x:Name="deleteItemMenu" Header="{resx:Localize MainFrame_deleteItemMenu_Text}"
-                          InputGesture="{OnPlatform 'Delete', macOS='Meta+Back'}"
+                          InputGesture="{OnPlatform 'Delete', macOS='Cmd+Back'}"
+                          HotKey="{OnPlatform 'Delete', macOS='Meta+Back'}"
                           Command="{Binding DeleteSelectionCommand}">
                     <MenuItem.Icon><Image Source="/Assets/Toolbar/delete.png" Width="16" Height="16"/></MenuItem.Icon>
                 </MenuItem>
@@ -310,20 +337,28 @@
                           Command="{Binding DeleteForkCommand}"/>
                 <Separator/>
                 <MenuItem x:Name="addBendMenu" Header="{resx:Localize MainFrame_addBendMenu_Text}" 
-                          InputGesture="Ctrl+B" Command="{Binding AddBendCommand}">
+                          InputGesture="{OnPlatform 'Ctrl+B', macOS='Cmd+B'}"
+                          HotKey="{OnPlatform 'Ctrl+B', macOS='Meta+B'}"
+                          Command="{Binding AddBendCommand}">
                     <MenuItem.Icon><Image Width="16" Height="16"
                        Source="{Binding IsEffectivelyEnabled,
                                 RelativeSource={RelativeSource Self},
                                 Converter={x:Static avutil:DisabledImageConverter.Instance},
                                 ConverterParameter=/Assets/Toolbar/addBend.png}"/></MenuItem.Icon>
                 </MenuItem>
-                <MenuItem x:Name="removeBendMenu" Header="{resx:Localize MainFrame_removeBendMenu_Text}" InputGesture="Ctrl+Shift+B"
+                <MenuItem x:Name="removeBendMenu" Header="{resx:Localize MainFrame_removeBendMenu_Text}"
+                          InputGesture="{OnPlatform 'Ctrl+Shift+B', macOS='Cmd+Shift+B'}"
+                          HotKey="{OnPlatform 'Ctrl+Shift+B', macOS='Meta+Shift+B'}"
                           Command="{Binding RemoveBendCommand}"/>
-                <MenuItem x:Name="addGapMenu" Header="{resx:Localize MainFrame_addGapMenu_Text}" InputGesture="Ctrl+G"
+                <MenuItem x:Name="addGapMenu" Header="{resx:Localize MainFrame_addGapMenu_Text}"
+                          InputGesture="{OnPlatform 'Ctrl+G', macOS='Cmd+G'}"
+                          HotKey="{OnPlatform 'Ctrl+G', macOS='Meta+G'}"
                           Command="{Binding AddGapCommand}">
                     <MenuItem.Icon><Image Source="/Assets/Toolbar/addGap.png" Width="16" Height="16"/></MenuItem.Icon>
                 </MenuItem>
-                <MenuItem x:Name="removeGapMenu" Header="{resx:Localize MainFrame_removeGapMenu_Text}" InputGesture="Ctrl+Shift+G"
+                <MenuItem x:Name="removeGapMenu" Header="{resx:Localize MainFrame_removeGapMenu_Text}"
+                          InputGesture="{OnPlatform 'Ctrl+Shift+G', macOS='Cmd+Shift+G'}"
+                          HotKey="{OnPlatform 'Ctrl+Shift+G', macOS='Meta+Shift+G'}"
                           Command="{Binding RemoveGapCommand}"/>
                 <Separator/>
                 <MenuItem x:Name="changeTextMenu" Header="{resx:Localize MainFrame_changeTextMenu_Text}"
@@ -365,7 +400,9 @@
 
             <!-- === Help Menu === -->
             <MenuItem x:Name="helpMenu" Header="{resx:Localize MainFrame_helpMenu_Text}">
-                <MenuItem x:Name="helpContentsMenu" Header="{resx:Localize MainFrame_helpContentsMenu_Text}" InputGesture="F1"
+                <MenuItem x:Name="helpContentsMenu" Header="{resx:Localize MainFrame_helpContentsMenu_Text}"
+                          InputGesture="F1"
+                          HotKey="F1"
                           Command="{Binding HelpContentsCommand}"/>
                 <MenuItem x:Name="helpTranslatedMenu" Header="{resx:Localize MainFrame_helpTranslatedMenu_Text}"
                           Command="{Binding HelpTranslatedCommand}"/>

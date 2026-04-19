@@ -33,6 +33,9 @@ namespace PurplePen.ViewModels
         SymbolDB symbolDB = null!;
         long changeNum = 0;         // When this changes, state information needs to be updated in the UI.
         bool updatingTabs = false;  // Guard to prevent re-entrant controller calls during UpdateTabs.
+#if PORTING
+        CoursePdfSettings? coursePdfSettingsPrevious = null;
+#endif
 
         [ObservableProperty]
         private MapDisplay? mapDisplay;
