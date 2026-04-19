@@ -24,7 +24,7 @@ public partial class MapViewer : UserControl
 
     // Has the map highlights that this map viewer should display.
     public static readonly StyledProperty<IMapViewerHighlight[]?> MapHighlightsProperty =
-            AvaloniaProperty.Register<MainWindow, IMapViewerHighlight[]?>(nameof(MapHighlights));
+            AvaloniaProperty.Register<MapViewer, IMapViewerHighlight[]?>(nameof(MapHighlights));
 
     // The location of the mouse in world coordinates, or null if the mouse is not currently in the viewport.
     public static readonly DirectProperty<MapViewer, PointF?> MouseLocationProperty = 
@@ -36,6 +36,17 @@ public partial class MapViewer : UserControl
         nameof(ZoomFactor),
         getter: o => o.ZoomFactor,
         setter: (o, value) => o.ZoomFactor = value);
+
+    public static readonly StyledProperty<float> MinZoomFactorProperty =
+            AvaloniaProperty.Register<MapViewer, float>(nameof(MinZoomFactor), 0.1F);
+
+    public static readonly StyledProperty<float> MaxZoomFactorProperty =
+            AvaloniaProperty.Register<MapViewer, float>(nameof(MaxZoomFactor), 100F);
+
+    public static readonly StyledProperty<ConstrainedScrollingMode> ConstrainedScrollingProperty =
+            AvaloniaProperty.Register<MapViewer, ConstrainedScrollingMode>(
+                nameof(ConstrainedScrolling),
+                ConstrainedScrollingMode.None);
 
     public static readonly RoutedEvent<FancyMouseEventArgs> FancyMouseActivityEvent =
         RoutedEvent.Register<MapViewer, FancyMouseEventArgs>(
@@ -96,6 +107,11 @@ public partial class MapViewer : UserControl
         remove => RemoveHandler(FancyMouseActivityEvent, value);
     }
 
+    public event EventHandler<ViewportChangedEventArgs> ViewportChanged {
+        add => panAndZoom.ViewportChanged += value;
+        remove => panAndZoom.ViewportChanged -= value;
+    }
+
     // Size of a pixel in world units.
     public float PixelSize {
         get {
@@ -109,6 +125,80 @@ public partial class MapViewer : UserControl
     public float ZoomFactor {
         get => panAndZoom.ZoomFactor;
         set => panAndZoom.ZoomFactor = value;
+    }
+
+    public float MinZoomFactor {
+        get => GetValue(MinZoomFactorProperty);
+        set => SetValue(MinZoomFactorProperty, value);
+    }
+
+    public float MaxZoomFactor {
+        get => GetValue(MaxZoomFactorProperty);
+        set => SetValue(MaxZoomFactorProperty, value);
+    }
+
+    public ConstrainedScrollingMode ConstrainedScrolling {
+        get => GetValue(ConstrainedScrollingProperty);
+        set => SetValue(ConstrainedScrollingProperty, value);
+    }
+
+    public PointF CenterPoint {
+        get => Conv.ToPointF(panAndZoom.CenterPoint);
+        set => panAndZoom.CenterPoint = Conv.ToAvPoint(ConstrainCenterPoint(value, Viewport.Size, GetScrollBounds()));
+    }
+
+    public RectangleF Viewport {
+        get => Conv.ToRectangleF(panAndZoom.Viewport);
+    }
+
+    public bool VScrollEnable {
+        get {
+            RectangleF scrollingRange = ScrollingRange;
+            return scrollingRange.Height > 0;
+        }
+    }
+
+    public int VScrollLargeChange {
+        get {
+            RectangleF scrollingRange = ScrollingRange;
+            if (scrollingRange.Height <= 0) {
+                return 100;
+            }
+
+            int value = (int)Math.Round(100F * Viewport.Height / (scrollingRange.Height + Viewport.Height));
+            return Math.Max(0, Math.Min(value, 100));
+        }
+    }
+
+    public int VScrollSmallChange {
+        get {
+            RectangleF scrollingRange = ScrollingRange;
+            if (scrollingRange.Height <= 0) {
+                return 0;
+            }
+
+            int value = (int)Math.Round(100F * (40F / ScaleFactor) / (scrollingRange.Height + Viewport.Height));
+            return Math.Max(0, Math.Min(value, 100));
+        }
+    }
+
+    public int VScrollValue {
+        get {
+            RectangleF scrollingRange = ScrollingRange;
+            if (scrollingRange.Height <= 0) {
+                return 0;
+            }
+
+            int value = (int)Math.Round((100F - (VScrollLargeChange - 1)) * ((scrollingRange.Bottom - CenterPoint.Y) / scrollingRange.Height));
+            return Math.Max(0, Math.Min(value, 100));
+        }
+        set {
+            RectangleF scrollingRange = ScrollingRange;
+            if (VScrollLargeChange < 100) {
+                float newY = scrollingRange.Bottom - (((float)value / (100F - (VScrollLargeChange - 1))) * scrollingRange.Height);
+                ScrollView(0, (int)Math.Round((newY - CenterPoint.Y) * ScaleFactor));
+            }
+        }
     }
 
     PointF? _mouseLocation;  // Backing field for MouseLocation property. Only change via property setting to ensure change notifications.
@@ -162,6 +252,12 @@ public partial class MapViewer : UserControl
         else if (change.Property == MapHighlightsProperty) {
             IMapViewerHighlight[]? newMapHighlights = change.GetNewValue<IMapViewerHighlight[]?>();
             HighlightsChanged(newMapHighlights);
+        }
+        else if (change.Property == MinZoomFactorProperty) {
+            panAndZoom.MinZoomFactor = change.GetNewValue<float>();
+        }
+        else if (change.Property == MaxZoomFactorProperty) {
+            panAndZoom.MaxZoomFactor = change.GetNewValue<float>();
         }
     }
 
@@ -423,6 +519,170 @@ public partial class MapViewer : UserControl
     }
 
     #endregion
+
+    public float ZoomFactorForWorldWidth(int pixelWidth, float worldWidth)
+    {
+        if (pixelWidth <= 0 || worldWidth <= 0) {
+            return ZoomFactor;
+        }
+
+        return (pixelWidth / worldWidth) / PixelPerMm;
+    }
+
+    public void Recenter()
+    {
+        CenterPoint = ConstrainCenterPoint(CenterPoint, Viewport.Size, GetScrollBounds());
+    }
+
+    public void ScrollView(int dxPixels, int dyPixels)
+    {
+        Point centerPixels = panAndZoom.WorldToPixel(Conv.ToAvPoint(CenterPoint));
+        Point newCenterPixel = new Point(centerPixels.X - dxPixels, centerPixels.Y - dyPixels);
+        PointF newCenter = Conv.ToPointF(panAndZoom.PixelToWorld(newCenterPixel));
+
+        CenterPoint = newCenter;
+    }
+
+    public void ScrollRectangleIntoView(RectangleF rect)
+    {
+        float dx = 0;
+        float dy = 0;
+        RectangleF viewport = Viewport;
+
+        if (rect.Left < viewport.Left && rect.Right <= viewport.Right) {
+            dx = Math.Min(viewport.Left - rect.Left, viewport.Right - rect.Right);
+        }
+        else if (rect.Right > viewport.Right && rect.Left >= viewport.Left) {
+            dx = -Math.Min(rect.Right - viewport.Right, rect.Left - viewport.Left);
+        }
+
+        if (rect.Top < viewport.Top && rect.Bottom <= viewport.Bottom) {
+            dy = -Math.Min(viewport.Top - rect.Top, viewport.Bottom - rect.Bottom);
+        }
+        else if (rect.Bottom > viewport.Bottom && rect.Top >= viewport.Top) {
+            dy = Math.Min(rect.Bottom - viewport.Bottom, rect.Top - viewport.Top);
+        }
+
+        if (dx == 0 && dy == 0) {
+            return;
+        }
+
+        int dxPixels = (int)Math.Ceiling(panAndZoom.WorldToPixelDistance(dx));
+        int dyPixels = (int)Math.Ceiling(panAndZoom.WorldToPixelDistance(dy));
+        ScrollView(dxPixels, dyPixels);
+    }
+
+    public enum ConstrainedScrollingMode
+    {
+        None,
+        KeepSome,
+        PinCenter,
+        PinTop,
+    }
+
+    private const float PixelPerMm = 96 / 25.4F;
+
+    private float ScaleFactor {
+        get { return PixelPerMm * ZoomFactor; }
+    }
+
+    private RectangleF ScrollingRange {
+        get {
+            float left;
+            float right;
+            float top;
+            float bottom;
+            SizeF viewportSize = Viewport.Size;
+            RectangleF scrollBounds = GetScrollBounds();
+
+            if (scrollBounds.Width < viewportSize.Width) {
+                left = right = (scrollBounds.Left + scrollBounds.Right) / 2.0F;
+            }
+            else {
+                left = scrollBounds.Left + viewportSize.Width / 2.0F;
+                right = scrollBounds.Right - viewportSize.Width / 2.0F;
+            }
+
+            if (scrollBounds.Height < viewportSize.Height) {
+                top = bottom = (scrollBounds.Top + scrollBounds.Bottom) / 2.0F;
+            }
+            else {
+                top = scrollBounds.Top + viewportSize.Height / 2.0F;
+                bottom = scrollBounds.Bottom - viewportSize.Height / 2.0F;
+            }
+
+            return RectangleF.FromLTRB(left, top, right, bottom);
+        }
+    }
+
+    private RectangleF GetScrollBounds()
+    {
+        if (MapDisplay == null) {
+            return new RectangleF();
+        }
+
+        RectangleF bounds = MapDisplay.Bounds;
+        bounds.Inflate(1 / ScaleFactor, 1 / ScaleFactor);
+        return bounds;
+    }
+
+    private PointF ConstrainCenterPoint(PointF potentialCenter, SizeF viewportSize, RectangleF scrollBounds)
+    {
+        PointF newCenter = potentialCenter;
+
+        if (ConstrainedScrolling == ConstrainedScrollingMode.None || scrollBounds.IsEmpty || viewportSize.IsEmpty) {
+            return potentialCenter;
+        }
+
+        if (scrollBounds.Width < viewportSize.Width) {
+            if (ConstrainedScrolling == ConstrainedScrollingMode.PinCenter || ConstrainedScrolling == ConstrainedScrollingMode.PinTop) {
+                newCenter.X = (scrollBounds.Left + scrollBounds.Right) / 2.0F;
+            }
+            else if (ConstrainedScrolling == ConstrainedScrollingMode.KeepSome) {
+                newCenter.X = Math.Min(newCenter.X, scrollBounds.Right + viewportSize.Width / 2.0F - viewportSize.Width / 10.0F);
+                newCenter.X = Math.Max(newCenter.X, scrollBounds.Left - viewportSize.Width / 2.0F + viewportSize.Width / 10.0F);
+            }
+            else {
+                newCenter.X = Math.Min(newCenter.X, scrollBounds.Left + viewportSize.Width / 2.0F);
+                newCenter.X = Math.Max(newCenter.X, scrollBounds.Right - viewportSize.Width / 2.0F);
+            }
+        }
+        else if (ConstrainedScrolling == ConstrainedScrollingMode.KeepSome) {
+            newCenter.X = Math.Min(newCenter.X, scrollBounds.Right + viewportSize.Width / 2.0F - viewportSize.Width / 10.0F);
+            newCenter.X = Math.Max(newCenter.X, scrollBounds.Left - viewportSize.Width / 2.0F + viewportSize.Width / 10.0F);
+        }
+        else {
+            newCenter.X = Math.Max(newCenter.X, scrollBounds.Left + viewportSize.Width / 2.0F);
+            newCenter.X = Math.Min(newCenter.X, scrollBounds.Right - viewportSize.Width / 2.0F);
+        }
+
+        if (scrollBounds.Height < viewportSize.Height) {
+            if (ConstrainedScrolling == ConstrainedScrollingMode.PinCenter) {
+                newCenter.Y = (scrollBounds.Top + scrollBounds.Bottom) / 2.0F;
+            }
+            else if (ConstrainedScrolling == ConstrainedScrollingMode.PinTop) {
+                newCenter.Y = scrollBounds.Bottom - viewportSize.Height / 2.0F;
+            }
+            else if (ConstrainedScrolling == ConstrainedScrollingMode.KeepSome) {
+                newCenter.Y = Math.Min(newCenter.Y, scrollBounds.Bottom + viewportSize.Height / 2.0F - viewportSize.Height / 10.0F);
+                newCenter.Y = Math.Max(newCenter.Y, scrollBounds.Top - viewportSize.Height / 2.0F + viewportSize.Height / 10.0F);
+            }
+            else {
+                newCenter.Y = Math.Min(newCenter.Y, scrollBounds.Top + viewportSize.Height / 2.0F);
+                newCenter.Y = Math.Max(newCenter.Y, scrollBounds.Bottom - viewportSize.Height / 2.0F);
+            }
+        }
+        else if (ConstrainedScrolling == ConstrainedScrollingMode.KeepSome) {
+            newCenter.Y = Math.Min(newCenter.Y, scrollBounds.Bottom + viewportSize.Height / 2.0F - viewportSize.Height / 10.0F);
+            newCenter.Y = Math.Max(newCenter.Y, scrollBounds.Top - viewportSize.Height / 2.0F + viewportSize.Height / 10.0F);
+        }
+        else {
+            newCenter.Y = Math.Max(newCenter.Y, scrollBounds.Top + viewportSize.Height / 2.0F);
+            newCenter.Y = Math.Min(newCenter.Y, scrollBounds.Bottom - viewportSize.Height / 2.0F);
+        }
+
+        return newCenter;
+    }
 
     // Types of mouse actions.
     public enum FancyMouseAction

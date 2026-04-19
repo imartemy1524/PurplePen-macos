@@ -120,6 +120,22 @@ namespace AvUtil
             }
         }
 
+        public float MinZoomFactor {
+            get { return minZoom; }
+            set {
+                minZoom = value;
+                ZoomFactor = zoom;
+            }
+        }
+
+        public float MaxZoomFactor {
+            get { return maxZoom; }
+            set {
+                maxZoom = value;
+                ZoomFactor = zoom;
+            }
+        }
+
         public event EventHandler<BasicMouseEventArgs> BasicMouseActivity {
             add => AddHandler(BasicMouseActivityEvent, value);
             remove => RemoveHandler(BasicMouseActivityEvent, value);
@@ -412,6 +428,7 @@ namespace AvUtil
             this.InvalidateVisual();
 
             ViewportChangedEventArgs eventArgs = new ViewportChangedEventArgs(ViewportChangedEvent, this, Viewport, ZoomFactor, PixelSize);
+            RaiseEvent(eventArgs);
         }
 
         // Always be hittable, even if we don't draw anything. This is needed to get

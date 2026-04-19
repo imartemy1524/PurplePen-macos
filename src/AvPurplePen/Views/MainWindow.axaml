@@ -28,6 +28,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="958" d:DesignHeight="600"
         x:Class="AvPurplePen.Views.MainWindow"
+        x:Name="mainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/PurplePenIcon.png"
         Title="{resx:Localize MainFrame_Text}"
@@ -738,7 +739,8 @@
 
         <!-- ==================== COURSE TABS ==================== -->
         <!-- TabStrip for course selection. Tabs are bound to ViewModel tab names. -->
-        <TabStrip x:Name="courseTabs" DockPanel.Dock="Top" 
+        <TabStrip x:Name="courseTabs" DockPanel.Dock="Top"
+                  TabIndex="0"
                   Theme="{DynamicResource CardTabStrip}"
                   ItemsSource="{Binding TabNames}"
                   SelectedIndex="{Binding SelectedTabIndex}"
@@ -805,6 +807,8 @@
                         -->
                         <views:DescriptionViewer 
                             x:Name="descriptionViewer"
+                            TabIndex="1"
+                            Focusable="True"
                             DataContext="{Binding DescriptionViewerViewModel}"
                         />
 
@@ -812,24 +816,23 @@
                         <Grid x:Name="panelTopology" IsVisible="False"
                               ColumnDefinitions="*,Auto">
 
-                            <!-- PLACEHOLDER: mapViewerTopology
-                                 WinForms type: PurplePen.MapView.MapViewer
-                                 Displays the topology/ordering view of the course.
-                                 Configured with: ConstrainedScrolling=PinTop, MaxZoom=1,
-                                 MouseWheel=Scroll, MiddleButtonAutoDrag=false.
-                                 TODO: Implement as a custom Avalonia control sharing
-                                 the MapViewer rendering infrastructure. -->
-                            <Border x:Name="mapViewerTopology" Grid.Column="0"
-                                    Background="White" BorderBrush="LightGray" BorderThickness="1">
-                                <TextBlock Text="[mapViewerTopology placeholder]"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"
-                                           Foreground="Gray" FontStyle="Italic"/>
-                            </Border>
+                            <resx:MapViewer x:Name="mapViewerTopology"
+                                            Grid.Column="0"
+                                            Focusable="True"
+                                            MapDisplay="{Binding TopologyMapDisplay}"
+                                            MapHighlights="{Binding TopologyMapHighlights}"
+                                            MinZoomFactor="0.4"
+                                            MaxZoomFactor="1"
+                                            ConstrainedScrolling="PinTop"
+                                            FancyMouseActivity="TopologyMapViewer_MouseActivity"
+                                            ViewportChanged="TopologyMapViewer_ViewportChanged"
+                                            SizeChanged="TopologyMapViewer_SizeChanged"/>
 
                             <!-- Vertical scroll bar for topology view -->
                             <ScrollBar x:Name="topologyScrollBar" Grid.Column="1"
                                        Orientation="Vertical"
                                        AllowAutoHide="False"
+                                       ValueChanged="TopologyScrollBar_ValueChanged"
                                        Minimum="0" Maximum="100" ViewportSize="20"/>
                         </Grid>
                     </Panel>
@@ -848,18 +851,23 @@
                             </Style>
                         </Grid.Styles>
                         <RadioButton x:Name="radioButtonDescriptions" Grid.Column="0"
+                                     TabIndex="2"
                                      Theme="{DynamicResource ButtonRadioButton}"
                                      Classes="Small"
                                      HorizontalAlignment="Stretch"
                                      HorizontalContentAlignment="Center"
                                      Content="{resx:Localize MainFrame_radioButtonDescriptions_Text}"
-                                     IsChecked="True"/>
+                                     IsChecked="True"
+                                     Checked="RadioButtonDescriptions_Checked"/>
                         <RadioButton x:Name="radioButtonTopology" Grid.Column="1"
+                                     TabIndex="3"
                                      Theme="{DynamicResource ButtonRadioButton}"
                                      Classes="Small"
                                      HorizontalAlignment="Stretch"
                                      HorizontalContentAlignment="Center"
-                                     Content="{resx:Localize MainFrame_radioButtonTopology_Text}"/>
+                                     Content="{resx:Localize MainFrame_radioButtonTopology_Text}"
+                                     IsEnabled="{Binding IsTopologyViewEnabled}"
+                                     Checked="RadioButtonTopology_Checked"/>
                     </Grid>
                 </Grid>
 
@@ -873,6 +881,8 @@
                      Background is white. Controls flow vertically. -->
 
                     <views:SelectionPanel Grid.Row="2"
+                                          TabIndex="4"
+                                          Focusable="True"
                                           SelectionDescription="{Binding SelectedObjectDescription}"/>
             </Grid>
 
@@ -883,7 +893,8 @@
             <Grid Grid.Column="2" RowDefinitions="Auto,*,Auto" ColumnDefinitions="*,Auto">
 
                 <!-- Course part banner (top of map area) — shows course parts, variations, properties -->
-                <resx:CoursePartBanner x:Name="coursePartBanner" 
+                <resx:CoursePartBanner x:Name="coursePartBanner"
+                                       TabIndex="5"
                                        Grid.Row="0" Grid.ColumnSpan="2"
                                        DataContext="{Binding CoursePartBannerViewModel}"/>
 
@@ -897,6 +908,8 @@
                      Scroll bars are external (horizScroll, vertScroll below). -->
                 <resx:MapViewer
                     x:Name="mapViewer"
+                    TabIndex="6"
+                    Focusable="True"
                     Grid.Row="1" Grid.Column="0"
                     MapDisplay="{Binding MapDisplay}"
                     MapHighlights="{Binding MapHighlights}"

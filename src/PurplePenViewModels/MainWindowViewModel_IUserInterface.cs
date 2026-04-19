@@ -191,7 +191,7 @@ namespace PurplePen.ViewModels
 
         public void ShowTopologyView()
         {
-            // Topology view is not ported to Avalonia yet.
+            IsTopologyViewVisible = true;
         }
 
         private static YesNoCancel ConvertMessageBoxButtonToYesNoCancel(MessageBoxButton button)

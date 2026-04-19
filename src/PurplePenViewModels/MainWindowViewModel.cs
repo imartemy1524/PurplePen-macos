@@ -40,11 +40,28 @@ namespace PurplePen.ViewModels
         [ObservableProperty]
         private MapDisplay? mapDisplay;
 
+        private MapDisplay? topologyMapDisplayBacking;
+
+        [ObservableProperty]
+        private MapDisplay? topologyMapDisplay;
+
         [ObservableProperty]
         private IMapViewerHighlight[]? mapHighlights;
 
         [ObservableProperty]
+        private IMapViewerHighlight[]? topologyMapHighlights;
+
+        [ObservableProperty]
         private DescriptionViewerViewModel descriptionViewerViewModel = new DescriptionViewerViewModel();
+
+        [ObservableProperty]
+        private bool isTopologyViewVisible;
+
+        [ObservableProperty]
+        private bool isTopologyViewEnabled;
+
+        [ObservableProperty]
+        private int topologyVersion;
 
         [ObservableProperty]
         private CoursePartBannerViewModel coursePartBannerViewModel = new CoursePartBannerViewModel();
@@ -149,10 +166,10 @@ namespace PurplePen.ViewModels
                 UpdateSelectionPanel();
                 UpdateHighlight();
                 CoursePartBannerViewModel.UpdatePartBanner();
-#if !PORTING
                 UpdateTopology();
-                UpdatePrintArea();
                 UpdateTopologyHighlight();
+#if !PORTING
+                UpdatePrintArea();
                 UpdateCustomSymbolText();
                 CheckForMissingFonts();
                 CheckForNonRenderableObjects(true, false);
@@ -268,6 +285,30 @@ namespace PurplePen.ViewModels
             controller.MapDisplay.SetCourse(controller.GetCourseLayout());
         }
 
+        void UpdateTopology()
+        {
+            if (controller == null)
+                return;   // happens in design mode, for example.
+
+            if (topologyMapDisplayBacking == null) {
+                topologyMapDisplayBacking = new MapDisplay();
+                topologyMapDisplayBacking.SetMapFile(MapType.None, null);
+                topologyMapDisplayBacking.AntiAlias = false;
+                topologyMapDisplayBacking.Printing = true;
+                TopologyMapDisplay = topologyMapDisplayBacking;
+            }
+
+            CourseLayout? topologyCourseLayout = controller.GetTopologyLayout();
+            topologyMapDisplayBacking.SetCourse(topologyCourseLayout);
+
+            IsTopologyViewEnabled = topologyCourseLayout != null;
+            if (topologyCourseLayout == null) {
+                IsTopologyViewVisible = false;
+            }
+
+            TopologyVersion++;
+        }
+
 
         // Update the description with data from the controller.
         void UpdateDescription()
@@ -322,6 +363,14 @@ namespace PurplePen.ViewModels
             this.MapHighlights = controller.GetHighlights(Pane.Map);
         }
 
+        void UpdateTopologyHighlight()
+        {
+            if (controller == null)
+                return;   // happens in design mode, for example.
+
+            TopologyMapHighlights = controller.GetHighlights(Pane.Topology);
+        }
+
         #endregion // State updating on idle.
 
 
@@ -329,50 +378,134 @@ namespace PurplePen.ViewModels
 
         public void MapViewerMouseMove(PointF? location, float pixelSize)
         {
-            if (location.HasValue && controller != null) {
-                // Inside the viewpoint
-                controller.MouseMoved(Pane.Map, location.Value, pixelSize);
-                MapMousePointerShape = controller.GetMouseCursor(Pane.Map, location.Value, pixelSize);
-            }
+            MapViewerMouseMove(Pane.Map, location, pixelSize);
 #if PORTING
             // TODO: Deal with tool tips.
 #endif
         }
 
+        public void TopologyMapViewerMouseMove(PointF? location, float pixelSize)
+        {
+            MapViewerMouseMove(Pane.Topology, location, pixelSize);
+        }
+
+        private void MapViewerMouseMove(Pane pane, PointF? location, float pixelSize)
+        {
+            if (location.HasValue && controller != null) {
+                controller.MouseMoved(pane, location.Value, pixelSize);
+                if (pane == Pane.Map) {
+                    MapMousePointerShape = controller.GetMouseCursor(pane, location.Value, pixelSize);
+                }
+            }
+        }
+
         public DragAction MapViewerLeftButtonDown(PointF location, float pixelSize)
-        { return controller?.LeftButtonDown(Pane.Map, location, pixelSize) ?? DragAction.None; }
+        { return LeftButtonDown(Pane.Map, location, pixelSize); }
+
+        public DragAction TopologyMapViewerLeftButtonDown(PointF location, float pixelSize)
+        { return LeftButtonDown(Pane.Topology, location, pixelSize); }
+
+        private DragAction LeftButtonDown(Pane pane, PointF location, float pixelSize)
+        { return controller?.LeftButtonDown(pane, location, pixelSize) ?? DragAction.None; }
 
         public DragAction MapViewerRightButtonDown(PointF location, float pixelSize)
-        { return controller?.RightButtonDown(Pane.Map, location, pixelSize) ?? DragAction.None; }
+        { return RightButtonDown(Pane.Map, location, pixelSize); }
+
+        public DragAction TopologyMapViewerRightButtonDown(PointF location, float pixelSize)
+        { return RightButtonDown(Pane.Topology, location, pixelSize); }
+
+        private DragAction RightButtonDown(Pane pane, PointF location, float pixelSize)
+        { return controller?.RightButtonDown(pane, location, pixelSize) ?? DragAction.None; }
 
         public void MapViewerLeftButtonUp(PointF location, float pixelSize)
-        { controller?.LeftButtonUp(Pane.Map, location, pixelSize); }
+        { LeftButtonUp(Pane.Map, location, pixelSize); }
+
+        public void TopologyMapViewerLeftButtonUp(PointF location, float pixelSize)
+        { LeftButtonUp(Pane.Topology, location, pixelSize); }
+
+        private void LeftButtonUp(Pane pane, PointF location, float pixelSize)
+        { controller?.LeftButtonUp(pane, location, pixelSize); }
 
         public void MapViewerRightButtonUp(PointF location, float pixelSize)
-        { controller?.RightButtonUp(Pane.Map, location, pixelSize); }
+        { RightButtonUp(Pane.Map, location, pixelSize); }
+
+        public void TopologyMapViewerRightButtonUp(PointF location, float pixelSize)
+        { RightButtonUp(Pane.Topology, location, pixelSize); }
+
+        private void RightButtonUp(Pane pane, PointF location, float pixelSize)
+        { controller?.RightButtonUp(pane, location, pixelSize); }
 
         public async Task MapViewerLeftButtonClick(PointF location, float pixelSize)
-        { await controller?.LeftButtonClick(Pane.Map, location, pixelSize)!; }
+        { await LeftButtonClick(Pane.Map, location, pixelSize); }
+
+        public async Task TopologyMapViewerLeftButtonClick(PointF location, float pixelSize)
+        { await LeftButtonClick(Pane.Topology, location, pixelSize); }
+
+        private async Task LeftButtonClick(Pane pane, PointF location, float pixelSize)
+        { await controller?.LeftButtonClick(pane, location, pixelSize)!; }
 
         public async Task MapViewerRightButtonClick(PointF location, float pixelSize)
-        { await controller?.RightButtonClick(Pane.Map, location, pixelSize)!; }
+        { await RightButtonClick(Pane.Map, location, pixelSize); }
+
+        public async Task TopologyMapViewerRightButtonClick(PointF location, float pixelSize)
+        { await RightButtonClick(Pane.Topology, location, pixelSize); }
+
+        private async Task RightButtonClick(Pane pane, PointF location, float pixelSize)
+        { await controller?.RightButtonClick(pane, location, pixelSize)!; }
 
         public void MapViewerLeftButtonDrag(PointF location, PointF locationStart, float pixelSize)
-        { controller?.LeftButtonDrag(Pane.Map, location, locationStart, pixelSize); }
+        { LeftButtonDrag(Pane.Map, location, locationStart, pixelSize); }
+
+        public void TopologyMapViewerLeftButtonDrag(PointF location, PointF locationStart, float pixelSize)
+        { LeftButtonDrag(Pane.Topology, location, locationStart, pixelSize); }
+
+        private void LeftButtonDrag(Pane pane, PointF location, PointF locationStart, float pixelSize)
+        { controller?.LeftButtonDrag(pane, location, locationStart, pixelSize); }
 
         public void MapViewerRightButtonDrag(PointF location, PointF locationStart, float pixelSize)
-        { controller?.RightButtonDrag(Pane.Map, location, locationStart, pixelSize); }
+        { RightButtonDrag(Pane.Map, location, locationStart, pixelSize); }
+
+        public void TopologyMapViewerRightButtonDrag(PointF location, PointF locationStart, float pixelSize)
+        { RightButtonDrag(Pane.Topology, location, locationStart, pixelSize); }
+
+        private void RightButtonDrag(Pane pane, PointF location, PointF locationStart, float pixelSize)
+        { controller?.RightButtonDrag(pane, location, locationStart, pixelSize); }
 
         public async Task MapViewerLeftButtonEndDrag(PointF location, PointF locationStart, float pixelSize)
-        { await controller?.LeftButtonEndDrag(Pane.Map, location, locationStart, pixelSize)!; }
+        { await LeftButtonEndDrag(Pane.Map, location, locationStart, pixelSize); }
+
+        public async Task TopologyMapViewerLeftButtonEndDrag(PointF location, PointF locationStart, float pixelSize)
+        { await LeftButtonEndDrag(Pane.Topology, location, locationStart, pixelSize); }
+
+        private async Task LeftButtonEndDrag(Pane pane, PointF location, PointF locationStart, float pixelSize)
+        { await controller?.LeftButtonEndDrag(pane, location, locationStart, pixelSize)!; }
 
         public async Task MapViewerRightButtonEndDrag(PointF location, PointF locationStart, float pixelSize)
-        { await controller?.RightButtonEndDrag(Pane.Map, location, locationStart, pixelSize)!; }
+        { await RightButtonEndDrag(Pane.Map, location, locationStart, pixelSize); }
+
+        public async Task TopologyMapViewerRightButtonEndDrag(PointF location, PointF locationStart, float pixelSize)
+        { await RightButtonEndDrag(Pane.Topology, location, locationStart, pixelSize); }
+
+        private async Task RightButtonEndDrag(Pane pane, PointF location, PointF locationStart, float pixelSize)
+        { await controller?.RightButtonEndDrag(pane, location, locationStart, pixelSize)!; }
+
         public void MapViewerLeftButtonCancelDrag()
-        { controller?.LeftButtonCancelDrag(Pane.Map); }
+        { LeftButtonCancelDrag(Pane.Map); }
+
+        public void TopologyMapViewerLeftButtonCancelDrag()
+        { LeftButtonCancelDrag(Pane.Topology); }
+
+        private void LeftButtonCancelDrag(Pane pane)
+        { controller?.LeftButtonCancelDrag(pane); }
 
         public void MapViewerRightButtonCancelDrag()
-        { controller?.RightButtonCancelDrag(Pane.Map); }
+        { RightButtonCancelDrag(Pane.Map); }
+
+        public void TopologyMapViewerRightButtonCancelDrag()
+        { RightButtonCancelDrag(Pane.Topology); }
+
+        private void RightButtonCancelDrag(Pane pane)
+        { controller?.RightButtonCancelDrag(pane); }
 
         #endregion
 
