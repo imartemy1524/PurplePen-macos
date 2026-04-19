@@ -1,0 +1,442 @@
+<!--
+    NewEventWizard.axaml
+
+    Wizard for creating a new Purple Pen event.
+    Migrated from WinForms PurplePen/NewEventWizard.cs and related page controls.
+-->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:PurplePen.ViewModels"
+        xmlns:resx="using:AvPurplePen"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        d:DesignWidth="532" d:DesignHeight="365"
+        x:Class="AvPurplePen.Views.NewEventWizard"
+        Classes="dialog"
+        x:DataType="vm:NewEventWizardViewModel"
+        Title="{resx:Localize NewEventWizard_Text}"
+        Width="532" Height="365"
+        CanResize="False"
+        CanMaximize="False"
+        CanMinimize="False"
+        Icon="/Assets/transparent.ico"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        SystemDecorations="Full">
+
+    <Design.DataContext>
+        <vm:NewEventWizardViewModel/>
+    </Design.DataContext>
+
+    <DockPanel>
+        <Border DockPanel.Dock="Top"
+                Height="56"
+                Background="White"
+                BorderBrush="#D0D0D0"
+                BorderThickness="0,0,0,1"
+                Padding="18,12">
+            <Grid>
+                <TextBlock Text="{resx:Localize NewEventTitle_labelTitle_Text}"
+                           FontSize="17"
+                           FontWeight="Bold"
+                           IsVisible="{Binding IsTitlePage}"/>
+                <TextBlock Text="{resx:Localize NewEventMapFile_labelTitle_Text}"
+                           FontSize="17"
+                           FontWeight="Bold"
+                           IsVisible="{Binding IsMapFilePage}"/>
+                <TextBlock Text="{resx:Localize NewEventBitmapScale_labelTitle_Text}"
+                           FontSize="17"
+                           FontWeight="Bold"
+                           IsVisible="{Binding IsBitmapScalePage}"/>
+                <TextBlock Text="{resx:Localize NewEventPrintScale_labelTitle_Text}"
+                           FontSize="17"
+                           FontWeight="Bold"
+                           IsVisible="{Binding IsPrintScalePage}"/>
+                <TextBlock Text="{resx:Localize NewEventPaperSize_labelTitle_Text}"
+                           FontSize="17"
+                           FontWeight="Bold"
+                           IsVisible="{Binding IsPaperSizePage}"/>
+                <TextBlock Text="{resx:Localize NewEventDirectory_labelTitle_Text}"
+                           FontSize="17"
+                           FontWeight="Bold"
+                           IsVisible="{Binding IsDirectoryPage}"/>
+                <TextBlock Text="{resx:Localize NewEventStandards_labelTitle_Text}"
+                           FontSize="17"
+                           FontWeight="Bold"
+                           IsVisible="{Binding IsStandardsPage}"/>
+                <TextBlock Text="{resx:Localize NewEventNumbering_labelTitle_Text}"
+                           FontSize="17"
+                           FontWeight="Bold"
+                           IsVisible="{Binding IsNumberingPage}"/>
+                <TextBlock Text="{resx:Localize NewEventFinal_labelTitle_Text}"
+                           FontSize="17"
+                           FontWeight="Bold"
+                           IsVisible="{Binding IsFinalPage}"/>
+            </Grid>
+        </Border>
+
+        <Grid DockPanel.Dock="Bottom"
+              ColumnDefinitions="*,Auto,Auto,Auto"
+              Margin="12,8,12,12">
+            <Button x:Name="backButton"
+                    Grid.Column="1"
+                    Content="{resx:Localize NewEventWizard_backButton_Text}"
+                    MinWidth="85"
+                    HorizontalContentAlignment="Center"
+                    IsEnabled="{Binding IsBackEnabled}"
+                    Click="BackButton_Click"/>
+
+            <Button x:Name="nextButton"
+                    Grid.Column="2"
+                    Content="{resx:Localize NewEventWizard_nextButton_Text}"
+                    MinWidth="85"
+                    Margin="8,0,0,0"
+                    HorizontalContentAlignment="Center"
+                    IsDefault="True"
+                    IsVisible="{Binding IsNotFinalPage}"
+                    IsEnabled="{Binding IsNextEnabled}"
+                    Click="NextButton_Click"/>
+
+            <Button x:Name="finishButton"
+                    Grid.Column="2"
+                    Content="{resx:Localize MiscText_FinishButtonText}"
+                    MinWidth="85"
+                    Margin="8,0,0,0"
+                    HorizontalContentAlignment="Center"
+                    IsDefault="True"
+                    IsVisible="{Binding IsFinalPage}"
+                    IsEnabled="{Binding IsNextEnabled}"
+                    Click="NextButton_Click"/>
+
+            <Button x:Name="cancelButton"
+                    Grid.Column="3"
+                    Content="{resx:Localize NewEventWizard_cancelButton_Text}"
+                    MinWidth="85"
+                    Margin="8,0,0,0"
+                    HorizontalContentAlignment="Center"
+                    IsCancel="True"
+                    Click="CancelButton_Click"/>
+        </Grid>
+
+        <Grid Margin="28,16,24,8">
+            <StackPanel IsVisible="{Binding IsTitlePage}"
+                        Spacing="14">
+                <TextBlock x:Name="newEventTitleLabel"
+                           Text="{resx:Localize NewEventTitle_newEventTitleLabel_Text}"
+                           TextWrapping="Wrap"/>
+                <Grid ColumnDefinitions="Auto,*">
+                    <TextBlock x:Name="eventTitleLabel"
+                               Grid.Column="0"
+                               Text="{resx:Localize NewEventTitle_eventTitleLabel_Text}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,8,0"/>
+                    <TextBox x:Name="titleText"
+                             Grid.Column="1"
+                             Text="{Binding EventTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+                </Grid>
+            </StackPanel>
+
+            <StackPanel IsVisible="{Binding IsMapFilePage}"
+                        Spacing="10">
+                <TextBlock x:Name="newEventMapFileLabel"
+                           Text="{resx:Localize NewEventMapFile_newEventMapFileLabel_Text}"
+                           TextWrapping="Wrap"/>
+                <Button x:Name="chooseMapFileButton"
+                        Content="{resx:Localize NewEventMapFile_chooseMapFileButton_Text}"
+                        MinWidth="130"
+                        HorizontalAlignment="Left"
+                        Command="{Binding ChooseMapFileCommand}"/>
+                <HeaderedContentControl x:Name="mapFileDisplay"
+                                        Header="{resx:Localize NewEventMapFile_mapFileDisplay_Text}"
+                                        Padding="8"
+                                        IsVisible="{Binding HasMapFile}">
+                    <TextBox x:Name="mapFileNameTextBox"
+                             Text="{Binding MapFileName, Mode=OneWay}"
+                             IsReadOnly="True"/>
+                </HeaderedContentControl>
+                <Border x:Name="infoDisplayPanel"
+                        IsVisible="{Binding IsMapFileInfoVisible}"
+                        Background="#F2F7F1"
+                        BorderBrush="#8EB58C"
+                        BorderThickness="1"
+                        Padding="8">
+                    <TextBlock Text="{resx:Localize NewEventMapFile_infoMessage_Text}"
+                               TextWrapping="Wrap"/>
+                </Border>
+                <Border x:Name="errorDisplayPanel"
+                        IsVisible="{Binding IsMapFileErrorVisible}"
+                        Background="#FFF3F3"
+                        BorderBrush="#C87878"
+                        BorderThickness="1"
+                        Padding="8">
+                    <TextBlock x:Name="errorMessage"
+                               Text="{Binding MapFileErrorMessage}"
+                               TextWrapping="Wrap"/>
+                </Border>
+            </StackPanel>
+
+            <StackPanel IsVisible="{Binding IsBitmapScalePage}"
+                        Spacing="14">
+                <TextBlock x:Name="bitmapScaleLabel"
+                           Text="{resx:Localize NewEventBitmapScale_bitmapScaleLabel_Text}"
+                           TextWrapping="Wrap"
+                           IsVisible="{Binding IsBitmapMap}"/>
+                <TextBlock x:Name="pdfScaleLabel"
+                           Text="{resx:Localize NewEventBitmapScale_pdfScaleLabel_Text}"
+                           TextWrapping="Wrap"
+                           IsVisible="{Binding IsPdfMap}"/>
+                <Grid ColumnDefinitions="Auto,80,Auto"
+                      RowDefinitions="Auto,Auto"
+                      RowSpacing="8"
+                      ColumnSpacing="6">
+                    <TextBlock x:Name="dpiLabel"
+                               Grid.Row="0" Grid.Column="0"
+                               Text="{resx:Localize NewEventBitmapScale_dpiLabel_Text}"
+                               VerticalAlignment="Center"
+                               IsVisible="{Binding IsBitmapMap}"/>
+                    <TextBox x:Name="dpiTextBox"
+                             Grid.Row="0" Grid.Column="1"
+                             Text="{Binding DpiText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             IsVisible="{Binding IsBitmapMap}"/>
+                    <TextBlock x:Name="resolutionLabel"
+                               Grid.Row="0" Grid.Column="2"
+                               Text="{resx:Localize NewEventBitmapScale_resolutionLabel_Text}"
+                               VerticalAlignment="Center"
+                               IsVisible="{Binding IsBitmapMap}"/>
+
+                    <TextBlock x:Name="mapScaleLabel"
+                               Grid.Row="1" Grid.Column="0"
+                               Text="{resx:Localize NewEventBitmapScale_mapScaleLabel_Text}"
+                               VerticalAlignment="Center"/>
+                    <DockPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2">
+                        <TextBlock x:Name="oneToPrefixLabel"
+                                   DockPanel.Dock="Left"
+                                   Text="{resx:Localize NewEventBitmapScale_oneToPrefixLabel_Text}"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,4,0"/>
+                        <TextBox x:Name="scaleTextBox"
+                                 Text="{Binding BitmapMapScaleText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 Width="90"/>
+                    </DockPanel>
+                </Grid>
+            </StackPanel>
+
+            <StackPanel IsVisible="{Binding IsPrintScalePage}"
+                        Spacing="14">
+                <TextBlock x:Name="newEventPrintScaleLabel"
+                           Text="{resx:Localize NewEventPrintScale_newEventPrintScaleLabel_Text}"
+                           TextWrapping="Wrap"/>
+                <Grid ColumnDefinitions="Auto,Auto,Auto"
+                      RowDefinitions="Auto,Auto"
+                      RowSpacing="8"
+                      ColumnSpacing="6">
+                    <TextBlock Grid.Row="0" Grid.Column="0"
+                               Text="{resx:Localize NewEventPrintScale_mapScaleLabel_Text}"
+                               VerticalAlignment="Center"/>
+                    <TextBlock x:Name="oneToPrefixLabel1"
+                               Grid.Row="0" Grid.Column="1"
+                               Text="{resx:Localize NewEventPrintScale_oneToPrefixLabel1_Text}"
+                               VerticalAlignment="Center"/>
+                    <TextBlock x:Name="labelMapScale"
+                               Grid.Row="0" Grid.Column="2"
+                               Text="{Binding MapScaleDisplay}"
+                               VerticalAlignment="Center"/>
+
+                    <TextBlock x:Name="defaultPrintScaleLabel"
+                               Grid.Row="1" Grid.Column="0"
+                               Text="{resx:Localize NewEventPrintScale_defaultPrintScaleLabel_Text}"
+                               VerticalAlignment="Center"/>
+                    <DockPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2">
+                        <TextBlock x:Name="oneToPrefixLabel2"
+                                   DockPanel.Dock="Left"
+                                   Text="{resx:Localize NewEventPrintScale_oneToPrefixLabel2_Text}"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,4,0"/>
+                        <ComboBox x:Name="comboBoxPrintScale"
+                                  IsEditable="True"
+                                  Width="120"
+                                  ItemsSource="{Binding AvailablePrintScales}"
+                                  Text="{Binding PrintScaleText, Mode=TwoWay}"/>
+                    </DockPanel>
+                </Grid>
+                <TextBlock x:Name="changeLaterPrintScaleLabel"
+                           Text="{resx:Localize NewEventPrintScale_changeLaterLabel_Text}"
+                           TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <StackPanel IsVisible="{Binding IsPaperSizePage}"
+                        Spacing="12">
+                <TextBlock Text="{resx:Localize NewEventPaperSize_label1_Text}"
+                           TextWrapping="Wrap"/>
+                <Grid ColumnDefinitions="Auto,90,Auto,90,Auto"
+                      RowDefinitions="Auto,Auto,Auto"
+                      RowSpacing="8"
+                      ColumnSpacing="6"
+                      HorizontalAlignment="Left">
+                    <TextBlock Grid.Row="0" Grid.Column="0"
+                               Text="{resx:Localize PaperSizeControl_labelWidth_Text}"
+                               VerticalAlignment="Center"/>
+                    <NumericUpDown Grid.Row="0" Grid.Column="1"
+                                   Value="{Binding PageWidth}"
+                                   Minimum="1"
+                                   Maximum="5000"
+                                   FormatString="0"/>
+                    <TextBlock Grid.Row="0" Grid.Column="2"
+                               Text="{resx:Localize PaperSizeControl_labelHeight_Text}"
+                               VerticalAlignment="Center"/>
+                    <NumericUpDown Grid.Row="0" Grid.Column="3"
+                                   Value="{Binding PageHeight}"
+                                   Minimum="1"
+                                   Maximum="5000"
+                                   FormatString="0"/>
+                    <TextBlock Grid.Row="0" Grid.Column="4"
+                               Text="{resx:Localize PaperSizeControl_labelUnitsHundredths_Text}"
+                               VerticalAlignment="Center"/>
+
+                    <TextBlock Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
+                               Text="{resx:Localize PaperSizeControl_labelMargin_Text}"
+                               VerticalAlignment="Center"/>
+                    <NumericUpDown Grid.Row="1" Grid.Column="3"
+                                   Value="{Binding PageMargins}"
+                                   Minimum="0"
+                                   Maximum="1000"
+                                   FormatString="0"/>
+                    <TextBlock Grid.Row="1" Grid.Column="4"
+                               Text="{resx:Localize PaperSizeControl_labelUnitsHundredths_Text}"
+                               VerticalAlignment="Center"/>
+
+                    <CheckBox Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                              Content="{resx:Localize PaperSizeControl_landscape_Text}"
+                              IsChecked="{Binding PageLandscape}"/>
+                </Grid>
+                <TextBlock Text="{resx:Localize NewEventPaperSize_label2_Text}"
+                           TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <StackPanel IsVisible="{Binding IsDirectoryPage}"
+                        Spacing="10">
+                <TextBlock x:Name="newEventDirectoryLabel"
+                           Text="{resx:Localize NewEventDirectory_newEventDirectoryLabel_Text}"
+                           TextWrapping="Wrap"/>
+                <RadioButton x:Name="useMapDirectory"
+                             GroupName="EventDirectory"
+                             Content="{resx:Localize NewEventDirectory_useMapDirectory_Text}"
+                             IsChecked="{Binding UseMapDirectory}"/>
+                <RadioButton x:Name="useOtherFolder"
+                             GroupName="EventDirectory"
+                             Content="{resx:Localize NewEventDirectory_useOtherFolder_Text}"
+                             IsChecked="{Binding UseOtherDirectory}"/>
+                <Button x:Name="chooseFolder"
+                        Content="{resx:Localize NewEventDirectory_chooseFolder_Text}"
+                        MinWidth="120"
+                        HorizontalAlignment="Left"
+                        Command="{Binding ChooseEventDirectoryCommand}"/>
+                <HeaderedContentControl x:Name="directoryDisplay"
+                                        Header="{resx:Localize NewEventDirectory_directoryDisplay_Text}"
+                                        Padding="8"
+                                        IsVisible="{Binding UseOtherDirectory}">
+                    <TextBox Text="{Binding EventDirectory, Mode=OneWay}"
+                             IsReadOnly="True"/>
+                </HeaderedContentControl>
+            </StackPanel>
+
+            <StackPanel IsVisible="{Binding IsStandardsPage}"
+                        Spacing="12">
+                <TextBlock x:Name="labelStandardsIntro"
+                           Text="{resx:Localize NewEventStandards_labelStandardsIntro_Text}"
+                           TextWrapping="Wrap"/>
+                <Grid ColumnDefinitions="*,*"
+                      ColumnSpacing="12">
+                    <HeaderedContentControl x:Name="groupBoxMapStandard"
+                                            Grid.Column="0"
+                                            Header="{resx:Localize NewEventStandards_groupBoxMapStandard_Text}"
+                                            Padding="8">
+                        <StackPanel Spacing="6">
+                            <RadioButton x:Name="radioButtonMap2017"
+                                         GroupName="MapStandard"
+                                         Content="{resx:Localize NewEventStandards_radioButtonMap2017_Text}"
+                                         IsChecked="{Binding MapStandard2017}"/>
+                            <RadioButton x:Name="radioButtonMapSpr2019"
+                                         GroupName="MapStandard"
+                                         Content="{resx:Localize NewEventStandards_radioButtonMapSpr2019_Text}"
+                                         IsChecked="{Binding MapStandardSpr2019}"/>
+                            <RadioButton x:Name="radioButtonMap2000"
+                                         GroupName="MapStandard"
+                                         Content="{resx:Localize NewEventStandards_radioButtonMap2000_Text}"
+                                         IsChecked="{Binding MapStandard2000}"/>
+                        </StackPanel>
+                    </HeaderedContentControl>
+                    <HeaderedContentControl x:Name="groupBoxDescriptionStandard"
+                                            Grid.Column="1"
+                                            Header="{resx:Localize NewEventStandards_groupBoxDescriptionStandard_Text}"
+                                            Padding="8">
+                        <StackPanel Spacing="6">
+                            <RadioButton x:Name="radioButtonDescriptions2018"
+                                         GroupName="DescriptionStandard"
+                                         Content="{resx:Localize NewEventStandards_radioButtonDescriptions2018_Text}"
+                                         IsChecked="{Binding DescriptionStandard2018}"/>
+                            <RadioButton x:Name="radioButtonDescriptions2004"
+                                         GroupName="DescriptionStandard"
+                                         Content="{resx:Localize NewEventStandards_radioButtonDescriptions2004_Text}"
+                                         IsChecked="{Binding DescriptionStandard2004}"/>
+                        </StackPanel>
+                    </HeaderedContentControl>
+                </Grid>
+                <TextBlock x:Name="changeLaterStandardsLabel"
+                           Text="{resx:Localize NewEventStandards_changeLaterLabel_Text}"
+                           TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <StackPanel IsVisible="{Binding IsNumberingPage}"
+                        Spacing="14">
+                <TextBlock x:Name="newEventNumberingLabel"
+                           Text="{resx:Localize NewEventNumbering_newEventNumberingLabel_Text}"
+                           TextWrapping="Wrap"/>
+                <Grid ColumnDefinitions="Auto,90"
+                      ColumnSpacing="8"
+                      HorizontalAlignment="Left">
+                    <TextBlock x:Name="startingCodeLabel"
+                               Grid.Column="0"
+                               Text="{resx:Localize NewEventNumbering_startingCodeLabel_Text}"
+                               VerticalAlignment="Center"/>
+                    <NumericUpDown x:Name="startingCodeNumericUpDown"
+                                   Grid.Column="1"
+                                   Value="{Binding StartingCode}"
+                                   Minimum="31"
+                                   Maximum="999"
+                                   FormatString="0"/>
+                </Grid>
+                <CheckBox x:Name="disallowInvertibleCheckBox"
+                          Content="{resx:Localize NewEventNumbering_disallowInvertibleCheckBox_Text}"
+                          IsChecked="{Binding DisallowInvertibleCodes}"/>
+                <TextBlock x:Name="changeLaterLabel"
+                           Text="{resx:Localize NewEventNumbering_changeLaterLabel_Text}"
+                           TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <StackPanel IsVisible="{Binding IsFinalPage}"
+                        Spacing="12">
+                <TextBlock x:Name="newEventFinalLabel"
+                           Text="{resx:Localize NewEventFinal_newEventFinalLabel_Text}"
+                           TextWrapping="Wrap"/>
+                <TextBox x:Name="eventFileName"
+                         Text="{Binding EventFileFullPath, Mode=OneWay}"
+                         IsReadOnly="True"/>
+                <TextBlock x:Name="afterEventCreatedLabel"
+                           Text="{resx:Localize NewEventFinal_afterEventCreatedLabel_Text}"
+                           TextWrapping="Wrap"/>
+                <Border x:Name="finalErrorDisplayPanel"
+                        IsVisible="{Binding IsFinalErrorVisible}"
+                        Background="#FFF3F3"
+                        BorderBrush="#C87878"
+                        BorderThickness="1"
+                        Padding="8">
+                    <TextBlock x:Name="finalErrorMessage"
+                               Text="{Binding FinalErrorMessage}"
+                               TextWrapping="Wrap"/>
+                </Border>
+            </StackPanel>
+        </Grid>
+    </DockPanel>
+</Window>

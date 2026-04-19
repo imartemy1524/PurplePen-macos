@@ -68,24 +68,26 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task NewEvent()
         {
-#if !PORTING
             // Try to close the current file. If that succeeds, then ask for a new file and try to open it.
+            if (controller == null) { return; }
+
             bool closeSuccess = await controller.TryCloseFile();
             if (closeSuccess) {
-                NewEventWizard wizard = new NewEventWizard();
-                DialogResult result = wizard.ShowDialog();
-                if (result == DialogResult.OK) {
+                NewEventWizardViewModel wizard = new NewEventWizardViewModel();
+                bool result = await Services.DialogService.ShowDialogAsync(wizard);
+                if (result) {
                     bool success = await controller.NewEvent(wizard.CreateEventInfo);
                     if (!success) {
+#if !PORTING
                         // This is bad news. The old file is gone, and we don't have a new file. Go back to initial screen is the best solution,
                         // I guess.
                         Application.Idle -= new EventHandler(Application_Idle);
                         this.Dispose();
                         new InitialScreen().Show();
+#endif
                     }
                 }
             }
-#endif
         }
 
         /// <summary>

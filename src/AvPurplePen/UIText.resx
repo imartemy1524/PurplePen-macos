@@ -2835,6 +2835,33 @@ The scale of the map indicates the relationship between the paper map and the re
   <data name="NewEventNumbering_labelTitle_Text" xml:space="preserve">
     <value>Control Numbering</value>
   </data>
+  <data name="NewEventPaperSize_labelTitle_Text" xml:space="preserve">
+    <value>Paper Size</value>
+  </data>
+  <data name="NewEventPaperSize_label1_Text" xml:space="preserve">
+    <value>Enter the size and orientation of the paper that you will use to print your map.</value>
+  </data>
+  <data name="NewEventPaperSize_label2_Text" xml:space="preserve">
+    <value>You can change this later with File/Set Print Area.</value>
+  </data>
+  <data name="PaperSizeControl_labelPaper_Text" xml:space="preserve">
+    <value>Size:</value>
+  </data>
+  <data name="PaperSizeControl_labelWidth_Text" xml:space="preserve">
+    <value>Width:</value>
+  </data>
+  <data name="PaperSizeControl_labelHeight_Text" xml:space="preserve">
+    <value>Height:</value>
+  </data>
+  <data name="PaperSizeControl_labelMargin_Text" xml:space="preserve">
+    <value>Margin (all sides):</value>
+  </data>
+  <data name="PaperSizeControl_labelUnitsHundredths_Text" xml:space="preserve">
+    <value>1/100 in</value>
+  </data>
+  <data name="PaperSizeControl_landscape_Text" xml:space="preserve">
+    <value>Landscape</value>
+  </data>
   <data name="NewEventPrintScale_newEventPrintScaleLabel_Text" xml:space="preserve">
     <value>What scale will you be using to print your courses? In most cases, you will want to use the existing scale of the map.
 

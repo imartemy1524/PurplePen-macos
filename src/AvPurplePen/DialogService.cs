@@ -55,6 +55,10 @@ namespace AvPurplePen
                 return await ShowFileSaveAsync(fileSaveVm);
             }
 
+            if (viewModel is FolderOpenViewModel folderOpenVm) {
+                return await ShowFolderOpenAsync(folderOpenVm);
+            }
+
             // Resolve the View type from the ViewModel type using the same convention as ViewLocator.
             string viewModelName = typeof(TViewModel).FullName!;
             string viewName = viewModelName
@@ -168,6 +172,34 @@ namespace AvPurplePen
             }
 
             viewModel.SelectedFile = null;
+            return false;
+        }
+
+        /// <summary>
+        /// Shows the platform folder-open dialog.
+        /// Translates <see cref="FolderOpenViewModel"/> options into Avalonia's
+        /// <see cref="FolderPickerOpenOptions"/> and writes the result back to the ViewModel.
+        /// </summary>
+        private async Task<bool> ShowFolderOpenAsync(FolderOpenViewModel viewModel)
+        {
+            IStorageProvider storage = ownerWindow.StorageProvider;
+
+            FolderPickerOpenOptions options = new FolderPickerOpenOptions {
+                AllowMultiple = false,
+                Title = viewModel.Title
+            };
+
+            if (viewModel.InitialDirectory != null) {
+                options.SuggestedStartLocation = await storage.TryGetFolderFromPathAsync(viewModel.InitialDirectory);
+            }
+
+            IReadOnlyList<IStorageFolder> folders = await storage.OpenFolderPickerAsync(options);
+            if (folders.Count > 0) {
+                viewModel.SelectedFolder = folders[0].Path.LocalPath;
+                return true;
+            }
+
+            viewModel.SelectedFolder = null;
             return false;
         }
     }
