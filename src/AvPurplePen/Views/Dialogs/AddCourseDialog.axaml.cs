@@ -26,7 +26,14 @@ namespace AvPurplePen.Views
         public AddCourseDialog()
         {
             InitializeComponent();
-            Opened += (s, e) => nameTextBox.Focus();
+            Opened += (s, e) => {
+                AddCourseDialogViewModel? vm = DataContext as AddCourseDialogViewModel;
+                if (vm != null && !string.IsNullOrEmpty(vm.DialogTitle)) {
+                    Title = vm.DialogTitle;
+                }
+
+                nameTextBox.Focus();
+            };
         }
 
         /// <summary>

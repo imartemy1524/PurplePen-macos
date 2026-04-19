@@ -1095,13 +1095,15 @@ namespace PurplePen.ViewModels
         {
             if (controller == null) return;
 
-#if PORTING
-            // TODO: Initialize ViewModel from current event data (map scale, etc.)
-            // and process the result to actually add the course.
-#endif
             AddCourseDialogViewModel vm = new AddCourseDialogViewModel();
+            InitializeAddCourseDialogForNewCourse(vm);
+
             bool result = await Services.DialogService.ShowDialogAsync(vm);
-            Debug.WriteLine("Dialog returned: " + result);
+            if (result) {
+                controller.NewCourse(vm.CourseKind, vm.CourseName, vm.ControlLabelKind, vm.ScoreColumn,
+                    vm.SecondaryTitlePipeDelimited ?? string.Empty, vm.PrintScale, vm.Climb, vm.Length, vm.DescKind,
+                    vm.FirstControlOrdinal, vm.HideFromReports);
+            }
         }
 
         /// <summary>
@@ -1112,7 +1114,9 @@ namespace PurplePen.ViewModels
         {
             if (controller == null) return;
 
-            await controller.DeleteCurrentCourse();
+            if (controller.CanDeleteCurrentCourse()) {
+                await controller.DeleteCurrentCourse();
+            }
         }
 
         /// <summary>
@@ -1120,120 +1124,94 @@ namespace PurplePen.ViewModels
         /// pre-populated with current course properties.
         /// </summary>
         [RelayCommand]
-        private void DuplicateCourse()
+        private async Task DuplicateCourse()
         {
-#if !PORTING
+            if (controller == null) { return; }
+
             if (controller.CanDuplicateCurrentCourse()) {
-                // Initialize the dialog
-                AddCourse addCourseDialog = new AddCourse();
-                InitializeCoursePropertiesDialogWithCurrentValues(addCourseDialog);
-                addCourseDialog.SetTitle(MiscText.DuplicateCourseTitle);
-                addCourseDialog.HelpTopic = "CourseDuplicate.htm";
-                addCourseDialog.CourseName = "";
-                addCourseDialog.CanChangeCourseKind = false;
+                AddCourseDialogViewModel vm = new AddCourseDialogViewModel();
+                InitializeAddCourseDialogWithCurrentValues(vm);
+                vm.DialogTitle = MiscText.DuplicateCourseTitle;
+                vm.CourseName = "";
+                vm.CanChangeCourseKind = false;
 
-                // Display the dialog
-                DialogResult result = addCourseDialog.ShowDialog();
-
-                // If the dialog completed successfully, then add the course.
-                if (result == DialogResult.OK) {
-                    controller.DuplicateCurrentCourse(addCourseDialog.CourseName, addCourseDialog.ControlLabelKind, addCourseDialog.ScoreColumn, addCourseDialog.SecondaryTitle,
-                                                      addCourseDialog.PrintScale, addCourseDialog.Climb, addCourseDialog.Length, addCourseDialog.DescKind, addCourseDialog.FirstControlOrdinal, addCourseDialog.HideFromReports);
+                bool result = await Services.DialogService.ShowDialogAsync(vm);
+                if (result) {
+                    controller.DuplicateCurrentCourse(vm.CourseName, vm.ControlLabelKind, vm.ScoreColumn,
+                        vm.SecondaryTitlePipeDelimited ?? string.Empty, vm.PrintScale, vm.Climb, vm.Length, vm.DescKind,
+                        vm.FirstControlOrdinal, vm.HideFromReports);
                 }
-
             }
-#endif
         }
 
         /// <summary>
         /// Executes the Course/Properties command. Shows the course properties dialog.
         /// </summary>
         [RelayCommand]
-        private void ShowCourseProperties()
+        private async Task ShowCourseProperties()
         {
-#if !PORTING
+            if (controller == null) { return; }
+
             if (controller.CanChangeCourseProperties()) {
-                // Initialize the dialog
-                AddCourse addCourseDialog = new AddCourse();
-                InitializeCoursePropertiesDialogWithCurrentValues(addCourseDialog);
-                addCourseDialog.SetTitle(MiscText.CoursePropertiesTitle);
-                addCourseDialog.HelpTopic = "CourseProperties.htm";
+                AddCourseDialogViewModel vm = new AddCourseDialogViewModel();
+                InitializeAddCourseDialogWithCurrentValues(vm);
+                vm.DialogTitle = MiscText.CoursePropertiesTitle;
 
-                // Display the dialog
-                DialogResult result = addCourseDialog.ShowDialog();
-
-                // If the dialog completed successfully, then change the course.
-                if (result == DialogResult.OK) {
-                    controller.ChangeCurrentCourseProperties(addCourseDialog.CourseKind, addCourseDialog.CourseName, addCourseDialog.ControlLabelKind, addCourseDialog.ScoreColumn, addCourseDialog.SecondaryTitle,
-                        addCourseDialog.PrintScale, addCourseDialog.Climb, addCourseDialog.Length, addCourseDialog.DescKind, addCourseDialog.FirstControlOrdinal, addCourseDialog.HideFromReports);
+                bool result = await Services.DialogService.ShowDialogAsync(vm);
+                if (result) {
+                    controller.ChangeCurrentCourseProperties(vm.CourseKind, vm.CourseName, vm.ControlLabelKind,
+                        vm.ScoreColumn, vm.SecondaryTitlePipeDelimited ?? string.Empty, vm.PrintScale, vm.Climb, vm.Length,
+                        vm.DescKind, vm.FirstControlOrdinal, vm.HideFromReports);
                 }
             }
             else {
-                // Change properties of all controls.
+                AllControlsPropertiesDialogViewModel vm = new AllControlsPropertiesDialogViewModel();
                 float printScale;
                 DescriptionKind descKind;
                 controller.GetAllControlsProperties(out printScale, out descKind);
+                vm.InitializePrintScales(controller.MapScale);
+                vm.PrintScale = printScale;
+                vm.DescKind = descKind;
 
-                // Initialize the dialog
-                AllControlsProperties allControlsDialog = new AllControlsProperties();
-                allControlsDialog.InitializePrintScales(controller.MapScale);
-                allControlsDialog.PrintScale = printScale;
-                allControlsDialog.DescKind = descKind;
-
-                // Display the dialog
-                DialogResult result = allControlsDialog.ShowDialog();
-
-                // If the dialog completed successfully, then change the course.
-                if (result == DialogResult.OK) {
-                    controller.ChangeAllControlsProperties(allControlsDialog.PrintScale, allControlsDialog.DescKind);
+                bool result = await Services.DialogService.ShowDialogAsync(vm);
+                if (result) {
+                    controller.ChangeAllControlsProperties(vm.PrintScale, vm.DescKind);
                 }
             }
-#endif
         }
 
         /// <summary>
         /// Executes the Course/Course Load command. Shows the Course Load dialog.
         /// </summary>
         [RelayCommand]
-        private void ShowCourseLoad()
+        private async Task ShowCourseLoad()
         {
-#if !PORTING
-            // Initialize the dialog with the current load values.
-            CourseLoad courseLoadDialog = new CourseLoad();
-            courseLoadDialog.SetCourseLoads(controller.GetAllCourseLoads());
+            if (controller == null) { return; }
 
-            // Show the dialog.
-            DialogResult result = courseLoadDialog.ShowDialog(this);
+            CourseLoadDialogViewModel vm = new CourseLoadDialogViewModel();
+            vm.SetCourseLoads(controller.GetAllCourseLoads());
 
-            // Apply the changes.
-            if (result == DialogResult.OK) {
-                controller.SetAllCourseLoads(courseLoadDialog.GetCourseLoads());
+            bool result = await Services.DialogService.ShowDialogAsync(vm);
+            if (result) {
+                controller.SetAllCourseLoads(vm.GetCourseLoads());
             }
-
-            courseLoadDialog.Dispose();
-#endif
         }
 
         /// <summary>
         /// Executes the Course/Course Order command. Shows the Change Course Order dialog.
         /// </summary>
         [RelayCommand]
-        private void ShowCourseOrder()
+        private async Task ShowCourseOrder()
         {
-#if !PORTING
-            // Initialize dialog.
-            ChangeCourseOrder courseOrderDialog = new ChangeCourseOrder(controller.GetAllCourseOrders());
+            if (controller == null) { return; }
 
-            // Show the dialog.
-            DialogResult result = courseOrderDialog.ShowDialog(this);
+            ChangeCourseOrderDialogViewModel vm = new ChangeCourseOrderDialogViewModel();
+            vm.SetCourseOrders(controller.GetAllCourseOrders());
 
-            // Apply the changes.
-            if (result == DialogResult.OK) {
-                controller.SetAllCourseOrders(courseOrderDialog.GetCourseOrders());
+            bool result = await Services.DialogService.ShowDialogAsync(vm);
+            if (result) {
+                controller.SetAllCourseOrders(vm.GetCourseOrders());
             }
-
-            courseOrderDialog.Dispose();
-#endif
         }
 
         /// <summary>
@@ -1242,6 +1220,8 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private void ShowCourseVariationReport()
         {
+            if (controller == null) { return; }
+
 #if !PORTING
             RelaySettings relaySettings = controller.GetRelayParameters();
             bool hideVariationsOnMap = controller.GetHideVariationsOnMap();
@@ -1280,6 +1260,56 @@ namespace PurplePen.ViewModels
 
             reportForm.Dispose();
 #endif
+        }
+
+        /// <summary>
+        /// Populates the Add Course dialog with values for a brand-new course.
+        /// </summary>
+        private void InitializeAddCourseDialogForNewCourse(AddCourseDialogViewModel vm)
+        {
+            Controller currentController = controller!;
+            float printScale;
+            DescriptionKind descKind;
+            currentController.GetAllControlsProperties(out printScale, out descKind);
+
+            vm.InitializePrintScales(currentController.MapScale);
+            vm.PrintScale = printScale;
+            vm.DescKind = descKind;
+            vm.CanChangeCourseKind = true;
+        }
+
+        /// <summary>
+        /// Populates the Add Course dialog with the properties of the current course.
+        /// </summary>
+        private void InitializeAddCourseDialogWithCurrentValues(AddCourseDialogViewModel vm)
+        {
+            Controller currentController = controller!;
+            CourseKind courseKind;
+            string courseName;
+            string secondaryTitle;
+            float printScale;
+            float climb;
+            float? length;
+            DescriptionKind descKind;
+            int firstControlOrdinal;
+            ControlLabelKind labelKind;
+            int scoreColumn;
+            bool hideFromReports;
+            currentController.GetCurrentCourseProperties(out courseKind, out courseName, out labelKind, out scoreColumn, out secondaryTitle,
+                out printScale, out climb, out length, out descKind, out firstControlOrdinal, out hideFromReports);
+
+            vm.InitializePrintScales(currentController.MapScale);
+            vm.CourseKind = courseKind;
+            vm.CourseName = courseName;
+            vm.SecondaryTitlePipeDelimited = secondaryTitle;
+            vm.PrintScale = printScale;
+            vm.Climb = climb;
+            vm.Length = length;
+            vm.DescKind = descKind;
+            vm.FirstControlOrdinal = firstControlOrdinal;
+            vm.ControlLabelKind = labelKind;
+            vm.ScoreColumn = scoreColumn;
+            vm.HideFromReports = hideFromReports;
         }
 
         #endregion // Course commands

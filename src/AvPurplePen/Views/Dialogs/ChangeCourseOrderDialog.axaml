@@ -1,0 +1,87 @@
+<!--
+    ChangeCourseOrderDialog.axaml
+
+    Dialog for reordering courses.
+-->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:PurplePen.ViewModels"
+        xmlns:resx="using:AvPurplePen"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        x:Class="AvPurplePen.Views.ChangeCourseOrderDialog"
+        Classes="dialog"
+        x:DataType="vm:ChangeCourseOrderDialogViewModel"
+        Title="{resx:Localize ChangeCourseOrder_Text}"
+        Icon="/Assets/transparent.ico"
+        d:DesignWidth="520" d:DesignHeight="360"
+        Width="520"
+        Height="360"
+        CanResize="True"
+        CanMinimize="False"
+        CanMaximize="False"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+    <Design.DataContext>
+        <vm:ChangeCourseOrderDialogViewModel/>
+    </Design.DataContext>
+
+    <DockPanel Margin="12">
+        <StackPanel DockPanel.Dock="Bottom"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Spacing="8"
+                    Margin="0,20,0,0">
+            <Button x:Name="okButton"
+                    Content="{resx:Localize OKButton}"
+                    Width="85"
+                    HorizontalContentAlignment="Center"
+                    IsDefault="True"
+                    Click="OkButton_Click"/>
+            <Button x:Name="cancelButton"
+                    Content="{resx:Localize CancelButton}"
+                    Width="85"
+                    HorizontalContentAlignment="Center"
+                    IsCancel="True"
+                    Click="CancelButton_Click"/>
+        </StackPanel>
+
+        <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,*">
+            <TextBlock Grid.Row="0" Grid.Column="0"
+                       Grid.ColumnSpan="2"
+                       Text="{resx:Localize ChangeCourseOrder_courseOrderLabel_Text}"
+                       TextWrapping="Wrap"
+                       Margin="0,0,0,8"/>
+
+            <ListBox x:Name="listBoxCourses"
+                     Grid.Row="1" Grid.Column="0"
+                     ItemsSource="{Binding Rows}"
+                     SelectionMode="Single"
+                     SelectionChanged="ListBoxCourses_SelectionChanged">
+                <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:CourseOrderRowViewModel">
+                        <TextBlock Text="{Binding CourseName}" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <StackPanel Grid.Row="1" Grid.Column="1"
+                        Margin="12,0,0,0"
+                        Spacing="8"
+                        VerticalAlignment="Top">
+                <Button x:Name="moveUpButton"
+                        Content="{resx:Localize ChangeCourseOrder_moveUpButton_Text}"
+                        Width="110"
+                        HorizontalContentAlignment="Center"
+                        Click="MoveUpButton_Click"/>
+                <Button x:Name="moveDownButton"
+                        Content="{resx:Localize ChangeCourseOrder_moveDownButton_Text}"
+                        Width="110"
+                        HorizontalContentAlignment="Center"
+                        Click="MoveDownButton_Click"/>
+            </StackPanel>
+        </Grid>
+    </DockPanel>
+</Window>

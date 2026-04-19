@@ -124,6 +124,13 @@ namespace PurplePen.ViewModels
         private bool hideFromReports;
 
         /// <summary>
+        /// Window title set by the caller. The default Add Course title comes
+        /// from the view; callers can override it for duplicate/properties flows.
+        /// </summary>
+        [ObservableProperty]
+        private string dialogTitle = "";
+
+        /// <summary>
         /// Computed: true when this is a score course.
         /// Controls visibility of score-specific fields.
         /// </summary>
