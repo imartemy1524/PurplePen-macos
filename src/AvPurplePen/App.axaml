@@ -94,7 +94,7 @@
                 <SolidColorBrush x:Key="ErrorBannerBackground" Color="#3A2124"/>
                 <SolidColorBrush x:Key="ErrorBannerBorder" Color="#B06A74"/>
                 <SolidColorBrush x:Key="WarningTextBrush" Color="#E6B35A"/>
-                <SolidColorBrush x:Key="DescriptionPopupFlyoutBackground" Color="#2C2A24"/>
+                <SolidColorBrush x:Key="DescriptionPopupFlyoutBackground" Color="#242424"/>
                 <SolidColorBrush x:Key="SelectionPanelBackground" Color="#1E1E1E"/>
             </ResourceDictionary>
         </ResourceDictionary.ThemeDictionaries>

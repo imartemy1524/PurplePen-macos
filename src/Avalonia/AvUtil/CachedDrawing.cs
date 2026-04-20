@@ -59,6 +59,9 @@ namespace AvUtil
             this.underlyingDrawing.DrawingChanged += OnUnderlyingDrawing;
         }
 
+        // Background brush used while no cached render fully covers the requested area.
+        public IBrush EmptyBackgroundBrush { get; set; } = Brushes.White;
+
         // The event is raised when a new drawing is available. This occurs either:
         // 1. When the underlying drawing has changed, and a new render of the change
         //    is available.
@@ -119,8 +122,8 @@ namespace AvUtil
             else {
                 // Otherwise, draw the full render, then the enclosing, then detailed render on top.
                 if (fullRender == null || !fullRender.rect.Contains(rectToDraw)) {
-                    // Draw white background to fill the whole rectangle.
-                    drawingContext.FillRectangle(Brushes.White, rectToDraw);    
+                    // Draw background to fill the whole rectangle.
+                    drawingContext.FillRectangle(EmptyBackgroundBrush, rectToDraw);    
                 }
 
                 if (enclosingRender == null || !enclosingRender.rect.Contains(rectToDraw)) {

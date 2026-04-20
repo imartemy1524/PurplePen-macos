@@ -19,6 +19,9 @@ namespace AvPurplePen
         IMapDisplay mapDisplay;
         RectangleF bounds;
 
+        // Background color used for areas where the map does not draw anything.
+        public SKColor BackgroundColor { get; set; } = SKColors.White;
+
         public CacheableMapDisplay(IMapDisplay mapDisplay)
         {
             this.mapDisplay = mapDisplay;
@@ -35,7 +38,13 @@ namespace AvPurplePen
         {
             float minResolution = Math.Min(rectToDraw.Width / pixelSize.Width, rectToDraw.Height / pixelSize.Height);
 
-            canvas.Clear(SKColors.White);
+            canvas.Clear(BackgroundColor);
+            using (SKPaint mapBackgroundPaint = new SKPaint()) {
+                mapBackgroundPaint.Style = SKPaintStyle.Fill;
+                mapBackgroundPaint.Color = SKColors.White;
+                mapBackgroundPaint.IsAntialias = false;
+                canvas.DrawRect(Conv.ToSKRect(bounds), mapBackgroundPaint);
+            }
 
             if (mapDisplay != null) {
                 using (IGraphicsTarget grTarget = new Skia_GraphicsTarget(canvas)) {

@@ -103,6 +103,7 @@ namespace PurplePen
         bool columnHScore; // If true, show score in column H for text-only descriptions.
 
         private bool replaceMultiplySign;         // If true, replace 'x' in column F with multiply sign.
+        private CmykColor graphicsColor = CmykColor.FromCmyk(0, 0, 0, 1);
 
 
         public DescriptionRenderer(SymbolDB symbolDB)
@@ -120,6 +121,7 @@ namespace PurplePen
             n.columnHScore = this.columnHScore;
             n.descriptionKind = this.descriptionKind;
             n.replaceMultiplySign = this.replaceMultiplySign;
+            n.graphicsColor = this.graphicsColor;
             return n;
         }
 
@@ -161,6 +163,14 @@ namespace PurplePen
         public bool ColumnHScore {
             get { return columnHScore; }
             set { columnHScore = value; }
+        }
+
+        // The foreground color used when rendering to graphics targets (UI, preview).
+        // Default is black for compatibility with existing behavior.
+        public CmykColor GraphicsColor
+        {
+            get { return graphicsColor; }
+            set { graphicsColor = value; }
         }
 
         public float ColumnWidth
@@ -216,14 +226,14 @@ namespace PurplePen
          // the clip rect.
         public void RenderToGraphics(IGraphicsTarget grTarget, RectangleF clipRect)
         {
-            IRenderer renderer = new GraphicsTargetRenderer(grTarget, Services.TextMetricsProvider, CmykColor.FromCmyk(0, 0, 0, 1));
+            IRenderer renderer = new GraphicsTargetRenderer(grTarget, Services.TextMetricsProvider, graphicsColor);
             replaceMultiplySign = true;
             Render(renderer, clipRect, 0, description.Length);
         }
 
         void IPrintableRectangle.Draw(IGraphicsTarget grTarget, float x, float y, int startLine, int countLines)
         {
-            IRenderer renderer = new GraphicsTargetRenderer(grTarget, Services.TextMetricsProvider, CmykColor.FromCmyk(0, 0, 0, 1));
+            IRenderer renderer = new GraphicsTargetRenderer(grTarget, Services.TextMetricsProvider, graphicsColor);
 
             Matrix transform = new Matrix();
             transform.Translate(x, y);

@@ -263,6 +263,7 @@ public partial class DescriptionViewer : UserControl
         e.Canvas.Clear(GetSkColorResource("SelectionPanelBackground", SKColors.White));
 
         if (renderer != null && DescriptionData != null) {
+            renderer.GraphicsColor = GetDescriptionForegroundColor();
             using (Skia_GraphicsTarget grTarget = new Skia_GraphicsTarget(e.Canvas)) {
                 renderer.Description = DescriptionData.Description;
 
@@ -274,6 +275,26 @@ public partial class DescriptionViewer : UserControl
         }
     }
 
+    private CmykColor GetDescriptionForegroundColor()
+    {
+        if (ActualThemeVariant == ThemeVariant.Dark) {
+            return CmykColor.FromColor(System.Drawing.Color.White);
+        }
+
+        return CmykColor.FromColor(System.Drawing.Color.Black);
+    }
+
+    private CmykColor GetSelectionHighlightColor()
+    {
+        if (ActualThemeVariant == ThemeVariant.Dark) {
+            // Dark blue highlight keeps white legend text readable in dark theme.
+            return CmykColor.FromColor(System.Drawing.Color.FromArgb(0x2D, 0x4F, 0x8C));
+        }
+
+        // Light blue highlight keeps black legend text readable in light theme.
+        return CmykColor.FromColor(System.Drawing.Color.FromArgb(0xBF, 0xD7, 0xFF));
+    }
+
     private void DrawSelection(IGraphicsTarget grTarget, RectangleF clipRectangle)
     {
         if (renderer != null && Selection != null && DescriptionData != null && DescriptionData.Description != null &&
@@ -283,7 +304,7 @@ public partial class DescriptionViewer : UserControl
             RectangleF selectedRect = (renderer.LineBounds(Selection.FirstLine, Selection.LastLine));
             if (selectedRect.IntersectsWith(clipRectangle)) {
                 object selectionBrush = new object();
-                grTarget.CreateSolidBrush(selectionBrush, CmykColor.FromColor(System.Drawing.Color.Yellow));
+                grTarget.CreateSolidBrush(selectionBrush, GetSelectionHighlightColor());
                 grTarget.FillRectangle(selectionBrush, selectedRect);
             }
         }

@@ -3,10 +3,12 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 using Avalonia.Threading;
 using AvPurplePen.Views;
 using AvUtil;
 using PurplePen;
+using SkiaSharp;
 using System;
 using System.Diagnostics;
 using System.Drawing;
@@ -17,6 +19,9 @@ namespace AvPurplePen;
 
 public partial class MapViewer : UserControl
 {
+    private static readonly SKColor OutsideMapBackgroundSkColor = new SKColor(0x7A, 0x7A, 0x7A);
+    private static readonly IBrush OutsideMapBackgroundBrush = new SolidColorBrush(Avalonia.Media.Color.FromRgb(0x7A, 0x7A, 0x7A));
+
     // Set the IMapDisplay that this map viewer should display. The map will be drawn
     // in a background thread and cached for better performance. Setting to null will clear the map.
     public static readonly StyledProperty<IMapDisplay?> MapDisplayProperty =
@@ -83,6 +88,8 @@ public partial class MapViewer : UserControl
     private Point lastMouseWorldLocation;
 
     private HighlightDrawing highlightDrawing = new HighlightDrawing();
+    private CacheableMapDisplay? cacheableMapDisplay;
+    private CachedDrawing? cachedMapDrawing;
 
     public MapViewer()
     {
@@ -223,13 +230,24 @@ public partial class MapViewer : UserControl
 
         if (newMapDisplay != null) {
             // The PanAndZoom control should display the merging of the map and the highlights.
-            IThreadsafeSkiaDrawing skiaDrawing = new CacheableMapDisplay(newMapDisplay);
-            IAvaloniaDrawing mapDrawing = new CachedDrawing(skiaDrawing);
+            cacheableMapDisplay = new CacheableMapDisplay(newMapDisplay)
+            {
+                BackgroundColor = OutsideMapBackgroundSkColor
+            };
+
+            cachedMapDrawing = new CachedDrawing(cacheableMapDisplay)
+            {
+                EmptyBackgroundBrush = OutsideMapBackgroundBrush
+            };
+
+            IAvaloniaDrawing mapDrawing = cachedMapDrawing;
             IAvaloniaDrawing mergedDrawing = new AvaloniaDrawingMerge(mapDrawing, highlightDrawing);
 
             panAndZoom.Drawing = mergedDrawing;
         }
         else {
+            cacheableMapDisplay = null;
+            cachedMapDrawing = null;
             panAndZoom.Drawing = null;
         }
     }

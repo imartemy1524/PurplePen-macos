@@ -65,5 +65,5 @@
         </DataTemplate>
     </UserControl.Resources>
 
-    <Grid x:Name="popupGrid" />
+    <Grid x:Name="popupGrid" Background="{DynamicResource DescriptionPopupFlyoutBackground}" />
 </UserControl>
