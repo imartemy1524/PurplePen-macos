@@ -40,7 +40,9 @@
       "WebFetch(domain:raw.githubusercontent.com)",
       "WebFetch(domain:api.github.com)",
       "Bash(msbuild PPen.slnx /p:Configuration=Release /v:minimal)",
-      "Bash(\"/c/Program Files/Microsoft Visual Studio/2022/Professional/MSBuild/Current/Bin/MSBuild.exe\" PPen.slnx /p:Configuration=Release /v:minimal)"
+      "Bash(\"/c/Program Files/Microsoft Visual Studio/2022/Professional/MSBuild/Current/Bin/MSBuild.exe\" PPen.slnx /p:Configuration=Release /v:minimal)",
+      "Bash(~/.dotnet/dotnet build:*)",
+      "Bash(git checkout:*)"
     ]
   }
 }

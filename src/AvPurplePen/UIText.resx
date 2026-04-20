@@ -3742,4 +3742,13 @@ For printing competition maps, it is suggested that courses be exported to OCAD 
   <data name="ViewAdditionalCourses_Text" xml:space="preserve">
     <value>View Additional Courses</value>
   </data>
+  <data name="ReportDialog_printButton_Text" xml:space="preserve">
+    <value>Print</value>
+  </data>
+  <data name="ReportDialog_printPreviewButton_Text" xml:space="preserve">
+    <value>Print Preview</value>
+  </data>
+  <data name="ReportDialog_okButton_Text" xml:space="preserve">
+    <value>OK</value>
+  </data>
 </root>

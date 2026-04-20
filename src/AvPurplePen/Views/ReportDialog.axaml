@@ -1,0 +1,57 @@
+<!--
+    ReportDialog.axaml
+    Dialog for displaying event reports (course summary, event audit, leg lengths, etc.)
+    Migrated from WinForms PurplePen/ReportForm.cs.
+-->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:PurplePen.ViewModels"
+        xmlns:resx="using:AvPurplePen"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        d:DesignWidth="900" d:DesignHeight="700"
+        x:Class="AvPurplePen.Views.ReportDialog"
+        x:Name="reportDialog"
+        x:DataType="vm:ReportDialogViewModel"
+        Title="{Binding ReportTitle}"
+        Icon="/Assets/transparent.ico"
+        Width="900" Height="700"
+        CanResize="True"
+        CanMinimize="False"
+        CanMaximize="True"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+    <Design.DataContext>
+        <vm:ReportDialogViewModel/>
+    </Design.DataContext>
+
+    <DockPanel LastChildFill="True">
+
+        <!-- Button Bar -->
+        <Border DockPanel.Dock="Bottom" BorderThickness="0,1,0,0" BorderBrush="#E0E0E0" Padding="16,12" Background="#F5F5F5">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+                <Button x:Name="printButton"
+                        Content="{resx:Localize ReportDialog_printButton_Text}"
+                        Command="{Binding PrintCommand}"
+                        MinWidth="90" Padding="12,6"
+                        Classes="accent"/>
+                <Button x:Name="printPreviewButton"
+                        Content="{resx:Localize ReportDialog_printPreviewButton_Text}"
+                        Command="{Binding PrintPreviewCommand}"
+                        MinWidth="120" Padding="12,6"/>
+                <Button x:Name="okButton"
+                        Content="{resx:Localize ReportDialog_okButton_Text}"
+                        Click="OkButton_Click"
+                        MinWidth="90" Padding="12,6"
+                        IsDefault="True"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Report Content -->
+        <ScrollViewer x:Name="reportScroller" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
+
+    </DockPanel>
+
+</Window>
