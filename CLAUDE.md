@@ -1,4 +1,29 @@
-# Session Notes: Event Menu Dialog Fixes (2026-04-20)
+# Session Notes: Native Menu Migration to XAML (2026-04-20)
+
+## Native Menu Migration - COMPLETE
+
+Moved macOS native menu definition from code-behind to XAML markup for cleaner architecture.
+
+**Files Modified:**
+- MainWindow.axaml - Added comprehensive `<NativeMenu.Menu>` structure (lines 42-197) with all 9 menus:
+  - File, Edit, View, Add, Event, Course, Item, Reports, Help
+  - All menu items bound to ViewModel commands with proper keyboard gestures (Cmd+O, Cmd+S, etc.)
+  
+- MainWindow.axaml.cs - Removed 255+ lines of code-behind:
+  - Removed `SetupMacOSNativeMenu()` method (lines 57-84)
+  - Removed all 9 `Build*Menu()` methods (BuildFileMenu, BuildEditMenu, BuildViewMenu, BuildAddMenu, BuildEventMenu, BuildCourseMenu, BuildItemMenu, BuildReportsMenu, BuildHelpMenu)
+  - Removed call to `SetupMacOSNativeMenu()` in MainWindow_DataContextChanged (lines 324-327)
+  - Removed unused imports: `Avalonia.Platform`, `System.Runtime.InteropServices`, `Key`, `KeyGesture`, `KeyModifiers`
+
+**Benefits:**
+- Code-behind is now focused on UI event handling, not menu building
+- Menu structure is visible in XAML, easier to modify and review
+- Same runtime behavior: Avalonia automatically reads `<NativeMenu.Menu>` on macOS
+- Maintains all 50+ menu items with correct command bindings and gestures
+
+**Build Status:** ✓ Successful. App launches on macOS with native menu bar working correctly.
+
+## Previous Work: DataGrid to ItemsControl Migration
 
 ## Problem Solved
 Fixed FileNotFoundException crash when opening ChangeCodesDialog due to Avalonia.Diagnostics assembly loading error.

@@ -39,6 +39,183 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
+    <!-- Native macOS Menu -->
+    <NativeMenu.Menu>
+        <NativeMenu>
+            <!-- File Menu -->
+            <NativeMenuItem Header="File">
+                <NativeMenuItem Header="New Event" Command="{Binding NewEventCommand}"/>
+                <NativeMenuItem Header="Open..." Command="{Binding FileOpenPurplePenFileCommand}" Gesture="Cmd+O"/>
+                <NativeMenuItemSeparator/>
+                <NativeMenuItem Header="Save" Command="{Binding SaveCommand}" Gesture="Cmd+S"/>
+                <NativeMenuItem Header="Save As..." Command="{Binding SaveAsCommand}"/>
+                <NativeMenuItemSeparator/>
+                <NativeMenuItem Header="Create OCAD Files..." Command="{Binding CreateOcadFilesCommand}"/>
+                <NativeMenuItem Header="Create Image Files..." Command="{Binding CreateImageFilesCommand}"/>
+                <NativeMenuItem Header="Create PDFs">
+                    <NativeMenuItem Header="Description PDF" Command="{Binding CreateDescriptionPdfCommand}"/>
+                    <NativeMenuItem Header="Punchcard PDF" Command="{Binding CreatePunchcardPdfCommand}"/>
+                    <NativeMenuItem Header="Course PDF" Command="{Binding CreateCoursePdfCommand}"/>
+                </NativeMenuItem>
+                <NativeMenuItem Header="Create Route Gadget Files" Command="{Binding CreateRouteGadgetFilesCommand}"/>
+                <NativeMenuItem Header="Create XML" Command="{Binding CreateXmlCommand}"/>
+                <NativeMenuItem Header="Create GPX File" Command="{Binding CreateGpxCommand}"/>
+                <NativeMenuItem Header="Create KML File" Command="{Binding CreateKmlFilesCommand}"/>
+                <NativeMenuItemSeparator/>
+                <NativeMenuItem Header="Print Descriptions" Command="{Binding PrintDescriptionsCommand}" Gesture="Cmd+P"/>
+                <NativeMenuItem Header="Print Punch Cards" Command="{Binding PrintPunchCardsCommand}"/>
+                <NativeMenuItem Header="Print Courses" Command="{Binding PrintCoursesCommand}"/>
+                <NativeMenuItem Header="Set Print Area">
+                    <NativeMenuItem Header="This Part" Command="{Binding SetPrintAreaThisPartCommand}"/>
+                    <NativeMenuItem Header="This Course" Command="{Binding SetPrintAreaThisCourseCommand}"/>
+                    <NativeMenuItem Header="All Courses" Command="{Binding SetPrintAreaAllCoursesCommand}"/>
+                </NativeMenuItem>
+                <NativeMenuItemSeparator/>
+                <NativeMenuItem Header="Program Language" Command="{Binding ShowSwitchLanguageDialogCommand}"/>
+            </NativeMenuItem>
+
+            <!-- Edit Menu -->
+            <NativeMenuItem Header="Edit">
+                <NativeMenuItem Header="Cancel" Command="{Binding CancelCommand}"/>
+                <NativeMenuItemSeparator/>
+                <NativeMenuItem Header="Undo" Command="{Binding UndoCommand}" Gesture="Cmd+Z"/>
+                <NativeMenuItem Header="Redo" Command="{Binding RedoCommand}" Gesture="Cmd+Shift+Z"/>
+                <NativeMenuItemSeparator/>
+                <NativeMenuItem Header="Delete" Command="{Binding DeleteSelectionCommand}" Gesture="Cmd+Back"/>
+            </NativeMenuItem>
+
+            <!-- View Menu -->
+            <NativeMenuItem Header="View">
+                <NativeMenuItem Header="Entire Course" Command="{Binding ViewEntireCourseCommand}" Gesture="F2"/>
+                <NativeMenuItem Header="Entire Map" Command="{Binding ViewEntireMapCommand}" Gesture="F3"/>
+                <NativeMenuItem Header="Zoom">
+                    <NativeMenuItem Header="50%" Command="{Binding SetZoomCommand}" CommandParameter="0.5"/>
+                    <NativeMenuItem Header="100%" Command="{Binding SetZoomCommand}" CommandParameter="1.0"/>
+                    <NativeMenuItem Header="150%" Command="{Binding SetZoomCommand}" CommandParameter="1.5"/>
+                    <NativeMenuItem Header="200%" Command="{Binding SetZoomCommand}" CommandParameter="2.0"/>
+                    <NativeMenuItem Header="300%" Command="{Binding SetZoomCommand}" CommandParameter="3.0"/>
+                    <NativeMenuItem Header="500%" Command="{Binding SetZoomCommand}" CommandParameter="5.0"/>
+                    <NativeMenuItem Header="1000%" Command="{Binding SetZoomCommand}" CommandParameter="10.0"/>
+                </NativeMenuItem>
+                <NativeMenuItem Header="Map Intensity">
+                    <NativeMenuItem Header="20%" Command="{Binding SetMapIntensityCommand}" CommandParameter="0.2"/>
+                    <NativeMenuItem Header="40%" Command="{Binding SetMapIntensityCommand}" CommandParameter="0.4"/>
+                    <NativeMenuItem Header="60%" Command="{Binding SetMapIntensityCommand}" CommandParameter="0.6"/>
+                    <NativeMenuItem Header="100%" Command="{Binding SetMapIntensityCommand}" CommandParameter="1.0"/>
+                </NativeMenuItem>
+                <NativeMenuItemSeparator/>
+                <NativeMenuItem Header="Show Popups" Command="{Binding ToggleShowPopupsCommand}"/>
+                <NativeMenuItem Header="Show Print Area" Command="{Binding ToggleShowPrintAreaCommand}"/>
+                <NativeMenuItemSeparator/>
+                <NativeMenuItem Header="High Quality" Command="{Binding SetHighQualityCommand}"/>
+                <NativeMenuItem Header="Normal Quality" Command="{Binding SetNormalQualityCommand}"/>
+                <NativeMenuItemSeparator/>
+                <NativeMenuItem Header="Toggle All Controls" Command="{Binding ToggleAllControlsCommand}"/>
+                <NativeMenuItem Header="Show Other Courses" Command="{Binding ShowOtherCoursesCommand}"/>
+                <NativeMenuItem Header="Clear Other Courses" Command="{Binding ClearOtherCoursesCommand}"/>
+            </NativeMenuItem>
+
+            <!-- Add Menu -->
+            <NativeMenuItem Header="Add">
+                <NativeMenuItem Header="Control" Command="{Binding AddControlCommand}" Gesture="Cmd+K"/>
+                <NativeMenuItem Header="Start" Command="{Binding AddStartCommand}"/>
+                <NativeMenuItem Header="Finish" Command="{Binding AddFinishCommand}"/>
+                <NativeMenuItemSeparator/>
+                <NativeMenuItem Header="Map Exchange Control" Command="{Binding AddMapExchangeControlCommand}"/>
+                <NativeMenuItem Header="Map Flip Control" Command="{Binding AddMapFlipControlCommand}"/>
+                <NativeMenuItem Header="Map Exchange Separate" Command="{Binding AddMapExchangeSeparateCommand}"/>
+                <NativeMenuItemSeparator/>
+                <NativeMenuItem Header="Descriptions" Command="{Binding AddDescriptionsCommand}"/>
+                <NativeMenuItem Header="Variation" Command="{Binding AddVariationCommand}"/>
+                <NativeMenuItemSeparator/>
+                <NativeMenuItem Header="Text Line" Command="{Binding AddTextLineCommand}"/>
+                <NativeMenuItemSeparator/>
+                <NativeMenuItem Header="Text" Command="{Binding AddTextCommand}"/>
+                <NativeMenuItem Header="Image" Command="{Binding AddImageCommand}"/>
+                <NativeMenuItem Header="Line" Command="{Binding AddLineCommand}"/>
+                <NativeMenuItem Header="Rectangle" Command="{Binding AddRectangleCommand}"/>
+                <NativeMenuItem Header="Ellipse" Command="{Binding AddEllipseCommand}"/>
+                <NativeMenuItemSeparator/>
+                <NativeMenuItem Header="Map Issue" Command="{Binding AddMapIssueCommand}"/>
+                <NativeMenuItem Header="Mandatory Crossing" Command="{Binding AddMandatoryCrossingCommand}"/>
+                <NativeMenuItem Header="Out of Bounds" Command="{Binding AddOutOfBoundsCommand}"/>
+                <NativeMenuItem Header="Dangerous" Command="{Binding AddDangerousCommand}"/>
+                <NativeMenuItem Header="Construction" Command="{Binding AddConstructionCommand}"/>
+                <NativeMenuItem Header="Boundary" Command="{Binding AddBoundaryCommand}"/>
+                <NativeMenuItem Header="Optional Crossing" Command="{Binding AddOptCrossingCommand}"/>
+                <NativeMenuItem Header="Water" Command="{Binding AddWaterCommand}"/>
+                <NativeMenuItem Header="First Aid" Command="{Binding AddFirstAidCommand}"/>
+                <NativeMenuItem Header="Forbidden" Command="{Binding AddForbiddenCommand}"/>
+                <NativeMenuItem Header="Registration Mark" Command="{Binding AddRegMarkCommand}"/>
+                <NativeMenuItem Header="White Out" Command="{Binding AddWhiteOutCommand}"/>
+            </NativeMenuItem>
+
+            <!-- Event Menu -->
+            <NativeMenuItem Header="Event">
+                <NativeMenuItem Header="Change Map File" Command="{Binding ChangeMapFileCommand}"/>
+                <NativeMenuItemSeparator/>
+                <NativeMenuItem Header="Change Codes" Command="{Binding ChangeCodesCommand}"/>
+                <NativeMenuItem Header="Auto Numbering" Command="{Binding AutoNumberingCommand}"/>
+                <NativeMenuItem Header="Remove Unused Controls" Command="{Binding RemoveUnusedControlsCommand}"/>
+                <NativeMenuItemSeparator/>
+                <NativeMenuItem Header="Move All Controls" Command="{Binding MoveAllControlsCommand}"/>
+                <NativeMenuItemSeparator/>
+                <NativeMenuItem Header="Punch Patterns" Command="{Binding PunchPatternsCommand}"/>
+            </NativeMenuItem>
+
+            <!-- Course Menu -->
+            <NativeMenuItem Header="Course">
+                <NativeMenuItem Header="Add Course" Command="{Binding ShowAddCourseDialogCommand}"/>
+                <NativeMenuItem Header="Delete Course" Command="{Binding DeleteCourseCommand}"/>
+                <NativeMenuItem Header="Duplicate Course" Command="{Binding DuplicateCourseCommand}"/>
+                <NativeMenuItem Header="Properties" Command="{Binding ShowCoursePropertiesCommand}"/>
+                <NativeMenuItemSeparator/>
+                <NativeMenuItem Header="Course Order" Command="{Binding ShowCourseOrderCommand}"/>
+                <NativeMenuItem Header="Course Load" Command="{Binding ShowCourseLoadCommand}"/>
+                <NativeMenuItemSeparator/>
+                <NativeMenuItem Header="Course Variation Report" Command="{Binding ShowCourseVariationReportCommand}"/>
+            </NativeMenuItem>
+
+            <!-- Item Menu -->
+            <NativeMenuItem Header="Item">
+                <NativeMenuItem Header="Delete" Command="{Binding DeleteSelectionCommand}" Gesture="Cmd+⌫"/>
+                <NativeMenuItem Header="Delete Fork" Command="{Binding DeleteForkCommand}"/>
+                <NativeMenuItemSeparator/>
+                <NativeMenuItem Header="Add Bend" Command="{Binding AddBendCommand}" Gesture="Cmd+B"/>
+                <NativeMenuItem Header="Remove Bend" Command="{Binding RemoveBendCommand}" Gesture="Cmd+Shift+B"/>
+                <NativeMenuItem Header="Add Gap" Command="{Binding AddGapCommand}" Gesture="Cmd+G"/>
+                <NativeMenuItem Header="Remove Gap" Command="{Binding RemoveGapCommand}" Gesture="Cmd+Shift+G"/>
+                <NativeMenuItemSeparator/>
+                <NativeMenuItem Header="Change Text" Command="{Binding ChangeTextCommand}"/>
+                <NativeMenuItem Header="Change Line Appearance" Command="{Binding ChangeLineAppearanceCommand}"/>
+                <NativeMenuItem Header="Rotate" Command="{Binding RotateCommand}"/>
+                <NativeMenuItem Header="Stretch" Command="{Binding StretchCommand}"/>
+                <NativeMenuItem Header="Leg Flagging">
+                    <NativeMenuItem Header="No Flagging" Command="{Binding SetNoFlaggingCommand}"/>
+                    <NativeMenuItem Header="Entire Flagging" Command="{Binding SetEntireFlaggingCommand}"/>
+                    <NativeMenuItem Header="Begin Flagging" Command="{Binding SetBeginFlaggingCommand}"/>
+                    <NativeMenuItem Header="End Flagging" Command="{Binding SetEndFlaggingCommand}"/>
+                </NativeMenuItem>
+                <NativeMenuItemSeparator/>
+                <NativeMenuItem Header="Change Displayed Courses" Command="{Binding ChangeDisplayedCoursesCommand}"/>
+            </NativeMenuItem>
+
+            <!-- Reports Menu -->
+            <NativeMenuItem Header="Reports">
+                <NativeMenuItem Header="Course Summary" Command="{Binding ShowCourseSummaryCommand}"/>
+                <NativeMenuItem Header="Event Audit" Command="{Binding ShowEventAuditCommand}"/>
+                <NativeMenuItem Header="Leg Lengths" Command="{Binding ShowLegLengthsCommand}"/>
+                <NativeMenuItem Header="Control Crossref" Command="{Binding ShowControlCrossrefCommand}"/>
+                <NativeMenuItem Header="Control and Leg Load" Command="{Binding ShowControlAndLegLoadCommand}"/>
+            </NativeMenuItem>
+
+            <!-- Help Menu -->
+            <NativeMenuItem Header="Help">
+                <NativeMenuItem Header="About Purple Pen" Command="{Binding ShowAboutDialogCommand}"/>
+            </NativeMenuItem>
+        </NativeMenu>
+    </NativeMenu.Menu>
+
     <DockPanel LastChildFill="True">
 
         <!-- ==================== MAIN MENU ==================== -->
