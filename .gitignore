@@ -43,6 +43,7 @@ artifacts
 
 **/.vs
 src/.claude/
+claude.md
 Thumbs.db
 *.opendb
 *.db

@@ -56,7 +56,9 @@
       "Bash('~/.dotnet/dotnet' run:*)",
       "Bash(ls -1 /Users/im/Projects/trash/PurplePen/src/AvPurplePen/Views/*Dialog.axaml)",
       "Bash(xargs basename:*)",
-      "Bash(ls -1 /Users/im/Projects/trash/PurplePen/src/PurplePenViewModels/*DialogViewModel.cs)"
+      "Bash(ls -1 /Users/im/Projects/trash/PurplePen/src/PurplePenViewModels/*DialogViewModel.cs)",
+      "Bash(cat)",
+      "Read(//tmp/**)"
     ]
   }
 }

@@ -1412,8 +1412,22 @@ namespace PurplePen.ViewModels
         {
             if (controller == null) return;
 
-            // Placeholder: Show a message that this feature is not yet implemented in Avalonia
-            await ErrorMessage("Move All Controls feature is not yet ported to Avalonia.");
+            // Part 1: Show dialog to select transformation action
+            MoveAllControlsDialogViewModel vm = new MoveAllControlsDialogViewModel();
+            bool result = await Services.DialogService.ShowDialogAsync(vm);
+
+            if (!result)
+            {
+                return;
+            }
+
+            MoveAllControlsAction action = vm.GetSelectedAction();
+
+            // Part 2: Begin the move all controls process
+            controller.BeginMoveAllControls();
+
+            // Part 3: Start interactive location selection
+            StartMoveAllControls(action);
         }
 
         /// <summary>

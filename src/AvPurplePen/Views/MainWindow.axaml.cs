@@ -594,5 +594,20 @@ namespace AvPurplePen.Views
                 }
             }
         }
+
+        // MoveAllControls button handlers
+        private void ConfirmMoveAllControls_Click(object? sender, RoutedEventArgs e)
+        {
+            if (this.DataContext is MainWindowViewModel viewModel) {
+                viewModel.ConfirmMoveAllControls();
+            }
+        }
+
+        private void CancelMoveAllControls_Click(object? sender, RoutedEventArgs e)
+        {
+            if (this.DataContext is MainWindowViewModel viewModel) {
+                viewModel.CancelMoveAllControls();
+            }
+        }
     }
 }

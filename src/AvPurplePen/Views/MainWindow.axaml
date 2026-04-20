@@ -914,17 +914,65 @@
                      Renders the orienteering map with course overlays using MapDisplay.
                      Handles mouse events for course editing (adding controls, moving items, etc.).
                      Scroll bars are external (horizScroll, vertScroll below). -->
-                <resx:MapViewer
-                    x:Name="mapViewer"
-                    TabIndex="6"
-                    Focusable="True"
-                    Grid.Row="1" Grid.Column="0"
-                    MapDisplay="{Binding MapDisplay}"
-                    MapHighlights="{Binding MapHighlights}"
-                    FancyMouseActivity="MapViewer_MouseActivity"
-                    MouseLocation="{Binding MouseLocationInMap, Mode=OneWayToSource}"
-                    ZoomFactor="{Binding MapZoomFactor, Mode=TwoWay}"
-                />
+                <Grid Grid.Row="1" Grid.Column="0">
+                    <resx:MapViewer
+                        x:Name="mapViewer"
+                        TabIndex="6"
+                        Focusable="True"
+                        MapDisplay="{Binding MapDisplay}"
+                        MapHighlights="{Binding MapHighlights}"
+                        FancyMouseActivity="MapViewer_MouseActivity"
+                        MouseLocation="{Binding MouseLocationInMap, Mode=OneWayToSource}"
+                        ZoomFactor="{Binding MapZoomFactor, Mode=TwoWay}"
+                    />
+
+                    <!-- MoveAllControls floating instruction panel (bottom-left corner) -->
+                    <Border IsVisible="{Binding IsMoveAllControlsActive}"
+                           VerticalAlignment="Bottom"
+                           HorizontalAlignment="Left"
+                           Margin="12,0,0,12"
+                           Background="White" CornerRadius="8" Padding="16"
+                           BoxShadow="0 4 16 rgba(0,0,0,0.2)"
+                           MaxWidth="320"
+                           ZIndex="10">
+                        <StackPanel Spacing="12">
+                            <!-- Instructions -->
+                            <TextBlock Text="{Binding MoveAllControlsInstructions}"
+                                      FontSize="12" FontWeight="Bold"
+                                      TextWrapping="Wrap"
+                                      Foreground="#333"/>
+
+                            <!-- Transformation values (shown after first location selected) -->
+                            <StackPanel x:Name="transformationValuesPanel" Spacing="6">
+                                <Grid ColumnDefinitions="100,*" RowDefinitions="Auto,Auto">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="X Offset:" FontSize="11" Foreground="#666"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding MoveAllControlsXOffset, StringFormat=0.##}" FontSize="11" Foreground="#333"/>
+
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Y Offset:" FontSize="11" Foreground="#666"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding MoveAllControlsYOffset, StringFormat=0.##}" FontSize="11" Foreground="#333"/>
+                                </Grid>
+
+                                <!-- Scale row (for MoveScale and MoveRotateScale) -->
+                                <Grid ColumnDefinitions="100,*" RowDefinitions="Auto" x:Name="scaleRow">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Scale:" FontSize="11" Foreground="#666"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding MoveAllControlsScale, StringFormat=0.####}" FontSize="11" Foreground="#333"/>
+                                </Grid>
+
+                                <!-- Rotation row (for MoveRotate and MoveRotateScale) -->
+                                <Grid ColumnDefinitions="100,*" RowDefinitions="Auto" x:Name="rotationRow">
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Rotation:" FontSize="11" Foreground="#666"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding MoveAllControlsRotation, StringFormat=0.##}°" FontSize="11" Foreground="#333"/>
+                                </Grid>
+                            </StackPanel>
+
+                            <!-- Confirm/Cancel buttons (shown at Confirm stage) -->
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                                <Button Content="Cancel" Padding="10,6" FontSize="11" MinWidth="75" Click="CancelMoveAllControls_Click"/>
+                                <Button Content="Confirm" Padding="10,6" FontSize="11" MinWidth="75" Background="#4CAF50" Foreground="White" Click="ConfirmMoveAllControls_Click"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </Grid>
 
                 <!-- Vertical scroll bar for map viewer -->
                 <ScrollBar x:Name="vertScroll" Grid.Row="1" Grid.Column="1"

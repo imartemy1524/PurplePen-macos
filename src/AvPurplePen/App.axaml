@@ -3,6 +3,7 @@
              x:Class="AvPurplePen.App"
              xmlns:local="using:AvPurplePen"
              xmlns:semi="https://irihi.tech/semi"
+             Name="Purple Pen"
              >
              <!-- Theme variant is set in App.axaml.cs -->
 
@@ -353,4 +354,10 @@
         </Style>
 
     </Application.Styles>
+    <NativeMenu.Menu>
+        <NativeMenu>
+            <NativeMenuItem Header="About Purple Pen" />
+        </NativeMenu>
+    </NativeMenu.Menu>
+
 </Application>

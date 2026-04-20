@@ -118,7 +118,7 @@ namespace PurplePen.ViewModels
             }
         }
 
-        // What to display in the status bar for the location of the mouse in the map. 
+        // What to display in the status bar for the location of the mouse in the map.
         public string StatusBarLocationDisplay {
             get {
                 if (MouseLocationInMap.HasValue) {
@@ -129,6 +129,48 @@ namespace PurplePen.ViewModels
                 }
             }
         }
+
+        // MoveAllControls state tracking
+        [ObservableProperty]
+        private bool isMoveAllControlsActive = false;
+
+        [ObservableProperty]
+        private int moveAllControlsStage = 0; // 0=SelectFirstControl, 1=MoveFirstControl, 2=SelectSecondControl, 3=MoveSecondControl, 4=Confirm
+
+        [ObservableProperty]
+        private MoveAllControlsAction moveAllControlsAction = MoveAllControlsAction.Move;
+
+        [ObservableProperty]
+        private string moveAllControlsInstructions = "";
+
+        [ObservableProperty]
+        private float moveAllControlsXOffset = 0;
+
+        [ObservableProperty]
+        private float moveAllControlsYOffset = 0;
+
+        [ObservableProperty]
+        private double moveAllControlsScale = 1.0;
+
+        [ObservableProperty]
+        private double moveAllControlsRotation = 0;
+
+        // Stage enum for clarity
+        public enum MoveAllControlsStageEnum
+        {
+            SelectFirstControl = 0,
+            MoveFirstControl = 1,
+            SelectSecondControl = 2,
+            MoveSecondControl = 3,
+            Confirm = 4
+        }
+
+        private PointF[] moveAllControlsLocations = new PointF[4];
+        private Id<ControlPoint> moveAllControlsFirstControl;
+        private Id<Special> moveAllControlsFirstSpecial;
+        private Id<ControlPoint> moveAllControlsSecondControl;
+        private Id<Special> moveAllControlsSecondSpecial;
+        private bool moveAllControlsMapUpdated = false;
 
         #region State change notifications.
 
@@ -451,7 +493,14 @@ namespace PurplePen.ViewModels
         { await LeftButtonClick(Pane.Topology, location, pixelSize); }
 
         private async Task LeftButtonClick(Pane pane, PointF location, float pixelSize)
-        { await controller?.LeftButtonClick(pane, location, pixelSize)!; }
+        {
+            if (IsMoveAllControlsActive && pane == Pane.Map)
+            {
+                HandleMoveAllControlsClick(location);
+                return;
+            }
+            await controller?.LeftButtonClick(pane, location, pixelSize)!;
+        }
 
         public async Task MapViewerRightButtonClick(PointF location, float pixelSize)
         { await RightButtonClick(Pane.Map, location, pixelSize); }
@@ -515,6 +564,146 @@ namespace PurplePen.ViewModels
 
         private void RightButtonCancelDrag(Pane pane)
         { controller?.RightButtonCancelDrag(pane); }
+
+        #endregion
+
+        #region MoveAllControls support
+
+        public void StartMoveAllControls(MoveAllControlsAction action)
+        {
+            if (controller == null) return;
+
+            MoveAllControlsAction = action;
+            IsMoveAllControlsActive = true;
+            MoveAllControlsStage = (int)MoveAllControlsStageEnum.SelectFirstControl;
+            moveAllControlsMapUpdated = false;
+
+            // Initialize location array
+            moveAllControlsLocations = new PointF[4];
+
+            // Start the selection process
+            EnterMoveAllControlsStage();
+        }
+
+        private void EnterMoveAllControlsStage()
+        {
+            if (controller == null) return;
+
+            var stage = (MoveAllControlsStageEnum)MoveAllControlsStage;
+
+            switch (stage)
+            {
+                case MoveAllControlsStageEnum.SelectFirstControl:
+                    MoveAllControlsInstructions = "Click on the first control to move";
+                    controller.MoveAllControlsUpdateMovement(MoveAllControlsAction.None, moveAllControlsLocations, moveAllControlsMapUpdated);
+                    moveAllControlsMapUpdated = true;
+                    break;
+
+                case MoveAllControlsStageEnum.MoveFirstControl:
+                    MoveAllControlsInstructions = "Click on the new location for the first control";
+                    controller.MoveAllControlsUpdateMovement(MoveAllControlsAction.None, moveAllControlsLocations, moveAllControlsMapUpdated);
+                    moveAllControlsMapUpdated = true;
+                    break;
+
+                case MoveAllControlsStageEnum.SelectSecondControl:
+                    MoveAllControlsInstructions = "Click on the second control to define the transformation";
+                    controller.MoveAllControlsUpdateMovement(MoveAllControlsAction.Move, moveAllControlsLocations, moveAllControlsMapUpdated);
+                    moveAllControlsMapUpdated = true;
+                    break;
+
+                case MoveAllControlsStageEnum.MoveSecondControl:
+                    MoveAllControlsInstructions = "Click on the new location for the second control";
+                    controller.MoveAllControlsUpdateMovement(MoveAllControlsAction.Move, moveAllControlsLocations, moveAllControlsMapUpdated);
+                    moveAllControlsMapUpdated = true;
+                    break;
+
+                case MoveAllControlsStageEnum.Confirm:
+                    MoveAllControlsInstructions = "Transformation ready. Click Confirm to apply.";
+                    controller.MoveAllControlsUpdateMovement(MoveAllControlsAction, moveAllControlsLocations, moveAllControlsMapUpdated);
+                    moveAllControlsMapUpdated = true;
+                    controller.MoveAllControlsWaitingForConfirmation();
+                    break;
+            }
+        }
+
+        private void HandleMoveAllControlsClick(PointF location)
+        {
+            if (controller == null) return;
+
+            var stage = (MoveAllControlsStageEnum)MoveAllControlsStage;
+
+            switch (stage)
+            {
+                case MoveAllControlsStageEnum.SelectFirstControl:
+                    // Select first control at this location
+                    moveAllControlsLocations[0] = location;
+                    // Note: In a full implementation, we'd hit-test here to find the actual control
+                    // For now, we just use the clicked location
+                    MoveAllControlsStage = (int)MoveAllControlsStageEnum.MoveFirstControl;
+                    EnterMoveAllControlsStage();
+                    break;
+
+                case MoveAllControlsStageEnum.MoveFirstControl:
+                    // Define first target location
+                    moveAllControlsLocations[1] = location;
+                    UpdateMoveAllControlsValues();
+
+                    if (MoveAllControlsAction == MoveAllControlsAction.Move)
+                    {
+                        // For Move-only, we're done - go to confirm
+                        MoveAllControlsStage = (int)MoveAllControlsStageEnum.Confirm;
+                    }
+                    else
+                    {
+                        // For other actions, need second control
+                        MoveAllControlsStage = (int)MoveAllControlsStageEnum.SelectSecondControl;
+                    }
+                    EnterMoveAllControlsStage();
+                    break;
+
+                case MoveAllControlsStageEnum.SelectSecondControl:
+                    // Select second control
+                    moveAllControlsLocations[2] = location;
+                    MoveAllControlsStage = (int)MoveAllControlsStageEnum.MoveSecondControl;
+                    EnterMoveAllControlsStage();
+                    break;
+
+                case MoveAllControlsStageEnum.MoveSecondControl:
+                    // Define second target location
+                    moveAllControlsLocations[3] = location;
+                    UpdateMoveAllControlsValues();
+
+                    // Go to confirm
+                    MoveAllControlsStage = (int)MoveAllControlsStageEnum.Confirm;
+                    EnterMoveAllControlsStage();
+                    break;
+            }
+        }
+
+        private void UpdateMoveAllControlsValues()
+        {
+            MoveAllComputations compute = new MoveAllComputations(MoveAllControlsAction, moveAllControlsLocations);
+            MoveAllControlsXOffset = compute.XOffset;
+            MoveAllControlsYOffset = compute.YOffset;
+            MoveAllControlsScale = compute.Scale;
+            MoveAllControlsRotation = compute.Rotation;
+        }
+
+        public void ConfirmMoveAllControls()
+        {
+            if (controller == null) return;
+
+            controller.FinishMoveAllControls(false);
+            IsMoveAllControlsActive = false;
+        }
+
+        public void CancelMoveAllControls()
+        {
+            if (controller == null) return;
+
+            controller.FinishMoveAllControls(moveAllControlsMapUpdated);
+            IsMoveAllControlsActive = false;
+        }
 
         #endregion
 
