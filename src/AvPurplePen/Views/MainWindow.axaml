@@ -42,7 +42,7 @@
     <DockPanel LastChildFill="True">
 
         <!-- ==================== MAIN MENU ==================== -->
-        <Menu x:Name="mainMenu" DockPanel.Dock="Top">
+        <Menu x:Name="mainMenu" DockPanel.Dock="Top" IsVisible="{OnPlatform True, macOS=False}">
 
             <!-- === File Menu === -->
             <MenuItem x:Name="fileMenu" Header="{resx:Localize MainFrame_fileMenu_Text}">

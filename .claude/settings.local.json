@@ -46,7 +46,11 @@
       "Bash(/Users/im/Projects/trash/PurplePen/artifacts/PurplePen.app/Contents/MacOS/AvPurplePen)",
       "Bash(msbuild PPen.slnx /p:Configuration=Debug)",
       "Bash(grep -E \"\\\\.\\(slnx|sln\\)$\")",
-      "Bash('~/.dotnet/dotnet' build:*)"
+      "Bash('~/.dotnet/dotnet' build:*)",
+      "Bash(xcode-select --print-path)",
+      "Bash(find /Users/im/Projects/trash/PurplePen -name \"*.csproj\" -exec grep -l \"Avalonia\" {} \\\\;)",
+      "Bash(./scripts/build-macos-app.sh)",
+      "Bash(open:*)"
     ]
   }
 }

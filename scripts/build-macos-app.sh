@@ -10,7 +10,7 @@ APP_DIR="${APP_DIR:-$ROOT_DIR/artifacts/PurplePen.app}"
 ICONSET_DIR="${ICONSET_DIR:-$ROOT_DIR/artifacts/PurplePen.iconset}"
 APP_ICON_FILE="${APP_ICON_FILE:-PurplePen.icns}"
 APP_ICON_SOURCE="${APP_ICON_SOURCE:-$ROOT_DIR/src/AvPurplePen/Assets/PurplePenIcon.png}"
-APP_NAME="${APP_NAME:-PurplePen}"
+APP_NAME="${APP_NAME:-Purple Pen (ß)}"
 EXECUTABLE_NAME="${EXECUTABLE_NAME:-AvPurplePen}"
 IDENTITY="${CODESIGN_IDENTITY:-${1:--}}"
 
