@@ -15,6 +15,7 @@ namespace AvPurplePen.Views
     public partial class SetPrintAreaDialog : Window
     {
         private readonly DispatcherTimer updateTimer;
+        public bool DialogAccepted { get; private set; }
 
         /// <summary>
         /// Initializes the dialog.
@@ -41,6 +42,7 @@ namespace AvPurplePen.Views
         /// </summary>
         private void OkButton_Click(object? sender, RoutedEventArgs e)
         {
+            DialogAccepted = true;
             Close(true);
         }
 
@@ -49,6 +51,7 @@ namespace AvPurplePen.Views
         /// </summary>
         private void CancelButton_Click(object? sender, RoutedEventArgs e)
         {
+            DialogAccepted = false;
             Close(false);
         }
     }

@@ -10,6 +10,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
 using PurplePen;
@@ -75,8 +76,36 @@ namespace AvPurplePen
             }
 
             dialog.DataContext = viewModel;
+
+            // SetPrintArea is an interactive tool window: it must stay open while the user drags
+            // the rectangle on the main map. Keep this dialog modeless (like WinForms version).
+            if (viewModel is SetPrintAreaDialogViewModel) {
+                return await ShowModelessDialogAsync(dialog);
+            }
+
             bool? result = await dialog.ShowDialog<bool?>(ownerWindow);
             return result == true;
+        }
+
+        /// <summary>
+        /// Shows a modeless dialog owned by the main window and completes when the dialog closes.
+        /// Returns true if the dialog closed with result true; otherwise false.
+        /// </summary>
+        private Task<bool> ShowModelessDialogAsync(Window dialog)
+        {
+            TaskCompletionSource<bool> completion = new TaskCompletionSource<bool>();
+
+            // Match WinForms behavior for SetPrintArea dialog placement (offset from main window).
+            dialog.WindowStartupLocation = WindowStartupLocation.Manual;
+            dialog.Position = new PixelPoint(ownerWindow.Position.X + 10, ownerWindow.Position.Y + 100);
+
+            dialog.Closed += (_, _) => {
+                bool accepted = dialog is Views.SetPrintAreaDialog setPrintAreaDialog && setPrintAreaDialog.DialogAccepted;
+                completion.TrySetResult(accepted);
+            };
+
+            dialog.Show(ownerWindow);
+            return completion.Task;
         }
 
         /// <summary>
