@@ -80,7 +80,15 @@ namespace PurplePen.ViewModels
                 bool result = await Services.DialogService.ShowDialogAsync(wizard);
                 if (result) {
                     bool success = await controller.NewEvent(wizard.CreateEventInfo);
-                    if (!success) {
+                    if (success) {
+                        // Add the new file to recent files
+                        if (!string.IsNullOrEmpty(controller.FileName)) {
+                            UserSettings.Current.AddRecentFile(controller.FileName);
+                            UserSettings.Current.Save();
+                            UpdateRecentFiles();
+                        }
+                    }
+                    else {
 #if !PORTING
                         // This is bad news. The old file is gone, and we don't have a new file. Go back to initial screen is the best solution,
                         // I guess.
