@@ -2436,7 +2436,11 @@ namespace PurplePen
         // Get the command status for adding a gap.
         public CommandStatus CanAddGap()
         {
+            return CombineStatus(CanAddLegControlGap(), CanAddSpecialGap());
+        }
 
+        private CommandStatus CanAddLegControlGap()
+        {
             SelectionInfo selection = selectionMgr.Selection;
 
             if (selection.SelectionKind == SelectionKind.Control) {
@@ -2454,7 +2458,13 @@ namespace PurplePen
                 return CommandStatus.Disabled;
         }
 
-        // Start the mode for adding a gap to a leg or control.
+        private CommandStatus CanAddSpecialGap()
+        {
+            // Gap support for special objects not yet implemented
+            return CommandStatus.Disabled;
+        }
+
+        // Start the mode for adding a gap to a leg, control, or special object.
         public void BeginAddGap()
         {
             SelectionInfo selection = selectionMgr.Selection;
@@ -2463,6 +2473,10 @@ namespace PurplePen
                 SetCommandMode(new AddControlGapMode(this, (PointCourseObj)selectionMgr.SelectedCourseObjects[0]));
             }
             else if (selection.SelectionKind == SelectionKind.Leg) {
+                SetCommandMode(new AddLegGapMode(this, (LegCourseObj)selectionMgr.SelectedCourseObjects[0]));
+            }
+            else if (selection.SelectionKind == SelectionKind.Special) {
+                // For special objects (lines, rectangles, ellipses), use the same gap mode as legs
                 SetCommandMode(new AddLegGapMode(this, (LegCourseObj)selectionMgr.SelectedCourseObjects[0]));
             }
         }

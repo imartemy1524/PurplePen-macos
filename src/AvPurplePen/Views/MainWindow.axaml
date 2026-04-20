@@ -355,7 +355,11 @@
                           InputGesture="{OnPlatform 'Ctrl+G', macOS='Cmd+G'}"
                           HotKey="{OnPlatform 'Ctrl+G', macOS='Meta+G'}"
                           Command="{Binding AddGapCommand}">
-                    <MenuItem.Icon><Image Source="/Assets/Toolbar/addGap.png" Width="16" Height="16"/></MenuItem.Icon>
+                    <MenuItem.Icon><Image Width="16" Height="16"
+                       Source="{Binding IsEffectivelyEnabled,
+                                RelativeSource={RelativeSource Self},
+                                Converter={x:Static avutil:DisabledImageConverter.Instance},
+                                ConverterParameter=/Assets/Toolbar/addGap.png}"/></MenuItem.Icon>
                 </MenuItem>
                 <MenuItem x:Name="removeGapMenu" Header="{resx:Localize MainFrame_removeGapMenu_Text}"
                           InputGesture="{OnPlatform 'Ctrl+Shift+G', macOS='Cmd+Shift+G'}"
@@ -733,7 +737,11 @@
                     ToolTip.Tip="{resx:Localize MainFrame_addGapToolStripButton_ToolTipText}"
                     Command="{Binding AddGapCommand}"
                     Padding="2,2">
-                <Image Source="/Assets/Toolbar/addGap.png" Width="16" Height="16"/>
+                <Image Width="16" Height="16"
+                       Source="{Binding IsEffectivelyEnabled,
+                                RelativeSource={RelativeSource Self},
+                                Converter={x:Static avutil:DisabledImageConverter.Instance},
+                                ConverterParameter=/Assets/Toolbar/addGap.png}"/>
             </Button>
         </StackPanel>
 

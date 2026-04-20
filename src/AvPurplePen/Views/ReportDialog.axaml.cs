@@ -140,7 +140,7 @@ namespace AvPurplePen.Views
             return blocks;
         }
 
-        private Control CreateBlockControl((string type, string content) block)
+        private Control? CreateBlockControl((string type, string content) block)
         {
             return block.type switch
             {

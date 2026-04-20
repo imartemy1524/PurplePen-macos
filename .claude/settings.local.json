@@ -42,7 +42,11 @@
       "Bash(msbuild PPen.slnx /p:Configuration=Release /v:minimal)",
       "Bash(\"/c/Program Files/Microsoft Visual Studio/2022/Professional/MSBuild/Current/Bin/MSBuild.exe\" PPen.slnx /p:Configuration=Release /v:minimal)",
       "Bash(~/.dotnet/dotnet build:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(/Users/im/Projects/trash/PurplePen/artifacts/PurplePen.app/Contents/MacOS/AvPurplePen)",
+      "Bash(msbuild PPen.slnx /p:Configuration=Debug)",
+      "Bash(grep -E \"\\\\.\\(slnx|sln\\)$\")",
+      "Bash('~/.dotnet/dotnet' build:*)"
     ]
   }
 }

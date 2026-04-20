@@ -3,6 +3,7 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PurplePen.Graphics2D;
 using PurplePen.MapModel;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,7 @@ namespace PurplePen.ViewModels
 
             // Update enabled status.
             CanAddBend = (controller.CanAddBend() == CommandStatus.Enabled);
+            CanAddGap = (controller.CanAddGap() == CommandStatus.Enabled);
 
             // Update checked status of Zoom.
             Zoom50Checked = UpdateZoomChecked(0.5F);
@@ -258,7 +260,7 @@ namespace PurplePen.ViewModels
         {
 #if !PORTING
             // Show the entire map.
-            RectangleF mapBounds = mapDisplay.MapBounds;
+            RectangleF mapBounds = MapDisplay.MapBounds;
             ShowRectangle(mapBounds);
 #endif
         }
@@ -679,9 +681,10 @@ namespace PurplePen.ViewModels
         /// Executes the Add/Text command. Shows the Change Text dialog for adding text.
         /// </summary>
         [RelayCommand]
-        private void AddText()
+        private async Task AddText()
         {
-#if !PORTING
+            if (controller == null || MapDisplay == null) { return; }
+
             short colorOcadId;
             float c, m, y, k;
             bool purpleOverprint;
@@ -691,52 +694,53 @@ namespace PurplePen.ViewModels
             bool fontAutoSize;
             SpecialColor fontColor;
 
-            FindPurple.GetPurpleColor(mapDisplay, controller.GetCourseAppearance(), out colorOcadId, out c, out m, out y, out k, out purpleOverprint);
+            FindPurple.GetPurpleColor(MapDisplay, controller.GetCourseAppearance(), out colorOcadId, out c, out m, out y, out k, out purpleOverprint);
 
-            ChangeText dialog = new ChangeText(MiscText.AddTextSpecialTitle, MiscText.AddTextSpecialExplanation, true,
-                                               CmykColor.FromCmyk(c, m, y, k), controller.ExpandText);
-            dialog.HelpTopic = "EditAddText.htm";
+            var viewModel = new ChangeTextDialogViewModel();
+            viewModel.Initialize(MiscText.AddTextSpecialTitle, MiscText.AddTextSpecialExplanation, true,
+                                new SpecialColor(CmykColor.FromCmyk(c, m, y, k)), controller.ExpandText);
 
             controller.GetAddTextDefaultProperties(out fontName, out fontBold, out fontItalic, out fontColor, out fontHeight, out fontAutoSize);
-            dialog.FontName = fontName;
-            dialog.FontBold = fontBold;
-            dialog.FontItalic = fontItalic;
-            dialog.FontColor = fontColor;
-            dialog.FontSize = fontHeight;
-            dialog.FontSizeAutomatic = fontAutoSize;
+            viewModel.SelectedFontName = fontName;
+            viewModel.FontBold = fontBold;
+            viewModel.FontItalic = fontItalic;
+            viewModel.FontColor = fontColor;
+            viewModel.FontSize = fontHeight;
+            viewModel.FontSizeAutomatic = fontAutoSize;
 
-            if (dialog.ShowDialog(this) == DialogResult.OK) {
-                controller.BeginAddTextSpecialMode(dialog.UserText, dialog.FontName, dialog.FontBold, dialog.FontItalic, dialog.FontColor, dialog.FontSizeAutomatic ? -1 : dialog.FontSize);
+            bool result = await Services.DialogService.ShowDialogAsync(viewModel);
+            if (result) {
+                controller.BeginAddTextSpecialMode(viewModel.UserText, viewModel.SelectedFontName, viewModel.FontBold, viewModel.FontItalic, viewModel.FontColor, viewModel.FontSizeAutomatic ? -1 : viewModel.FontSize);
             }
-
-            dialog.Dispose();
-#endif
         }
 
         /// <summary>
         /// Executes the Add/Image command. Shows an Open File dialog for image selection.
         /// </summary>
         [RelayCommand]
-        private void AddImage()
+        private async Task AddImage()
         {
-#if !PORTING
-            openImageDialog.FileName = null;
-            DialogResult result = openImageDialog.ShowDialog();
+            if (controller == null) { return; }
 
-            if (result == DialogResult.OK) {
-                string fileName = openImageDialog.FileName;
-                controller.BeginAddImageSpecialMode(fileName);
+            var fileOpenVm = new FileOpenSingleViewModel {
+                FileFilters = "Image Files|*.jpg;*.jpeg;*.png;*.bmp;*.gif;*.tiff",
+                InitialFileFilterIndex = 1
+            };
+
+            bool result = await Services.DialogService.ShowDialogAsync(fileOpenVm);
+            if (result && fileOpenVm.SelectedFile != null) {
+                controller.BeginAddImageSpecialMode(fileOpenVm.SelectedFile);
             }
-#endif
         }
 
         /// <summary>
         /// Executes the Add/Line command. Shows the Line Properties dialog.
         /// </summary>
         [RelayCommand]
-        private void AddLine()
+        private async Task AddLine()
         {
-#if !PORTING
+            if (controller == null || MapDisplay == null) { return; }
+
             // Set the course appearance into the dialog
             CourseAppearance appearance = controller.GetCourseAppearance();
 
@@ -744,40 +748,38 @@ namespace PurplePen.ViewModels
             float c, m, y, k;
             bool purpleOverprint;
             short ocadId;
-            FindPurple.GetPurpleColor(mapDisplay, appearance, out ocadId, out c, out m, out y, out k, out purpleOverprint);
+            FindPurple.GetPurpleColor(MapDisplay, appearance, out ocadId, out c, out m, out y, out k, out purpleOverprint);
 
-            LinePropertiesDialog linePropertiesDialog = new LinePropertiesDialog(MiscText.AddLineTitle, MiscText.AddLineExplanation, "EditAddLine.htm", CmykColor.FromCmyk(c, m, y, k), appearance);
+            var viewModel = new LinePropertiesDialogViewModel();
+            viewModel.Initialize(MiscText.AddLineTitle, MiscText.AddLineExplanation, "EditAddLine.htm", new SpecialColor(CmykColor.FromCmyk(c, m, y, k)), appearance);
 
             // Get the defaults for a new line.
             SpecialColor color;
             LineKind lineKind;
             float lineWidth, gapSize, dashSize, cornerRadius;
             controller.GetLineSpecialProperties(SpecialKind.Line, false, out color, out lineKind, out lineWidth, out gapSize, out dashSize, out cornerRadius);
-            linePropertiesDialog.ShowRadius = false;
-            linePropertiesDialog.ShowLineKind = true;
-            linePropertiesDialog.Color = color;
-            linePropertiesDialog.LineKind = lineKind;
-            linePropertiesDialog.LineWidth = lineWidth;
-            linePropertiesDialog.GapSize = gapSize;
-            linePropertiesDialog.DashSize = dashSize;
+            viewModel.ShowRadius = false;
+            viewModel.ShowLineKind = true;
+            viewModel.Color = color;
+            viewModel.LineKind = lineKind;
+            viewModel.LineWidth = lineWidth;
+            viewModel.GapSize = gapSize;
+            viewModel.DashSize = dashSize;
 
-            DialogResult result = linePropertiesDialog.ShowDialog();
-
-            if (result == DialogResult.OK) {
-                controller.BeginAddLineSpecialMode(linePropertiesDialog.Color, linePropertiesDialog.LineKind, linePropertiesDialog.LineWidth, linePropertiesDialog.GapSize, linePropertiesDialog.DashSize);
+            bool result = await Services.DialogService.ShowDialogAsync(viewModel);
+            if (result) {
+                controller.BeginAddLineSpecialMode(viewModel.Color, viewModel.LineKind, viewModel.LineWidth, viewModel.GapSize, viewModel.DashSize);
             }
-
-            linePropertiesDialog.Dispose();
-#endif
         }
 
         /// <summary>
         /// Executes the Add/Rectangle command. Shows the Line Properties dialog.
         /// </summary>
         [RelayCommand]
-        private void AddRectangle()
+        private async Task AddRectangle()
         {
-#if !PORTING
+            if (controller == null || MapDisplay == null) { return; }
+
             // Set the course appearance into the dialog
             CourseAppearance appearance = controller.GetCourseAppearance();
 
@@ -785,41 +787,39 @@ namespace PurplePen.ViewModels
             float c, m, y, k;
             bool purpleOverprint;
             short ocadId;
-            FindPurple.GetPurpleColor(mapDisplay, appearance, out ocadId, out c, out m, out y, out k, out purpleOverprint);
+            FindPurple.GetPurpleColor(MapDisplay, appearance, out ocadId, out c, out m, out y, out k, out purpleOverprint);
 
-            LinePropertiesDialog linePropertiesDialog = new LinePropertiesDialog(MiscText.AddRectangleTitle, MiscText.AddRectangleExplanation, "EditAddRectangle.htm", CmykColor.FromCmyk(c, m, y, k), appearance);
+            var viewModel = new LinePropertiesDialogViewModel();
+            viewModel.Initialize(MiscText.AddRectangleTitle, MiscText.AddRectangleExplanation, "EditAddRectangle.htm", new SpecialColor(CmykColor.FromCmyk(c, m, y, k)), appearance);
 
             // Get the defaults for a new line.
             SpecialColor color;
             LineKind lineKind;
             float lineWidth, gapSize, dashSize, cornerRadius;
             controller.GetLineSpecialProperties(SpecialKind.Rectangle, false, out color, out lineKind, out lineWidth, out gapSize, out dashSize, out cornerRadius);
-            linePropertiesDialog.ShowRadius = true;
-            linePropertiesDialog.ShowLineKind = false;
-            linePropertiesDialog.Color = color;
-            linePropertiesDialog.LineKind = LineKind.Single;
-            linePropertiesDialog.LineWidth = lineWidth;
-            linePropertiesDialog.GapSize = gapSize;
-            linePropertiesDialog.DashSize = dashSize;
-            linePropertiesDialog.CornerRadius = cornerRadius;
+            viewModel.ShowRadius = true;
+            viewModel.ShowLineKind = false;
+            viewModel.Color = color;
+            viewModel.LineKind = LineKind.Single;
+            viewModel.LineWidth = lineWidth;
+            viewModel.GapSize = gapSize;
+            viewModel.DashSize = dashSize;
+            viewModel.CornerRadius = cornerRadius;
 
-            DialogResult result = linePropertiesDialog.ShowDialog();
-
-            if (result == DialogResult.OK) {
-                controller.BeginAddRectangleSpecialMode(false, linePropertiesDialog.Color, linePropertiesDialog.LineKind, linePropertiesDialog.LineWidth, linePropertiesDialog.GapSize, linePropertiesDialog.DashSize, linePropertiesDialog.CornerRadius);
+            bool result = await Services.DialogService.ShowDialogAsync(viewModel);
+            if (result) {
+                controller.BeginAddRectangleSpecialMode(false, viewModel.Color, viewModel.LineKind, viewModel.LineWidth, viewModel.GapSize, viewModel.DashSize, viewModel.CornerRadius);
             }
-
-            linePropertiesDialog.Dispose();
-#endif
         }
 
         /// <summary>
         /// Executes the Add/Ellipse command. Shows the Line Properties dialog.
         /// </summary>
         [RelayCommand]
-        private void AddEllipse()
+        private async Task AddEllipse()
         {
-#if !PORTING
+            if (controller == null || MapDisplay == null) { return; }
+
             // Set the course appearance into the dialog
             CourseAppearance appearance = controller.GetCourseAppearance();
 
@@ -827,32 +827,29 @@ namespace PurplePen.ViewModels
             float c, m, y, k;
             bool purpleOverprint;
             short ocadId;
-            FindPurple.GetPurpleColor(mapDisplay, appearance, out ocadId, out c, out m, out y, out k, out purpleOverprint);
+            FindPurple.GetPurpleColor(MapDisplay, appearance, out ocadId, out c, out m, out y, out k, out purpleOverprint);
 
-            LinePropertiesDialog linePropertiesDialog = new LinePropertiesDialog(MiscText.AddEllipseTitle, MiscText.AddEllipseExplanation, "EditAddEllipse.htm", CmykColor.FromCmyk(c, m, y, k), appearance);
+            var viewModel = new LinePropertiesDialogViewModel();
+            viewModel.Initialize(MiscText.AddEllipseTitle, MiscText.AddEllipseExplanation, "EditAddEllipse.htm", new SpecialColor(CmykColor.FromCmyk(c, m, y, k)), appearance);
 
             // Get the defaults for a new line.
             SpecialColor color;
             LineKind lineKind;
             float lineWidth, gapSize, dashSize, cornerRadius;
             controller.GetLineSpecialProperties(SpecialKind.Ellipse, false, out color, out lineKind, out lineWidth, out gapSize, out dashSize, out cornerRadius);
-            linePropertiesDialog.ShowRadius = false;
-            linePropertiesDialog.ShowLineKind = true;
-            linePropertiesDialog.Color = color;
-            linePropertiesDialog.LineKind = LineKind.Single;
-            linePropertiesDialog.LineWidth = lineWidth;
-            linePropertiesDialog.GapSize = gapSize;
-            linePropertiesDialog.DashSize = dashSize;
-            linePropertiesDialog.CornerRadius = cornerRadius;
+            viewModel.ShowRadius = false;
+            viewModel.ShowLineKind = true;
+            viewModel.Color = color;
+            viewModel.LineKind = LineKind.Single;
+            viewModel.LineWidth = lineWidth;
+            viewModel.GapSize = gapSize;
+            viewModel.DashSize = dashSize;
+            viewModel.CornerRadius = cornerRadius;
 
-            DialogResult result = linePropertiesDialog.ShowDialog();
-
-            if (result == DialogResult.OK) {
-                controller.BeginAddRectangleSpecialMode(true, linePropertiesDialog.Color, linePropertiesDialog.LineKind, linePropertiesDialog.LineWidth, linePropertiesDialog.GapSize, linePropertiesDialog.DashSize, 0);
+            bool result = await Services.DialogService.ShowDialogAsync(viewModel);
+            if (result) {
+                controller.BeginAddRectangleSpecialMode(true, viewModel.Color, viewModel.LineKind, viewModel.LineWidth, viewModel.GapSize, viewModel.DashSize, 0);
             }
-
-            linePropertiesDialog.Dispose();
-#endif
         }
 
         #endregion // Add special item commands
@@ -887,13 +884,16 @@ namespace PurplePen.ViewModels
         /// <summary>
         /// Executes the Item/Add Gap command.
         /// </summary>
-        [RelayCommand]
+        [RelayCommand(CanExecute = nameof(CanAddGap))]
         private void AddGap()
         {
             if (controller == null) { return; }
 
             controller.BeginAddGap();
         }
+
+        [ObservableProperty, NotifyCanExecuteChangedFor(nameof(AddGapCommand))]
+        private bool canAddGap;
 
         /// <summary>
         /// Executes the Item/Remove Gap command.
@@ -943,7 +943,7 @@ namespace PurplePen.ViewModels
                 bool fontBold, fontItalic;
                 float fontHeight;
                 SpecialColor fontColor;
-                FindPurple.GetPurpleColor(mapDisplay, controller.GetCourseAppearance(), out colorOcadId, out c, out m, out y, out k, out purpleOverprint);
+                FindPurple.GetPurpleColor(MapDisplay, controller.GetCourseAppearance(), out colorOcadId, out c, out m, out y, out k, out purpleOverprint);
 
                 string oldText = controller.GetChangableText();
                 controller.GetChangableTextProperties(out fontName, out fontBold, out fontItalic, out fontColor, out fontHeight);
@@ -980,7 +980,7 @@ namespace PurplePen.ViewModels
                 short colorOcadId;
                 float c, m, y, k;
                 bool purpleOverprint;
-                FindPurple.GetPurpleColor(mapDisplay, appearance, out colorOcadId, out c, out m, out y, out k, out purpleOverprint);
+                FindPurple.GetPurpleColor(MapDisplay, appearance, out colorOcadId, out c, out m, out y, out k, out purpleOverprint);
 
                 LinePropertiesDialog linePropertiesDialog = new LinePropertiesDialog(MiscText.ChangeLineAppearanceTitle, MiscText.ChangeLineAppearanceExplanation, "ItemChangeLineAppearance.htm", CmykColor.FromCmyk(c, m, y, k), appearance);
 
@@ -1510,9 +1510,9 @@ namespace PurplePen.ViewModels
             float c, m, y, k;
             bool purpleOverprint;
             short ocadId;
-            FindPurple.GetPurpleColor(mapDisplay, null, out ocadId, out c, out m, out y, out k, out purpleOverprint);
+            FindPurple.GetPurpleColor(MapDisplay, null, out ocadId, out c, out m, out y, out k, out purpleOverprint);
             dialog.SetDefaultPurple(c, m, y, k);
-            dialog.UsesOcadMap = (mapDisplay.MapType == MapType.OCAD);
+            dialog.UsesOcadMap = (MapDisplay.MapType == MapType.OCAD);
             dialog.SetMapLayers(controller.GetUnderlyingMapColors());
 
             // Set the course appearance into the dialog

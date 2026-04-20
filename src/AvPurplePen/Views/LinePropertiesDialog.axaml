@@ -1,0 +1,115 @@
+<!--
+    LinePropertiesDialog.axaml
+    Dialog for editing line properties (color, width, gap, dash, radius).
+-->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:PurplePen.ViewModels"
+        xmlns:resx="using:AvPurplePen"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        d:DesignWidth="500" d:DesignHeight="600"
+        x:Class="AvPurplePen.Views.LinePropertiesDialog"
+        x:DataType="vm:LinePropertiesDialogViewModel"
+        Title="Line Properties"
+        Icon="/Assets/transparent.ico"
+        Width="500" Height="600"
+        CanResize="False"
+        CanMinimize="False"
+        CanMaximize="False"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+    <Design.DataContext>
+        <vm:LinePropertiesDialogViewModel/>
+    </Design.DataContext>
+
+    <DockPanel LastChildFill="True">
+
+        <!-- Button Bar -->
+        <Border DockPanel.Dock="Bottom" BorderThickness="0,1,0,0" BorderBrush="#E0E0E0" Padding="16,12" Background="#F5F5F5">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+                <Button x:Name="okButton"
+                        Content="OK"
+                        Command="{Binding OkCommand}"
+                        MinWidth="90" Padding="12,6"
+                        IsDefault="True"/>
+                <Button x:Name="cancelButton"
+                        Content="Cancel"
+                        Command="{Binding CancelCommand}"
+                        MinWidth="90" Padding="12,6"
+                        IsCancel="True"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Content -->
+        <ScrollViewer Padding="20">
+            <StackPanel Spacing="16">
+
+                <!-- Explanation -->
+                <TextBlock Text="{Binding Explanation}"
+                           TextWrapping="Wrap"
+                           FontSize="12"
+                           Foreground="#646464"/>
+
+                <!-- Color -->
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Color:" FontWeight="Bold" FontSize="13"/>
+                    <ComboBox x:Name="colorCombo"
+                              ItemsSource="{Binding ColorOptions}"
+                              SelectedIndex="{Binding SelectedColorIndex, Mode=TwoWay}"
+                              MinHeight="36"/>
+                </StackPanel>
+
+                <!-- Line Kind (conditionally visible) -->
+                <StackPanel Spacing="8" IsVisible="{Binding ShowLineKind}">
+                    <TextBlock Text="Line Style:" FontWeight="Bold" FontSize="13"/>
+                    <ComboBox x:Name="lineKindCombo"
+                              ItemsSource="{Binding LineKindOptions}"
+                              SelectedIndex="{Binding SelectedLineKind, Mode=TwoWay}"
+                              MinHeight="36"/>
+                </StackPanel>
+
+                <!-- Line Width -->
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Line Width (mm):" FontWeight="Bold" FontSize="13"/>
+                    <NumericUpDown Value="{Binding LineWidth, Mode=TwoWay}"
+                                   Minimum="0.1" Maximum="10"
+                                   Increment="0.1"
+                                   MinHeight="36"/>
+                </StackPanel>
+
+                <!-- Gap Size (only for Double/Dashed) -->
+                <StackPanel Spacing="8" x:Name="gapSizePanel">
+                    <TextBlock Text="Gap Size (mm):" FontWeight="Bold" FontSize="13"/>
+                    <NumericUpDown Value="{Binding GapSize, Mode=TwoWay}"
+                                   Minimum="0.1" Maximum="10"
+                                   Increment="0.1"
+                                   MinHeight="36"/>
+                </StackPanel>
+
+                <!-- Dash Size (only for Dashed) -->
+                <StackPanel Spacing="8" x:Name="dashSizePanel">
+                    <TextBlock Text="Dash Size (mm):" FontWeight="Bold" FontSize="13"/>
+                    <NumericUpDown Value="{Binding DashSize, Mode=TwoWay}"
+                                   Minimum="0.1" Maximum="10"
+                                   Increment="0.1"
+                                   MinHeight="36"/>
+                </StackPanel>
+
+                <!-- Corner Radius (conditionally visible) -->
+                <StackPanel Spacing="8" IsVisible="{Binding ShowRadius}">
+                    <TextBlock Text="Corner Radius (mm):" FontWeight="Bold" FontSize="13"/>
+                    <NumericUpDown Value="{Binding CornerRadius, Mode=TwoWay}"
+                                   Minimum="0" Maximum="50"
+                                   Increment="0.1"
+                                   MinHeight="36"/>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+
+    </DockPanel>
+
+</Window>

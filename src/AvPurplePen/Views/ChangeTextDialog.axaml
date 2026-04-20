@@ -1,0 +1,105 @@
+<!--
+    ChangeTextDialog.axaml
+    Dialog for editing text properties (font, size, color, style).
+-->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:PurplePen.ViewModels"
+        xmlns:resx="using:AvPurplePen"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        d:DesignWidth="500" d:DesignHeight="600"
+        x:Class="AvPurplePen.Views.ChangeTextDialog"
+        x:DataType="vm:ChangeTextDialogViewModel"
+        Title="Edit Text"
+        Icon="/Assets/transparent.ico"
+        Width="500" Height="600"
+        CanResize="False"
+        CanMinimize="False"
+        CanMaximize="False"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+    <Design.DataContext>
+        <vm:ChangeTextDialogViewModel/>
+    </Design.DataContext>
+
+    <DockPanel LastChildFill="True">
+
+        <!-- Button Bar -->
+        <Border DockPanel.Dock="Bottom" BorderThickness="0,1,0,0" BorderBrush="#E0E0E0" Padding="16,12" Background="#F5F5F5">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+                <Button x:Name="okButton"
+                        Content="OK"
+                        Command="{Binding OkCommand}"
+                        MinWidth="90" Padding="12,6"
+                        IsDefault="True"/>
+                <Button x:Name="cancelButton"
+                        Content="Cancel"
+                        Command="{Binding CancelCommand}"
+                        MinWidth="90" Padding="12,6"
+                        IsCancel="True"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Content -->
+        <ScrollViewer Padding="20">
+            <StackPanel Spacing="16">
+
+                <!-- Explanation -->
+                <TextBlock Text="{Binding Explanation}"
+                           TextWrapping="Wrap"
+                           FontSize="12"
+                           Foreground="#646464"/>
+
+                <!-- Text Content -->
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Text:" FontWeight="Bold" FontSize="13"/>
+                    <TextBox x:Name="userTextBox"
+                             Text="{Binding UserText, Mode=TwoWay}"
+                             MinHeight="100"
+                             AcceptsReturn="True"
+                             TextWrapping="Wrap"
+                             Padding="8"/>
+                </StackPanel>
+
+                <!-- Font Selection -->
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Font:" FontWeight="Bold" FontSize="13"/>
+                    <ComboBox x:Name="fontCombo"
+                              ItemsSource="{Binding AvailableFonts}"
+                              SelectedItem="{Binding SelectedFontName, Mode=TwoWay}"
+                              MinHeight="36"/>
+                </StackPanel>
+
+                <!-- Font Styles -->
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Style:" FontWeight="Bold" FontSize="13"/>
+                    <StackPanel Orientation="Horizontal" Spacing="16">
+                        <CheckBox Content="Bold"
+                                  IsChecked="{Binding FontBold, Mode=TwoWay}"/>
+                        <CheckBox Content="Italic"
+                                  IsChecked="{Binding FontItalic, Mode=TwoWay}"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Font Size -->
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Font Size:" FontWeight="Bold" FontSize="13"/>
+                    <StackPanel Spacing="8">
+                        <CheckBox Content="Automatic size"
+                                  IsChecked="{Binding FontSizeAutomatic, Mode=TwoWay}"/>
+                        <NumericUpDown Value="{Binding FontSize, Mode=TwoWay}"
+                                       Minimum="6" Maximum="72"
+                                       Increment="0.5"
+                                       IsEnabled="{Binding !FontSizeAutomatic}"/>
+                    </StackPanel>
+                </StackPanel>
+
+            </StackPanel>
+        </ScrollViewer>
+
+    </DockPanel>
+
+</Window>
