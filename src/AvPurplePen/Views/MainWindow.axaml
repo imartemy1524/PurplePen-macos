@@ -62,7 +62,10 @@
                           Command="{Binding SaveCommand}">
                     <MenuItem.Icon><Image Source="/Assets/Toolbar/save.png" Width="16" Height="16"/></MenuItem.Icon>
                 </MenuItem>
-                <MenuItem x:Name="saveAsMenu" Header="{resx:Localize MainFrame_saveAsMenu_Text}" Command="{Binding SaveAsCommand}"/>
+                <MenuItem x:Name="saveAsMenu" Header="{resx:Localize MainFrame_saveAsMenu_Text}"
+                          InputGesture="{OnPlatform 'Ctrl+Shift+S', macOS='Cmd+Shift+S'}"
+                          HotKey="{OnPlatform 'Ctrl+Shift+S', macOS='Meta+Shift+S'}"
+                          Command="{Binding SaveAsCommand}"/>
                 <Separator/>
                 <MenuItem x:Name="createOcadFilesMenu" Header="{resx:Localize MainFrame_createOcadFilesMenu_Text}" Command="{Binding CreateOcadFilesCommand}"/>
                 <MenuItem x:Name="createImageFilesMenu" Header="{resx:Localize MainFrame_createImageFilesMenu_Text}" Command="{Binding CreateImageFilesCommand}"/>

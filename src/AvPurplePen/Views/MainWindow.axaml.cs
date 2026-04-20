@@ -178,7 +178,7 @@ namespace AvPurplePen.Views
 
             menu.Items.Add(new NativeMenuItemSeparator());
             menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_saveMenu_Text"), Command = _mainViewModel!.SaveCommand, Gesture = new KeyGesture(Key.S, KeyModifiers.Meta) });
-            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_saveAsMenu_Text"), Command = _mainViewModel!.SaveAsCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_saveAsMenu_Text"), Command = _mainViewModel!.SaveAsCommand, Gesture = new KeyGesture(Key.S, KeyModifiers.Meta | KeyModifiers.Shift) });
             menu.Items.Add(new NativeMenuItemSeparator());
             menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_createOcadFilesMenu_Text"), Command = _mainViewModel!.CreateOcadFilesCommand });
             menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_createImageFilesMenu_Text"), Command = _mainViewModel!.CreateImageFilesCommand });

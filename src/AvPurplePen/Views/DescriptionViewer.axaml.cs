@@ -179,8 +179,13 @@ public partial class DescriptionViewer : UserControl
 
         int cellContentPixelSize = MeasureCellContentSize();
 
+        // Determine symbol color based on current theme
+        System.Drawing.Color symbolColor = ActualThemeVariant == Avalonia.Styling.ThemeVariant.Dark
+            ? System.Drawing.Color.White
+            : System.Drawing.Color.Black;
+
         // Get the information to configure the popup menu, or null if no popup menu should be shown.
-        DescriptionPopupViewModel? popupViewModel = vm.GetPopupMenu(hitTest, renderer, cellContentPixelSize);
+        DescriptionPopupViewModel? popupViewModel = vm.GetPopupMenu(hitTest, renderer, cellContentPixelSize, symbolColor);
         if (popupViewModel == null) 
             return;
 

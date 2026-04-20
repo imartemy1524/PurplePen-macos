@@ -34,7 +34,7 @@ namespace PurplePen.ViewModels
         // Items to display in the grid, each with row/column placement.
         public ObservableCollection<PopupGridItemViewModel> MenuItems { get; } = new();
 
-        public DescriptionPopupViewModel(SymbolDB symbolDB, string langId, int cellContentPixelSize, DescriptionChangeData descriptionChangeData, PopupConfigurationData popupConfigurationData)
+        public DescriptionPopupViewModel(SymbolDB symbolDB, string langId, int cellContentPixelSize, DescriptionChangeData descriptionChangeData, PopupConfigurationData popupConfigurationData, System.Drawing.Color? symbolColor = null)
         {
             this.symbolDB = symbolDB;
             this.langId = langId;
@@ -42,7 +42,7 @@ namespace PurplePen.ViewModels
             this.Columns = 8;
 
             this.MenuItems.Clear();
-            SymbolImageCache.Instance.Configure(symbolDB, cellContentPixelSize); // Cache symbol images at the exact size that will be drawn, for best look.
+            SymbolImageCache.Instance.Configure(symbolDB, cellContentPixelSize, symbolColor); // Cache symbol images at the exact size that will be drawn, for best look.
 
             // Add all the items to the popup menu according to the configuration data,
             // which specifies what kinds of items to add.
@@ -223,16 +223,20 @@ namespace PurplePen.ViewModels
         private SymbolDB? symbolDB;
         private string standard = "";
         private int boxSize;
+        private Color symbolColor = Color.Black;
 
         private Dictionary<string, IGraphicsBitmap> cache = new();
 
         private SymbolImageCache() { }
 
-        public void Configure(SymbolDB symbolDB, int boxSize)
+        public void Configure(SymbolDB symbolDB, int boxSize, Color? symbolColor = null)
         {
-            if (this.symbolDB != symbolDB || this.boxSize != boxSize) {
+            if (this.symbolDB != symbolDB || this.boxSize != boxSize || (symbolColor.HasValue && this.symbolColor != symbolColor.Value)) {
                 this.symbolDB = symbolDB;
                 this.boxSize = boxSize;
+                if (symbolColor.HasValue) {
+                    this.symbolColor = symbolColor.Value;
+                }
                 this.standard = symbolDB.Standard;
                 ClearCache();
             }
@@ -272,7 +276,7 @@ namespace PurplePen.ViewModels
                     // Use transparent background.
                     using (IBitmapGraphicsTarget grTarget = Services.BitmapGraphicsTargetProvider.CreateBitmapGraphicsTarget(pixelWidth, pixelHeight, CmykColor.FromCmyka(0, 0, 0, 0, 0), DefaultColorConverter.Instance)) {
                         grTarget.PushAntiAliasing(true);
-                        symbol.Draw(grTarget, CmykColor.FromColor(Color.Black), new RectangleF(0, 0, pixelWidth, pixelHeight));
+                        symbol.Draw(grTarget, CmykColor.FromColor(symbolColor), new RectangleF(0, 0, pixelWidth, pixelHeight));
                         cache[symbolID] = grTarget.FinishBitmap();
                     }
                 }
