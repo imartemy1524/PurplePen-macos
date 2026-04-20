@@ -1,0 +1,82 @@
+<!--
+    ChangeCodesDialog.axaml
+    Dialog for editing control point codes.
+-->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:PurplePen.ViewModels"
+        xmlns:resx="using:AvPurplePen"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        d:DesignWidth="500" d:DesignHeight="500"
+        x:Class="AvPurplePen.Views.ChangeCodesDialog"
+        x:DataType="vm:ChangeCodesDialogViewModel"
+        Title="Change Control Codes"
+        Icon="/Assets/transparent.ico"
+        Width="500" Height="500"
+        CanResize="True"
+        CanMinimize="False"
+        CanMaximize="False"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+    <Design.DataContext>
+        <vm:ChangeCodesDialogViewModel/>
+    </Design.DataContext>
+
+    <DockPanel LastChildFill="True">
+
+        <!-- Button Bar -->
+        <Border DockPanel.Dock="Bottom" BorderThickness="0,1,0,0" BorderBrush="#E0E0E0" Padding="16,12" Background="#F5F5F5">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+                <Button x:Name="okButton"
+                        Content="OK"
+                        Command="{Binding OkCommand}"
+                        MinWidth="90" Padding="12,6"
+                        IsDefault="True"/>
+                <Button x:Name="cancelButton"
+                        Content="Cancel"
+                        Command="{Binding CancelCommand}"
+                        MinWidth="90" Padding="12,6"
+                        IsCancel="True"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Content -->
+        <Border Padding="20">
+            <Grid RowDefinitions="Auto,*">
+
+                <!-- Header -->
+                <TextBlock Grid.Row="0"
+                           Text="Edit the codes for each control:"
+                           FontSize="12" Foreground="#666" Margin="0,0,0,12"/>
+
+                <!-- Code List -->
+                <ScrollViewer Grid.Row="1">
+                    <ItemsControl ItemsSource="{Binding Codes}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderThickness="0,0,0,1" BorderBrush="#E0E0E0" Padding="0,8">
+                                    <Grid ColumnDefinitions="100,*">
+                                        <TextBlock Grid.Column="0"
+                                                   Text="{Binding ControlNumber}"
+                                                   VerticalAlignment="Center"
+                                                   Foreground="#666"/>
+                                        <TextBox Grid.Column="1"
+                                                 Text="{Binding Code, Mode=TwoWay}"
+                                                 Margin="12,0,0,0"
+                                                 Padding="8,4"/>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+            </Grid>
+        </Border>
+
+    </DockPanel>
+
+</Window>

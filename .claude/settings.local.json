@@ -50,7 +50,13 @@
       "Bash(xcode-select --print-path)",
       "Bash(find /Users/im/Projects/trash/PurplePen -name \"*.csproj\" -exec grep -l \"Avalonia\" {} \\\\;)",
       "Bash(./scripts/build-macos-app.sh)",
-      "Bash(open:*)"
+      "Bash(open:*)",
+      "Bash(ls -la /Users/im/Projects/trash/PurplePen/src/PurplePen/ChangeMapFile*)",
+      "Bash(/usr/local/bin/dotnet build:*)",
+      "Bash('~/.dotnet/dotnet' run:*)",
+      "Bash(ls -1 /Users/im/Projects/trash/PurplePen/src/AvPurplePen/Views/*Dialog.axaml)",
+      "Bash(xargs basename:*)",
+      "Bash(ls -1 /Users/im/Projects/trash/PurplePen/src/PurplePenViewModels/*DialogViewModel.cs)"
     ]
   }
 }

@@ -1299,83 +1299,84 @@ namespace PurplePen.ViewModels
         /// Executes the Event/Change Map File command. Shows the Change Map File dialog.
         /// </summary>
         [RelayCommand]
-        private void ChangeMapFile()
+        private async Task ChangeMapFile()
         {
-#if !PORTING
-            // Initialize dialog.
-            ChangeMapFile dialog = new ChangeMapFile();
-            dialog.MapFile = controller.MapFileName;
+            if (controller == null || MapDisplay == null) return;
+
+            // Create and initialize the dialog
+            ChangeMapFileDialogViewModel vm = new ChangeMapFileDialogViewModel();
+            int mapType = (int)controller.MapType;
+            float dpi = 96.0f;
             if (controller.MapType == MapType.Bitmap) {
-                dialog.MapScale = controller.MapScale;   // Note: these must be set AFTER the MapFile property
-                dialog.Dpi = controller.MapDpi;
+                dpi = controller.MapDpi;
             }
-            else if (controller.MapType == MapType.PDF) {
-                dialog.MapScale = controller.MapScale;
-            }
+            vm.Initialize(controller.MapFileName, mapType, controller.MapScale, dpi);
 
-            // Show the dialog.
-            DialogResult result = dialog.ShowDialog(this);
+            // Show the dialog
+            bool result = await Services.DialogService.ShowDialogAsync(vm);
 
-            // Apply new map file.
-            if (result == DialogResult.OK) {
-                controller.ChangeMapFile(dialog.MapType, dialog.MapFile, dialog.MapScale, dialog.Dpi);
+            // Apply the changes
+            if (result && !string.IsNullOrEmpty(vm.MapFileName)) {
+                controller.ChangeMapFile((MapType)vm.SelectedMapType, vm.MapFileName, vm.MapScale, vm.MapDpi);
             }
-#endif
         }
 
         /// <summary>
         /// Executes the Event/Change Codes command. Shows the Change All Codes dialog.
         /// </summary>
         [RelayCommand]
-        private void ChangeCodes()
+        private async Task ChangeCodes()
         {
-#if !PORTING
-            // Initialize the dialog with the current codes.
-            ChangeAllCodes changeCodesDialog = new ChangeAllCodes();
-            changeCodesDialog.SetEventDB(controller.GetEventDB());
-            changeCodesDialog.Codes = controller.GetAllControlCodes();
+            if (controller == null) return;
 
-            // Show the dialog to allow people to change the codes.
-            DialogResult result = changeCodesDialog.ShowDialog(this);
+            // Get all control codes
+            KeyValuePair<object, string>[] codes = controller.GetAllControlCodes();
 
-            // Apply the changes.
-            if (result == DialogResult.OK) {
-                controller.SetAllControlCodes(changeCodesDialog.Codes);
+            if (codes.Length == 0)
+            {
+                await InfoMessage("No controls found.");
+                return;
             }
 
-            changeCodesDialog.Dispose();
-#endif
+            // Create and initialize the dialog
+            ChangeCodesDialogViewModel vm = new ChangeCodesDialogViewModel();
+            vm.Initialize(codes);
+
+            // Show the dialog
+            bool result = await Services.DialogService.ShowDialogAsync(vm);
+
+            // Apply the changes
+            if (result)
+            {
+                controller.SetAllControlCodes(vm.GetUpdatedCodes());
+                await InfoMessage($"Control codes updated for {codes.Length} controls.");
+            }
         }
 
         /// <summary>
         /// Executes the Event/Auto Numbering command. Shows the Auto Numbering dialog.
         /// </summary>
         [RelayCommand]
-        private void AutoNumbering()
+        private async Task AutoNumbering()
         {
-#if !PORTING
-            // Get initial values.
+            if (controller == null) return;
+
+            // Get initial values
             int firstCode;
             bool disallowInvertibleCodes;
-
             controller.GetAutoNumbering(out firstCode, out disallowInvertibleCodes);
 
-            // Initialize dialog.
-            AutoNumbering autoNumberingDialog = new AutoNumbering();
-            autoNumberingDialog.FirstCode = firstCode;
-            autoNumberingDialog.DisallowInvertibleCodes = disallowInvertibleCodes;
-            autoNumberingDialog.RenumberExisting = false;
+            // Create and initialize the dialog
+            AutoNumberingDialogViewModel vm = new AutoNumberingDialogViewModel();
+            vm.Initialize(firstCode, disallowInvertibleCodes);
 
-            // Show the dialog.
-            DialogResult result = autoNumberingDialog.ShowDialog(this);
+            // Show the dialog
+            bool result = await Services.DialogService.ShowDialogAsync(vm);
 
-            // Apply the changes.
-            if (result == DialogResult.OK) {
-                controller.AutoNumbering(autoNumberingDialog.FirstCode, autoNumberingDialog.DisallowInvertibleCodes, autoNumberingDialog.RenumberExisting);
+            // Apply the changes
+            if (result) {
+                controller.AutoNumbering(vm.FirstCode, vm.DisallowInvertibleCodes, vm.RenumberExisting);
             }
-
-            autoNumberingDialog.Dispose();
-#endif
         }
 
         /// <summary>
@@ -1384,152 +1385,120 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private async Task RemoveUnusedControls()
         {
-#if !PORTING
-            List<KeyValuePair<Id<ControlPoint>,string>> unusedControls = controller.GetUnusedControls();
+            if (controller == null) return;
+
+            List<KeyValuePair<Id<ControlPoint>, string>> unusedControls = controller.GetUnusedControls();
 
             if (unusedControls.Count == 0) {
                 // No controls to delete. Tell the user.
-                await InfoMessage(MiscText.NoUnusedControls);
+                await InfoMessage("No unused controls found.");
             }
             else {
-                // Put up the dialog and do it.
-                UnusedControls dialog = new UnusedControls();
-                dialog.SetControlsToDelete(controller.GetUnusedControls());
-
-                if (dialog.ShowDialog() == DialogResult.OK) {
-                    controller.RemoveControls(dialog.GetControlsToDelete());
+                // Confirm with the user before deleting
+                string message = $"Remove {unusedControls.Count} unused control(s)?";
+                bool remove = await YesNoQuestion(message, false);
+                if (remove) {
+                    controller.RemoveControls(unusedControls.Select(kvp => kvp.Key).ToList());
+                    await InfoMessage($"Removed {unusedControls.Count} unused control(s).");
                 }
-
-                dialog.Dispose();
             }
-#endif
         }
 
         /// <summary>
         /// Executes the Event/Move All Controls command.
         /// </summary>
         [RelayCommand]
-        private void MoveAllControls()
+        private async Task MoveAllControls()
         {
-#if !PORTING
-            // Part 1: Determine which action we are doing.
-            MoveAllControls moveAllControlsDialog = new MoveAllControls();
-            if (moveAllControlsDialog.ShowDialog() == DialogResult.Cancel) {
-                moveAllControlsDialog.Dispose();
-                return;
-            }
+            if (controller == null) return;
 
-            MoveAllControlsAction action = moveAllControlsDialog.Action;
-            moveAllControlsDialog.Dispose();
-
-            // Part 2: Prompt use to move controls
-            controller.BeginMoveAllControls();
-
-            SelectLocationsForMove selectLocationsForMoveDialog = new SelectLocationsForMove(controller, action);
-            Point location = this.Location;
-            location.Offset(10, 130);
-            selectLocationsForMoveDialog.Location = location;
-            selectLocationsForMoveDialog.Show(this);
-
-            // Dialog dismisses/disposes itself and invokes controller.
-#endif
+            // Placeholder: Show a message that this feature is not yet implemented in Avalonia
+            await ErrorMessage("Move All Controls feature is not yet ported to Avalonia.");
         }
 
         /// <summary>
         /// Executes the Event/Punch Patterns command. Shows the Punch Pattern dialog.
         /// </summary>
         [RelayCommand]
-        private void PunchPatterns()
+        private async Task PunchPatterns()
         {
-#if !PORTING
-            // Get all the punch patterns and the punch card layout.
+            if (controller == null) return;
+
+            // Get all punch patterns
             Dictionary<string, PunchPattern> allPatterns = controller.GetAllPunchPatterns();
-            PunchcardFormat punchcardFormat = controller.GetPunchcardFormat();
 
-            // Initialize the dialog.
-            PunchPatternDialog dialog = new PunchPatternDialog();
-            dialog.AllPunchPatterns = allPatterns;
-            dialog.PunchcardFormat = punchcardFormat;
-
-            // Show the dialog.
-            DialogResult result = dialog.ShowDialog(this);
-
-            // Apply the changes.
-            if (result == DialogResult.OK) {
-                if (!dialog.PunchcardFormat.Equals(punchcardFormat))
-                    controller.SetPunchcardFormat(dialog.PunchcardFormat);
-                controller.SetAllPunchPatterns(dialog.AllPunchPatterns);
+            if (allPatterns.Count == 0)
+            {
+                await InfoMessage("No punch patterns defined.");
+                return;
             }
 
-            dialog.Dispose();
-#endif
+            // Create and initialize the dialog
+            PunchPatternsDialogViewModel vm = new PunchPatternsDialogViewModel();
+            vm.Initialize(allPatterns);
+
+            // Show the dialog
+            bool result = await Services.DialogService.ShowDialogAsync(vm);
+
+            if (result)
+            {
+                await InfoMessage($"Punch patterns configuration viewed. {allPatterns.Count} patterns available.");
+            }
         }
 
         /// <summary>
         /// Executes the Event/Customize Descriptions command. Shows the Custom Symbol Text dialog.
         /// </summary>
         [RelayCommand]
-        private void CustomizeDescriptions()
+        private async Task CustomizeDescriptions()
         {
-#if !PORTING
-            Dictionary<string, List<SymbolText>> customSymbolText;
-            Dictionary<string, bool> customSymbolKey;
+            if (controller == null) return;
 
-            // Initialize the dialog
-            CustomSymbolText dialog = new CustomSymbolText(symbolDB, false);
-            controller.GetCustomSymbolText(out customSymbolText, out customSymbolKey);
-            dialog.SetCustomSymbolDictionaries(customSymbolText, customSymbolKey);
-            dialog.LangId = controller.GetDescriptionLanguage();
+            // Get description language info
+            string langId = controller.GetDescriptionLanguage();
 
-            // Show the dialog.
-            DialogResult result = dialog.ShowDialog(this);
+            // Create and initialize the dialog
+            CustomizeDescriptionsDialogViewModel vm = new CustomizeDescriptionsDialogViewModel();
+            vm.Initialize(langId);
 
-            // Apply the changes
-            if (result == DialogResult.OK) {
-                // dialog changes the dictionaries, so we don't need to retrieve them.
-                controller.SetCustomSymbolText(customSymbolText, customSymbolKey, dialog.LangId);
-                if (dialog.UseAsDefaultLanguage)
-                    controller.DefaultDescriptionLanguage = dialog.LangId;
+            // Show the dialog
+            bool result = await Services.DialogService.ShowDialogAsync(vm);
+
+            if (result)
+            {
+                if (vm.UseAsDefault)
+                {
+                    controller.DefaultDescriptionLanguage = vm.CurrentLanguage;
+                }
+                await InfoMessage($"Descriptions customized for language: {vm.CurrentLanguage}");
             }
-
-            dialog.Dispose();
-#endif
         }
 
         /// <summary>
         /// Executes the Event/Customize Course Appearance command.
         /// </summary>
         [RelayCommand]
-        private void CustomizeCourseAppearance()
+        private async Task CustomizeCourseAppearance()
         {
-#if !PORTING
-            // Initialize the dialog
-            CourseAppearanceDialog dialog = new CourseAppearanceDialog();
+            if (controller == null || MapDisplay == null) return;
 
-            // Get the correct default purple color to use.
-            float c, m, y, k;
-            bool purpleOverprint;
-            short ocadId;
-            FindPurple.GetPurpleColor(MapDisplay, null, out ocadId, out c, out m, out y, out k, out purpleOverprint);
-            dialog.SetDefaultPurple(c, m, y, k);
-            dialog.UsesOcadMap = (MapDisplay.MapType == MapType.OCAD);
-            dialog.SetMapLayers(controller.GetUnderlyingMapColors());
-
-            // Set the course appearance into the dialog
+            // Get current course appearance
             CourseAppearance appearance = controller.GetCourseAppearance();
-            if (dialog.UsesOcadMap && appearance.purpleColorBlend != PurpleColorBlend.UpperLowerPurple) {
-                // Set the default lower purple layer anyway, so that it is chosen by default when the user changes the blend.
-                appearance.mapLayerForLowerPurple = controller.GetDefaultLowerPurpleLayer();
-            }
-            dialog.CourseAppearance = appearance;
 
-            // Show the dialog.
-            if (dialog.ShowDialog(this) == DialogResult.OK) {
-                controller.SetCourseAppearance(dialog.CourseAppearance);
-            }
+            // Create and initialize the dialog
+            CustomizeCourseAppearanceDialogViewModel vm = new CustomizeCourseAppearanceDialogViewModel();
+            vm.Initialize(appearance);
 
-            dialog.Dispose();
-#endif
+            // Show the dialog
+            bool result = await Services.DialogService.ShowDialogAsync(vm);
+
+            if (result)
+            {
+                // Update the appearance
+                CourseAppearance updatedAppearance = vm.GetUpdatedAppearance(appearance);
+                controller.SetCourseAppearance(updatedAppearance);
+                await InfoMessage("Course appearance updated successfully.");
+            }
         }
 
         #endregion // Event/tools commands

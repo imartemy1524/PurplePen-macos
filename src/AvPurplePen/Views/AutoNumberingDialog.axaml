@@ -1,0 +1,81 @@
+<!--
+    AutoNumberingDialog.axaml
+    Dialog for configuring automatic control numbering.
+-->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:PurplePen.ViewModels"
+        xmlns:resx="using:AvPurplePen"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        d:DesignWidth="450" d:DesignHeight="350"
+        x:Class="AvPurplePen.Views.AutoNumberingDialog"
+        x:DataType="vm:AutoNumberingDialogViewModel"
+        Title="Auto Numbering"
+        Icon="/Assets/transparent.ico"
+        Width="450" Height="350"
+        CanResize="False"
+        CanMinimize="False"
+        CanMaximize="False"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+    <Design.DataContext>
+        <vm:AutoNumberingDialogViewModel/>
+    </Design.DataContext>
+
+    <DockPanel LastChildFill="True">
+
+        <!-- Button Bar -->
+        <Border DockPanel.Dock="Bottom" BorderThickness="0,1,0,0" BorderBrush="#E0E0E0" Padding="16,12" Background="#F5F5F5">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+                <Button x:Name="okButton"
+                        Content="OK"
+                        Command="{Binding OkCommand}"
+                        MinWidth="90" Padding="12,6"
+                        IsDefault="True"/>
+                <Button x:Name="cancelButton"
+                        Content="Cancel"
+                        Command="{Binding CancelCommand}"
+                        MinWidth="90" Padding="12,6"
+                        IsCancel="True"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Content -->
+        <Border Padding="20">
+            <StackPanel Spacing="16">
+
+            <!-- Starting Code -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Starting Code:" FontWeight="Bold" FontSize="13"/>
+                <NumericUpDown Value="{Binding FirstCode, Mode=TwoWay}"
+                               Minimum="1" Maximum="999"
+                               MinHeight="36"
+                               FormatString="000"/>
+            </StackPanel>
+
+            <!-- Options -->
+            <StackPanel Spacing="8">
+                <TextBlock Text="Options:" FontWeight="Bold" FontSize="13"/>
+                <CheckBox Content="Disallow invertible codes" IsChecked="{Binding DisallowInvertibleCodes, Mode=TwoWay}"/>
+            </StackPanel>
+
+            <!-- Existing Controls -->
+            <StackPanel Spacing="8">
+                <TextBlock Text="Existing Controls:" FontWeight="Bold" FontSize="13"/>
+                <RadioButton GroupName="ExistingControls"
+                             Content="Renumber existing"
+                             IsChecked="{Binding RenumberExisting, Mode=TwoWay}"/>
+                <RadioButton GroupName="ExistingControls"
+                             Content="New controls only"
+                             IsChecked="{Binding !RenumberExisting, Mode=TwoWay}"/>
+            </StackPanel>
+
+            </StackPanel>
+        </Border>
+
+    </DockPanel>
+
+</Window>

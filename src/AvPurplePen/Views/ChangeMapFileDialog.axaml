@@ -1,0 +1,91 @@
+<!--
+    ChangeMapFileDialog.axaml
+    Dialog for changing the map file.
+-->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:PurplePen.ViewModels"
+        xmlns:resx="using:AvPurplePen"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        d:DesignWidth="500" d:DesignHeight="400"
+        x:Class="AvPurplePen.Views.ChangeMapFileDialog"
+        x:DataType="vm:ChangeMapFileDialogViewModel"
+        Title="Change Map File"
+        Icon="/Assets/transparent.ico"
+        Width="500" Height="400"
+        CanResize="False"
+        CanMinimize="False"
+        CanMaximize="False"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+    <Design.DataContext>
+        <vm:ChangeMapFileDialogViewModel/>
+    </Design.DataContext>
+
+    <DockPanel LastChildFill="True">
+
+        <!-- Button Bar -->
+        <Border DockPanel.Dock="Bottom" BorderThickness="0,1,0,0" BorderBrush="#E0E0E0" Padding="16,12" Background="#F5F5F5">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+                <Button x:Name="okButton"
+                        Content="OK"
+                        Command="{Binding OkCommand}"
+                        MinWidth="90" Padding="12,6"
+                        IsDefault="True"/>
+                <Button x:Name="cancelButton"
+                        Content="Cancel"
+                        Command="{Binding CancelCommand}"
+                        MinWidth="90" Padding="12,6"
+                        IsCancel="True"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Content -->
+        <Border Padding="20">
+            <StackPanel Spacing="16">
+
+            <!-- Map Type -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Map Type:" FontWeight="Bold" FontSize="13"/>
+                <TextBlock Text="{Binding MapTypeName}" FontSize="12" Foreground="#666"/>
+            </StackPanel>
+
+            <!-- Map File -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Map File:" FontWeight="Bold" FontSize="13"/>
+                <TextBox Text="{Binding MapFileName, Mode=TwoWay}"
+                         MinHeight="36"
+                         IsReadOnly="True"/>
+            </StackPanel>
+
+            <!-- Map Scale (if applicable) -->
+            <StackPanel Spacing="6">
+                <TextBlock Text="Map Scale (1:):" FontWeight="Bold" FontSize="13"/>
+                <NumericUpDown Value="{Binding MapScale, Mode=TwoWay}"
+                               Minimum="0.1" Maximum="100"
+                               Increment="0.1"
+                               MinHeight="36"/>
+            </StackPanel>
+
+            <!-- DPI (for bitmap) -->
+            <StackPanel Spacing="6" IsVisible="{Binding ShowDpiControl}">
+                <TextBlock Text="DPI (dots per inch):" FontWeight="Bold" FontSize="13"/>
+                <NumericUpDown Value="{Binding MapDpi, Mode=TwoWay}"
+                               Minimum="72" Maximum="600"
+                               Increment="1"
+                               MinHeight="36"/>
+            </StackPanel>
+
+            <TextBlock Text="Note: To change the map file, please re-open the file selection dialog. File browser functionality coming soon."
+                       TextWrapping="Wrap"
+                       FontSize="11" Foreground="#888"/>
+
+            </StackPanel>
+        </Border>
+
+    </DockPanel>
+
+</Window>

@@ -1,0 +1,123 @@
+<!--
+    CustomizeCourseAppearanceDialog.axaml
+    Dialog for customizing course appearance.
+-->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:PurplePen.ViewModels"
+        xmlns:resx="using:AvPurplePen"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        d:DesignWidth="550" d:DesignHeight="650"
+        x:Class="AvPurplePen.Views.CustomizeCourseAppearanceDialog"
+        x:DataType="vm:CustomizeCourseAppearanceDialogViewModel"
+        Title="Customize Course Appearance"
+        Icon="/Assets/transparent.ico"
+        Width="550" Height="650"
+        CanResize="True"
+        CanMinimize="False"
+        CanMaximize="False"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+    <Design.DataContext>
+        <vm:CustomizeCourseAppearanceDialogViewModel/>
+    </Design.DataContext>
+
+    <DockPanel LastChildFill="True">
+
+        <!-- Button Bar -->
+        <Border DockPanel.Dock="Bottom" BorderThickness="0,1,0,0" BorderBrush="#E0E0E0" Padding="16,12" Background="#F5F5F5">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+                <Button x:Name="okButton"
+                        Content="OK"
+                        Command="{Binding OkCommand}"
+                        MinWidth="90" Padding="12,6"
+                        IsDefault="True"/>
+                <Button x:Name="cancelButton"
+                        Content="Cancel"
+                        Command="{Binding CancelCommand}"
+                        MinWidth="90" Padding="12,6"
+                        IsCancel="True"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Content -->
+        <Border Padding="20">
+            <ScrollViewer>
+                <StackPanel Spacing="16">
+
+                    <!-- Control Circle Size -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Control Circle Size:" FontWeight="Bold" FontSize="13"/>
+                        <NumericUpDown Value="{Binding ControlCircleSize, Mode=TwoWay}"
+                                       Minimum="0.1" Maximum="5"
+                                       Increment="0.1"
+                                       MinHeight="36"/>
+                    </StackPanel>
+
+                    <!-- Line Width -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Line Width:" FontWeight="Bold" FontSize="13"/>
+                        <NumericUpDown Value="{Binding LineWidth, Mode=TwoWay}"
+                                       Minimum="0.1" Maximum="5"
+                                       Increment="0.1"
+                                       MinHeight="36"/>
+                    </StackPanel>
+
+                    <!-- Number Height -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Number Height:" FontWeight="Bold" FontSize="13"/>
+                        <NumericUpDown Value="{Binding NumberHeight, Mode=TwoWay}"
+                                       Minimum="0.1" Maximum="5"
+                                       Increment="0.1"
+                                       MinHeight="36"/>
+                    </StackPanel>
+
+                    <!-- Center Dot Diameter -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Center Dot Diameter (0 = none):" FontWeight="Bold" FontSize="13"/>
+                        <NumericUpDown Value="{Binding CenterDotDiameter, Mode=TwoWay}"
+                                       Minimum="0" Maximum="10"
+                                       Increment="0.1"
+                                       MinHeight="36"/>
+                    </StackPanel>
+
+                    <!-- Auto Leg Gap Size -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Auto Leg Gap Size (mm):" FontWeight="Bold" FontSize="13"/>
+                        <NumericUpDown Value="{Binding AutoLegGapSize, Mode=TwoWay}"
+                                       Minimum="0" Maximum="20"
+                                       Increment="0.1"
+                                       MinHeight="36"/>
+                    </StackPanel>
+
+                    <!-- Separator -->
+                    <Border BorderThickness="0,1,0,0" BorderBrush="#E0E0E0" Margin="0,8"/>
+
+                    <!-- Number Options -->
+                    <StackPanel Spacing="8">
+                        <TextBlock Text="Number Options:" FontWeight="Bold" FontSize="13"/>
+                        <CheckBox Content="Bold numbers" IsChecked="{Binding NumberBold, Mode=TwoWay}"/>
+                        <CheckBox Content="Use Roboto font" IsChecked="{Binding NumberRoboto, Mode=TwoWay}"/>
+                    </StackPanel>
+
+                    <!-- Map Standard -->
+                    <StackPanel Spacing="6">
+                        <TextBlock Text="Map Standard:" FontWeight="Bold" FontSize="13"/>
+                        <ComboBox ItemsSource="{Binding MapStandardOptions}"
+                                  SelectedItem="{Binding MapStandard}"
+                                  MinHeight="36"/>
+                    </StackPanel>
+
+                    <!-- Description Color -->
+                    <CheckBox Content="Print descriptions in purple" IsChecked="{Binding DescriptionsPurple, Mode=TwoWay}"/>
+
+                </StackPanel>
+            </ScrollViewer>
+        </Border>
+
+    </DockPanel>
+
+</Window>
