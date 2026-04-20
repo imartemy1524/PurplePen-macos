@@ -1,0 +1,81 @@
+<!--
+    ViewAdditionalCourses.axaml
+    Dialog for selecting additional courses displayed in the map view.
+-->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:PurplePen.ViewModels"
+        xmlns:resx="using:AvPurplePen"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        x:Class="AvPurplePen.Views.ViewAdditionalCourses"
+        x:DataType="vm:ViewAdditionalCoursesViewModel"
+        Classes="dialog"
+        Title="{resx:Localize ViewAdditionalCourses_Text}"
+        Icon="/Assets/transparent.ico"
+        Width="440"
+        Height="500"
+        MinWidth="420"
+        MinHeight="430"
+        WindowStartupLocation="CenterOwner"
+        CanResize="True"
+        ShowInTaskbar="False">
+
+    <Design.DataContext>
+        <vm:ViewAdditionalCoursesViewModel/>
+    </Design.DataContext>
+
+    <DockPanel Margin="12" LastChildFill="True">
+        <StackPanel DockPanel.Dock="Bottom"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Spacing="8"
+                    Margin="0,12,0,0">
+            <Button Content="{resx:Localize OKButton}"
+                    Width="90"
+                    HorizontalContentAlignment="Center"
+                    IsDefault="True"
+                    Click="OkButton_Click"/>
+            <Button Content="{resx:Localize CancelButton}"
+                    Width="90"
+                    HorizontalContentAlignment="Center"
+                    IsCancel="True"
+                    Click="CancelButton_Click"/>
+        </StackPanel>
+
+        <StackPanel DockPanel.Dock="Top"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Spacing="8"
+                    Margin="0,0,0,8">
+            <Button Content="{resx:Localize CourseSelector_selectAll_Text}"
+                    Command="{Binding SelectAllCommand}"
+                    MinWidth="84"/>
+            <Button Content="{resx:Localize CourseSelector_selectNone_Text}"
+                    Command="{Binding SelectNoneCommand}"
+                    MinWidth="84"/>
+        </StackPanel>
+
+        <StackPanel Spacing="8">
+            <TextBlock Text="{resx:Localize ViewAdditionalCourses_labelInstructions_Text}"
+                       TextWrapping="Wrap"/>
+
+            <Border Classes="groupBox"
+                    Padding="8"
+                    MinHeight="280">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding Courses}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:PdfCourseItemViewModel">
+                                <CheckBox Content="{Binding Name}"
+                                          IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                          Margin="0,2"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Border>
+        </StackPanel>
+    </DockPanel>
+</Window>

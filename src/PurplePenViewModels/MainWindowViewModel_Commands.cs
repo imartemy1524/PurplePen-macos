@@ -3,11 +3,13 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using PurplePen;
 using PurplePen.Graphics2D;
 using PurplePen.MapModel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.IO;
 using System.Text;
 
@@ -46,6 +48,8 @@ namespace PurplePen.ViewModels
 
             // Update checked status of Show All Controls.
             ViewAllControlsChecked = controller.ShowAllControls;
+            ShowPopupsChecked = UserSettings.Current.ShowPopupInfo;
+            ShowPrintAreaChecked = UserSettings.Current.ShowPrintArea;
 
         }
 
@@ -294,11 +298,10 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private void ViewEntireCourse()
         {
-#if !PORTING
-            // Show the entire course.
+            if (controller == null) { return; }
+
             RectangleF courseBounds = controller.GetCourseBounds();
-            ShowRectangle(courseBounds);
-#endif
+            RequestShowRectangle(courseBounds);
         }
 
         /// <summary>
@@ -307,11 +310,10 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private void ViewEntireMap()
         {
-#if !PORTING
-            // Show the entire map.
+            if (MapDisplay == null) { return; }
+
             RectangleF mapBounds = MapDisplay.MapBounds;
-            ShowRectangle(mapBounds);
-#endif
+            RequestShowRectangle(mapBounds);
         }
 
         /// <summary>
@@ -359,11 +361,9 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private void ToggleShowPopups()
         {
-#if !PORTING
-            showToolTips = !showToolTips;
-            UserSettings.Current.ShowPopupInfo = showToolTips;
+            UserSettings.Current.ShowPopupInfo = !UserSettings.Current.ShowPopupInfo;
             UserSettings.Current.Save();
-#endif
+            ShowPopupsChecked = UserSettings.Current.ShowPopupInfo;
         }
 
         /// <summary>
@@ -372,11 +372,12 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private void ToggleShowPrintArea()
         {
-#if !PORTING
+            if (controller == null) { return; }
+
             UserSettings.Current.ShowPrintArea = !UserSettings.Current.ShowPrintArea;
             UserSettings.Current.Save();
             controller.ForceChangeUpdate(true);
-#endif
+            ShowPrintAreaChecked = UserSettings.Current.ShowPrintArea;
         }
 
         /// <summary>
@@ -406,6 +407,19 @@ namespace PurplePen.ViewModels
             UserSettings.Current.Save();
         }
 
+        /// <summary>
+        /// Updates the map display to show or hide the print area rectangle based on the ShowPrintArea setting.
+        /// </summary>
+        private void UpdatePrintArea()
+        {
+            if (controller == null || MapDisplay == null) { return; }
+
+            if (!UserSettings.Current.ShowPrintArea)
+                MapDisplay.SetPrintArea(null);
+            else
+                MapDisplay.SetPrintArea(controller.GetCurrentPrintAreaRectangle(PrintAreaKind.OnePart));
+        }
+
 
         [ObservableProperty]
         bool highQualityMapDisplay;
@@ -426,20 +440,28 @@ namespace PurplePen.ViewModels
         [ObservableProperty]
         bool viewAllControlsChecked;
 
+        [ObservableProperty]
+        bool showPopupsChecked;
+
+        [ObservableProperty]
+        bool showPrintAreaChecked;
+
         /// <summary>
         /// Shows the View Additional Courses dialog.
         /// </summary>
         [RelayCommand]
-        private void ShowOtherCourses()
+        private async Task ShowOtherCourses()
         {
-#if !PORTING
-            ViewAdditionalCourses dialog = new ViewAdditionalCourses(controller.CurrentTabName, controller.CurrentCourseId);
-            dialog.EventDB = controller.GetEventDB();
-            dialog.DisplayedCourses = controller.ExtraCourseDisplay;
-            if (dialog.ShowDialog() == DialogResult.OK) {
-                controller.ExtraCourseDisplay = dialog.DisplayedCourses;
+            if (controller == null) { return; }
+            if (controller.CanChangeExtraCourseDisplay() != CommandStatus.Enabled) { return; }
+
+            ViewAdditionalCoursesViewModel viewModel = new ViewAdditionalCoursesViewModel();
+            viewModel.Initialize(controller.GetEventDB(), controller.CurrentCourseId, controller.ExtraCourseDisplay);
+
+            bool result = await Services.DialogService.ShowDialogAsync(viewModel);
+            if (result) {
+                controller.ExtraCourseDisplay = viewModel.GetSelectedCourses();
             }
-#endif
         }
 
         /// <summary>
@@ -448,9 +470,8 @@ namespace PurplePen.ViewModels
         [RelayCommand]
         private void ClearOtherCourses()
         {
-#if !PORTING
+            if (controller == null) { return; }
             controller.ClearExtraCourseDisplay();
-#endif
         }
 
         #endregion // View commands

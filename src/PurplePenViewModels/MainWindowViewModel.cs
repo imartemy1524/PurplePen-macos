@@ -175,6 +175,8 @@ namespace PurplePen.ViewModels
         [ObservableProperty]
         private ObservableCollection<string> recentFiles = new();
 
+        public event Action<RectangleF>? ShowRectangleRequested;
+
         // Public property to get the currently open file name
         public string CurrentFileName => controller?.FileName ?? "";
 
@@ -225,8 +227,8 @@ namespace PurplePen.ViewModels
                 CoursePartBannerViewModel.UpdatePartBanner();
                 UpdateTopology();
                 UpdateTopologyHighlight();
-#if !PORTING
                 UpdatePrintArea();
+#if !PORTING
                 UpdateCustomSymbolText();
                 CheckForMissingFonts();
                 CheckForNonRenderableObjects(true, false);
@@ -713,6 +715,23 @@ namespace PurplePen.ViewModels
 
             controller.FinishMoveAllControls(moveAllControlsMapUpdated);
             IsMoveAllControlsActive = false;
+        }
+
+        public bool TryGetToolTip(Pane pane, PointF location, float pixelSize, out string tipText, out string tipTitle)
+        {
+            tipText = "";
+            tipTitle = "";
+
+            if (controller == null || !UserSettings.Current.ShowPopupInfo) {
+                return false;
+            }
+
+            return controller.GetToolTip(pane, location, pixelSize, out tipText, out tipTitle);
+        }
+
+        internal void RequestShowRectangle(RectangleF bounds)
+        {
+            ShowRectangleRequested?.Invoke(bounds);
         }
 
         #endregion

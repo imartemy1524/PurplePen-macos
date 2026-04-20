@@ -65,12 +65,14 @@ namespace AvPurplePen.Views
         {
             if (_mainViewModel != null) {
                 _mainViewModel.PropertyChanged -= MainViewModel_PropertyChanged;
+                _mainViewModel.ShowRectangleRequested -= MainViewModel_ShowRectangleRequested;
             }
 
             _mainViewModel = DataContext as MainWindowViewModel;
 
             if (_mainViewModel != null) {
                 _mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
+                _mainViewModel.ShowRectangleRequested += MainViewModel_ShowRectangleRequested;
                 SetupMacOSNativeMenu();
             }
 
@@ -91,6 +93,11 @@ namespace AvPurplePen.Views
             else if (e.PropertyName == nameof(MainWindowViewModel.RecentFiles)) {
                 UpdateRecentFilesMenu();
             }
+        }
+
+        private void MainViewModel_ShowRectangleRequested(RectangleF bounds)
+        {
+            mapViewer.ShowRectangle(bounds);
         }
 
         private void UpdateDescriptionTopologyVisibility()
@@ -568,9 +575,14 @@ namespace AvPurplePen.Views
                 break;
 
             case MapViewer.FancyMouseAction.Hover:
-#if !PORTING
-                // handle hover
-#endif
+                Pane pane = topology ? Pane.Topology : Pane.Map;
+                if (vm.TryGetToolTip(pane, location, pixelSize, out string tipText, out string tipTitle)) {
+                    string text = string.IsNullOrWhiteSpace(tipTitle) ? tipText : (tipTitle + "\n" + tipText);
+                    ToolTip.SetTip(activeMapViewer, text);
+                }
+                else {
+                    ToolTip.SetTip(activeMapViewer, null);
+                }
                 break;
 
             default:

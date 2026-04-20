@@ -552,6 +552,36 @@ public partial class MapViewer : UserControl
         CenterPoint = ConstrainCenterPoint(CenterPoint, Viewport.Size, GetScrollBounds());
     }
 
+    public void ShowRectangle(RectangleF bounds)
+    {
+        if (bounds.IsEmpty) {
+            CenterPoint = new PointF((bounds.Left + bounds.Right) / 2F, (bounds.Top + bounds.Bottom) / 2F);
+            return;
+        }
+
+        if (Bounds.Width <= 0 || Bounds.Height <= 0) {
+            CenterPoint = new PointF((bounds.Left + bounds.Right) / 2F, (bounds.Top + bounds.Bottom) / 2F);
+            return;
+        }
+
+        float targetWidth = Math.Max(bounds.Width, 0.0001F);
+        float targetHeight = Math.Max(bounds.Height, 0.0001F);
+        float viewportAspect = (float)(Bounds.Width / Bounds.Height);
+        float boundsAspect = targetWidth / targetHeight;
+
+        if (viewportAspect >= boundsAspect) {
+            targetWidth = targetHeight * viewportAspect;
+        }
+        else {
+            targetHeight = targetWidth / viewportAspect;
+        }
+
+        int pixelWidth = Math.Max(1, (int)Math.Round(Bounds.Width));
+        ZoomFactor = ZoomFactorForWorldWidth(pixelWidth, targetWidth);
+        CenterPoint = new PointF((bounds.Left + bounds.Right) / 2F, (bounds.Top + bounds.Bottom) / 2F);
+        Recenter();
+    }
+
     public void ScrollView(int dxPixels, int dyPixels)
     {
         Point centerPixels = panAndZoom.WorldToPixel(Conv.ToAvPoint(CenterPoint));

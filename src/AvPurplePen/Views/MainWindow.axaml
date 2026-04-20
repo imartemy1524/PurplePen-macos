@@ -186,8 +186,12 @@
                               ToggleType="CheckBox" IsChecked="{Binding HighQualityMapDisplay}"/>
                 </MenuItem>
 
-                <MenuItem x:Name="showPrintAreaMenu" Header="{resx:Localize MainFrame_showPrintAreaMenu_Text}" Command="{Binding ToggleShowPrintAreaCommand}"/>
-                <MenuItem x:Name="showPopupsMenu" Header="{resx:Localize MainFrame_showPopupsMenu_Text}" Command="{Binding ToggleShowPopupsCommand}"/>
+                <MenuItem x:Name="showPrintAreaMenu" Header="{resx:Localize MainFrame_showPrintAreaMenu_Text}"
+                          Command="{Binding ToggleShowPrintAreaCommand}"
+                          ToggleType="CheckBox" IsChecked="{Binding ShowPrintAreaChecked}"/>
+                <MenuItem x:Name="showPopupsMenu" Header="{resx:Localize MainFrame_showPopupsMenu_Text}"
+                          Command="{Binding ToggleShowPopupsCommand}"
+                          ToggleType="CheckBox" IsChecked="{Binding ShowPopupsChecked}"/>
 
                 <Separator/>
 
