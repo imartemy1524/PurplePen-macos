@@ -125,6 +125,7 @@ namespace AvPurplePen
         public static LocalizedStringManager Instance { get; } = new LocalizedStringManager();
 
         private readonly Dictionary<string, LocalizedString> _strings = new Dictionary<string, LocalizedString>();
+        public event EventHandler? LanguageChanged;
 
         /// <summary>
         /// Gets or creates a LocalizedString for the given resource key.
@@ -151,6 +152,8 @@ namespace AvPurplePen
             foreach (LocalizedString s in _strings.Values) {
                 s.Refresh();
             }
+
+            LanguageChanged?.Invoke(this, EventArgs.Empty);
         }
 
         /// <summary>

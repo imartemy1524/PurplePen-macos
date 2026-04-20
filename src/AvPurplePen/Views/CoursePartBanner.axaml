@@ -38,7 +38,7 @@
          Col 2: Course part label (Auto)
          Col 3: Part combo (Auto)
          Col 4: Properties button (takes remaining space, content left-aligned) -->
-    <Border Background="#E0E0E0"
+    <Border Background="{DynamicResource TabStripBackground}"
             BorderBrush="{DynamicResource DarkGreyBorder}"
             BorderThickness="0,0,0,1">
         <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto"

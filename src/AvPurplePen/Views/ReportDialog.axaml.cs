@@ -52,14 +52,14 @@ namespace AvPurplePen.Views
             var titleBorder = new Border
             {
                 BorderThickness = new Thickness(0, 0, 0, 1),
-                BorderBrush = new SolidColorBrush(Color.Parse("#E0E0E0")),
+                BorderBrush = GetBrushResource("SectionDividerBrush", new SolidColorBrush(Color.Parse("#E0E0E0"))),
                 Padding = new Thickness(20, 16),
                 Child = new TextBlock
                 {
                     Text = Title,
                     FontSize = 22,
                     FontWeight = FontWeight.Bold,
-                    Foreground = new SolidColorBrush(Color.Parse("#1F1F1F"))
+                    Foreground = GetBrushResource("CardTextPrimary", new SolidColorBrush(Color.Parse("#1F1F1F")))
                 }
             };
             mainPanel.Children.Add(titleBorder);
@@ -164,7 +164,7 @@ namespace AvPurplePen.Views
                 Text = StripHtmlTags(content),
                 FontSize = fontSize,
                 FontWeight = FontWeight.Bold,
-                Foreground = new SolidColorBrush(Color.Parse("#1F1F1F")),
+                Foreground = GetBrushResource("CardTextPrimary", new SolidColorBrush(Color.Parse("#1F1F1F"))),
                 Margin = new Thickness(0, fontSize == 28 ? 0 : 12, 0, 8),
                 TextWrapping = TextWrapping.Wrap
             };
@@ -176,7 +176,7 @@ namespace AvPurplePen.Views
             {
                 Text = StripHtmlTags(content),
                 FontSize = 12,
-                Foreground = new SolidColorBrush(Color.Parse("#323232")),
+                Foreground = GetBrushResource("CardTextSecondary", new SolidColorBrush(Color.Parse("#323232"))),
                 Margin = new Thickness(0, 0, 0, 12),
                 TextWrapping = TextWrapping.Wrap,
                 LineHeight = 1.4
@@ -230,8 +230,10 @@ namespace AvPurplePen.Views
                     var cell = new Border
                     {
                         BorderThickness = new Thickness(1),
-                        BorderBrush = new SolidColorBrush(Color.Parse("#B4B4B4")),
-                        Background = isHeader ? new SolidColorBrush(Color.Parse("#F0F0F0")) : new SolidColorBrush(Colors.White),
+                        BorderBrush = GetBrushResource("SectionDividerBrush", new SolidColorBrush(Color.Parse("#B4B4B4"))),
+                        Background = isHeader
+                            ? GetBrushResource("PanelAltBackground", new SolidColorBrush(Color.Parse("#F0F0F0")))
+                            : GetBrushResource("PanelBackground", new SolidColorBrush(Colors.White)),
                         Padding = new Thickness(8, 6),
                         Child = new TextBlock
                         {
@@ -274,7 +276,7 @@ namespace AvPurplePen.Views
                 {
                     Text = "•",
                     FontSize = 12,
-                    Foreground = new SolidColorBrush(Color.Parse("#646464"))
+                    Foreground = GetBrushResource("SubtleTextBrush", new SolidColorBrush(Color.Parse("#646464")))
                 });
 
                 itemPanel.Children.Add(new TextBlock
@@ -282,7 +284,7 @@ namespace AvPurplePen.Views
                     Text = StripHtmlTags(itemMatch.Groups[1].Value),
                     FontSize = 11,
                     TextWrapping = TextWrapping.Wrap,
-                    Foreground = new SolidColorBrush(Color.Parse("#323232"))
+                    Foreground = GetBrushResource("CardTextSecondary", new SolidColorBrush(Color.Parse("#323232")))
                 });
 
                 panel.Children.Add(itemPanel);
@@ -308,6 +310,16 @@ namespace AvPurplePen.Views
 
             text = Regex.Replace(text, @"\s+", " ");
             return text.Trim();
+        }
+
+        private IBrush GetBrushResource(string key, IBrush fallback)
+        {
+            if (Application.Current?.TryFindResource(key, ActualThemeVariant, out object? resourceObject) == true &&
+                resourceObject is IBrush foundBrush) {
+                return foundBrush;
+            }
+
+            return fallback;
         }
     }
 }

@@ -52,6 +52,13 @@ namespace AvPurplePen.Views
             InitializeComponent();
             DataContextChanged += MainWindow_DataContextChanged;
             ApplicationIdleService.ApplicationIdle += ApplicationIdle;
+            LocalizedStringManager.Instance.LanguageChanged += LocalizedStringManager_LanguageChanged;
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            LocalizedStringManager.Instance.LanguageChanged -= LocalizedStringManager_LanguageChanged;
+            base.OnClosed(e);
         }
 
         private void MainWindow_DataContextChanged(object? sender, EventArgs e)
@@ -104,6 +111,21 @@ namespace AvPurplePen.Views
             }
         }
 
+        private static string L(string key)
+        {
+            return UIText.ResourceManager.GetString(key, CultureInfo.CurrentUICulture) ?? key;
+        }
+
+        private void LocalizedStringManager_LanguageChanged(object? sender, EventArgs e)
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (OperatingSystem.IsMacOS()) {
+                    SetupMacOSNativeMenu();
+                }
+            });
+        }
+
         // Setup macOS native menu bar
         private void SetupMacOSNativeMenu()
         {
@@ -126,7 +148,7 @@ namespace AvPurplePen.Views
 
                 // Store reference to Open Recent menu for updates
                 _openRecentMenu = nativeMenu.Items[0] is NativeMenuItem fileMenu
-                    ? fileMenu.Menu?.Items.FirstOrDefault(i => i is NativeMenuItem mi && mi.Header?.ToString() == "Open Recent") as NativeMenuItem
+                    ? fileMenu.Menu?.Items.FirstOrDefault(i => i is NativeMenuItem mi && mi.Header?.ToString() == L("AvMainFrame_openRecentMenu_Text")) as NativeMenuItem
                     : null;
 
                 UpdateRecentFilesMenu();
@@ -139,234 +161,238 @@ namespace AvPurplePen.Views
         private NativeMenuItem BuildFileMenu()
         {
             var menu = new NativeMenu();
-            menu.Items.Add(new NativeMenuItem { Header = "New Event", Command = _mainViewModel!.NewEventCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Open...", Command = _mainViewModel!.FileOpenPurplePenFileCommand, Gesture = new KeyGesture(Key.O, KeyModifiers.Meta) });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_newEventMenu_Text"), Command = _mainViewModel!.NewEventCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_openMenu_Text"), Command = _mainViewModel!.FileOpenPurplePenFileCommand, Gesture = new KeyGesture(Key.O, KeyModifiers.Meta) });
 
             // Add Open Recent menu
             var recentMenu = new NativeMenu();
-            _openRecentMenu = new NativeMenuItem { Header = "Open Recent", Menu = recentMenu };
+            _openRecentMenu = new NativeMenuItem { Header = L("AvMainFrame_openRecentMenu_Text"), Menu = recentMenu };
             menu.Items.Add(_openRecentMenu);
 
             menu.Items.Add(new NativeMenuItemSeparator());
-            menu.Items.Add(new NativeMenuItem { Header = "Save", Command = _mainViewModel!.SaveCommand, Gesture = new KeyGesture(Key.S, KeyModifiers.Meta) });
-            menu.Items.Add(new NativeMenuItem { Header = "Save As...", Command = _mainViewModel!.SaveAsCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_saveMenu_Text"), Command = _mainViewModel!.SaveCommand, Gesture = new KeyGesture(Key.S, KeyModifiers.Meta) });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_saveAsMenu_Text"), Command = _mainViewModel!.SaveAsCommand });
             menu.Items.Add(new NativeMenuItemSeparator());
-            menu.Items.Add(new NativeMenuItem { Header = "Create OCAD Files...", Command = _mainViewModel!.CreateOcadFilesCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Create Image Files...", Command = _mainViewModel!.CreateImageFilesCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_createOcadFilesMenu_Text"), Command = _mainViewModel!.CreateOcadFilesCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_createImageFilesMenu_Text"), Command = _mainViewModel!.CreateImageFilesCommand });
 
             var pdfMenu = new NativeMenu();
-            pdfMenu.Items.Add(new NativeMenuItem { Header = "Description PDF", Command = _mainViewModel!.CreateDescriptionPdfCommand });
-            pdfMenu.Items.Add(new NativeMenuItem { Header = "Punchcard PDF", Command = _mainViewModel!.CreatePunchcardPdfCommand });
-            pdfMenu.Items.Add(new NativeMenuItem { Header = "Course PDF", Command = _mainViewModel!.CreateCoursePdfCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Create PDFs", Menu = pdfMenu });
+            pdfMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_createDescriptionPdfMenu_Text"), Command = _mainViewModel!.CreateDescriptionPdfCommand });
+            pdfMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_createPunchcardPdfMenu_Text"), Command = _mainViewModel!.CreatePunchcardPdfCommand });
+            pdfMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_createCoursePdfMenu_Text"), Command = _mainViewModel!.CreateCoursePdfCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_createPDFsMenu_Text"), Menu = pdfMenu });
 
             var routeMenu = new NativeMenu();
-            routeMenu.Items.Add(new NativeMenuItem { Header = "Create Route Gadget Files", Command = _mainViewModel!.CreateRouteGadgetFilesCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Create Route Review Files", Menu = routeMenu });
+            routeMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_createRouteGadgetFilesMenu_Text"), Command = _mainViewModel!.CreateRouteGadgetFilesCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_createRouteReviewFilesToolStripMenuItem_Text"), Menu = routeMenu });
 
-            menu.Items.Add(new NativeMenuItem { Header = "Create XML", Command = _mainViewModel!.CreateXmlCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Create GPX File", Command = _mainViewModel!.CreateGpxCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Create KML File", Command = _mainViewModel!.CreateKmlFilesCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_createXmlMenu_Text"), Command = _mainViewModel!.CreateXmlCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_createGPXFileMenu_Text"), Command = _mainViewModel!.CreateGpxCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_createKMLFileMenu_Text"), Command = _mainViewModel!.CreateKmlFilesCommand });
             menu.Items.Add(new NativeMenuItemSeparator());
-            menu.Items.Add(new NativeMenuItem { Header = "Print Descriptions", Command = _mainViewModel!.PrintDescriptionsCommand, Gesture = new KeyGesture(Key.P, KeyModifiers.Meta) });
-            menu.Items.Add(new NativeMenuItem { Header = "Print Punch Cards", Command = _mainViewModel!.PrintPunchCardsCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Print Courses", Command = _mainViewModel!.PrintCoursesCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_printDescriptionsMenu_Text"), Command = _mainViewModel!.PrintDescriptionsCommand, Gesture = new KeyGesture(Key.P, KeyModifiers.Meta) });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_printPunchCardsMenu_Text"), Command = _mainViewModel!.PrintPunchCardsCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_printCoursesMenu_Text"), Command = _mainViewModel!.PrintCoursesCommand });
 
             var printAreaMenu = new NativeMenu();
-            printAreaMenu.Items.Add(new NativeMenuItem { Header = "This Part", Command = _mainViewModel!.SetPrintAreaThisPartCommand });
-            printAreaMenu.Items.Add(new NativeMenuItem { Header = "This Course", Command = _mainViewModel!.SetPrintAreaThisCourseCommand });
-            printAreaMenu.Items.Add(new NativeMenuItem { Header = "All Courses", Command = _mainViewModel!.SetPrintAreaAllCoursesCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Set Print Area", Menu = printAreaMenu });
+            printAreaMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_printAreaThisPartMenu_Text"), Command = _mainViewModel!.SetPrintAreaThisPartCommand });
+            printAreaMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_printAreaThisCourseMenu_Text"), Command = _mainViewModel!.SetPrintAreaThisCourseCommand });
+            printAreaMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_printAreaAllCoursesMenu_Text"), Command = _mainViewModel!.SetPrintAreaAllCoursesCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_setPrintAreaMenu_Text"), Menu = printAreaMenu });
 
             menu.Items.Add(new NativeMenuItemSeparator());
-            menu.Items.Add(new NativeMenuItem { Header = "Program Language", Command = _mainViewModel!.ShowSwitchLanguageDialogCommand });
+            menu.Items.Add(new NativeMenuItem {
+                Header = L("MainFrame_settingsMenu_Text"),
+                Command = _mainViewModel!.ShowSettingsDialogCommand,
+                Gesture = new KeyGesture(Key.OemComma, KeyModifiers.Meta)
+            });
             menu.Items.Add(new NativeMenuItemSeparator());
-            menu.Items.Add(new NativeMenuItem { Header = "Exit", Command = _mainViewModel!.ExitCommand });
-            return new NativeMenuItem { Header = "File", Menu = menu };
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_exitMenu_Text"), Command = _mainViewModel!.ExitCommand });
+            return new NativeMenuItem { Header = L("MainFrame_fileMenu_Text"), Menu = menu };
         }
 
         private NativeMenuItem BuildEditMenu()
         {
             var menu = new NativeMenu();
-            menu.Items.Add(new NativeMenuItem { Header = "Cancel", Command = _mainViewModel!.CancelCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_cancelMenu_Text"), Command = _mainViewModel!.CancelCommand });
             menu.Items.Add(new NativeMenuItemSeparator());
-            menu.Items.Add(new NativeMenuItem { Header = "Undo", Command = _mainViewModel!.UndoCommand, Gesture = new KeyGesture(Key.Z, KeyModifiers.Meta) });
-            menu.Items.Add(new NativeMenuItem { Header = "Redo", Command = _mainViewModel!.RedoCommand, Gesture = new KeyGesture(Key.Z, KeyModifiers.Meta | KeyModifiers.Shift) });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_undoMenu_Text"), Command = _mainViewModel!.UndoCommand, Gesture = new KeyGesture(Key.Z, KeyModifiers.Meta) });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_redoMenu_Text"), Command = _mainViewModel!.RedoCommand, Gesture = new KeyGesture(Key.Z, KeyModifiers.Meta | KeyModifiers.Shift) });
             menu.Items.Add(new NativeMenuItemSeparator());
-            menu.Items.Add(new NativeMenuItem { Header = "Delete", Command = _mainViewModel!.DeleteSelectionCommand, Gesture = new KeyGesture(Key.Back, KeyModifiers.Meta) });
-            return new NativeMenuItem { Header = "Edit", Menu = menu };
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_deleteMenu_Text"), Command = _mainViewModel!.DeleteSelectionCommand, Gesture = new KeyGesture(Key.Back, KeyModifiers.Meta) });
+            return new NativeMenuItem { Header = L("MainFrame_editMenu_Text"), Menu = menu };
         }
 
         private NativeMenuItem BuildViewMenu()
         {
             var menu = new NativeMenu();
-            menu.Items.Add(new NativeMenuItem { Header = "Entire Course", Command = _mainViewModel!.ViewEntireCourseCommand, Gesture = new KeyGesture(Key.F2) });
-            menu.Items.Add(new NativeMenuItem { Header = "Entire Map", Command = _mainViewModel!.ViewEntireMapCommand, Gesture = new KeyGesture(Key.F3) });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_entireCourseMenu_Text"), Command = _mainViewModel!.ViewEntireCourseCommand, Gesture = new KeyGesture(Key.F2) });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_entireMapMenu_Text"), Command = _mainViewModel!.ViewEntireMapCommand, Gesture = new KeyGesture(Key.F3) });
 
             var zoomMenu = new NativeMenu();
-            zoomMenu.Items.Add(new NativeMenuItem { Header = "50%", Command = _mainViewModel!.SetZoomCommand, CommandParameter = 0.5 });
-            zoomMenu.Items.Add(new NativeMenuItem { Header = "100%", Command = _mainViewModel!.SetZoomCommand, CommandParameter = 1.0 });
-            zoomMenu.Items.Add(new NativeMenuItem { Header = "150%", Command = _mainViewModel!.SetZoomCommand, CommandParameter = 1.5 });
-            zoomMenu.Items.Add(new NativeMenuItem { Header = "200%", Command = _mainViewModel!.SetZoomCommand, CommandParameter = 2.0 });
-            zoomMenu.Items.Add(new NativeMenuItem { Header = "300%", Command = _mainViewModel!.SetZoomCommand, CommandParameter = 3.0 });
-            zoomMenu.Items.Add(new NativeMenuItem { Header = "500%", Command = _mainViewModel!.SetZoomCommand, CommandParameter = 5.0 });
-            zoomMenu.Items.Add(new NativeMenuItem { Header = "1000%", Command = _mainViewModel!.SetZoomCommand, CommandParameter = 10.0 });
-            menu.Items.Add(new NativeMenuItem { Header = "Zoom", Menu = zoomMenu });
+            zoomMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_zoom50Menu_Text"), Command = _mainViewModel!.SetZoomCommand, CommandParameter = 0.5 });
+            zoomMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_zoom100Menu_Text"), Command = _mainViewModel!.SetZoomCommand, CommandParameter = 1.0 });
+            zoomMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_zoom150Menu_Text"), Command = _mainViewModel!.SetZoomCommand, CommandParameter = 1.5 });
+            zoomMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_zoom200Menu_Text"), Command = _mainViewModel!.SetZoomCommand, CommandParameter = 2.0 });
+            zoomMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_zoom300Menu_Text"), Command = _mainViewModel!.SetZoomCommand, CommandParameter = 3.0 });
+            zoomMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_zoom500Menu_Text"), Command = _mainViewModel!.SetZoomCommand, CommandParameter = 5.0 });
+            zoomMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_zoom1000Menu_Text"), Command = _mainViewModel!.SetZoomCommand, CommandParameter = 10.0 });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_zoomMenu_Text"), Menu = zoomMenu });
 
             var intensityMenu = new NativeMenu();
-            intensityMenu.Items.Add(new NativeMenuItem { Header = "Very Low", Command = _mainViewModel!.SetMapIntensityCommand, CommandParameter = 0.2 });
-            intensityMenu.Items.Add(new NativeMenuItem { Header = "Low", Command = _mainViewModel!.SetMapIntensityCommand, CommandParameter = 0.4 });
-            intensityMenu.Items.Add(new NativeMenuItem { Header = "Medium", Command = _mainViewModel!.SetMapIntensityCommand, CommandParameter = 0.6 });
-            intensityMenu.Items.Add(new NativeMenuItem { Header = "High", Command = _mainViewModel!.SetMapIntensityCommand, CommandParameter = 0.8 });
-            intensityMenu.Items.Add(new NativeMenuItem { Header = "Full", Command = _mainViewModel!.SetMapIntensityCommand, CommandParameter = 1.0 });
-            menu.Items.Add(new NativeMenuItem { Header = "Map Intensity", Menu = intensityMenu });
+            intensityMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_veryLowIntensityMenu_Text"), Command = _mainViewModel!.SetMapIntensityCommand, CommandParameter = 0.2 });
+            intensityMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_lowIntensityMenu_Text"), Command = _mainViewModel!.SetMapIntensityCommand, CommandParameter = 0.4 });
+            intensityMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_mediumIntensityMenu_Text"), Command = _mainViewModel!.SetMapIntensityCommand, CommandParameter = 0.6 });
+            intensityMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_highIntensityMenu_Text"), Command = _mainViewModel!.SetMapIntensityCommand, CommandParameter = 0.8 });
+            intensityMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_fullIntensityMenu_Text"), Command = _mainViewModel!.SetMapIntensityCommand, CommandParameter = 1.0 });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_mapIntensityMenu_Text"), Menu = intensityMenu });
 
             var qualityMenu = new NativeMenu();
-            qualityMenu.Items.Add(new NativeMenuItem { Header = "Normal", Command = _mainViewModel!.SetNormalQualityCommand });
-            qualityMenu.Items.Add(new NativeMenuItem { Header = "High", Command = _mainViewModel!.SetHighQualityCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Map Quality", Menu = qualityMenu });
+            qualityMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_normalQualityMenu_Text"), Command = _mainViewModel!.SetNormalQualityCommand });
+            qualityMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_highQualityMenu_Text"), Command = _mainViewModel!.SetHighQualityCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_mapQualityMenu_Text"), Menu = qualityMenu });
 
             menu.Items.Add(new NativeMenuItemSeparator());
-            menu.Items.Add(new NativeMenuItem { Header = "Show Print Area", Command = _mainViewModel!.ToggleShowPrintAreaCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Show Popups", Command = _mainViewModel!.ToggleShowPopupsCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_showPrintAreaMenu_Text"), Command = _mainViewModel!.ToggleShowPrintAreaCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_showPopupsMenu_Text"), Command = _mainViewModel!.ToggleShowPopupsCommand });
             menu.Items.Add(new NativeMenuItemSeparator());
-            menu.Items.Add(new NativeMenuItem { Header = "All Controls", Command = _mainViewModel!.ToggleAllControlsCommand, Gesture = new KeyGesture(Key.F4) });
-            menu.Items.Add(new NativeMenuItem { Header = "Other Courses", Command = _mainViewModel!.ShowOtherCoursesCommand, Gesture = new KeyGesture(Key.F5) });
-            menu.Items.Add(new NativeMenuItem { Header = "Clear Other Courses", Command = _mainViewModel!.ClearOtherCoursesCommand, Gesture = new KeyGesture(Key.F5, KeyModifiers.Shift) });
-            return new NativeMenuItem { Header = "View", Menu = menu };
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_allControlsMenu_Text"), Command = _mainViewModel!.ToggleAllControlsCommand, Gesture = new KeyGesture(Key.F4) });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_otherCoursesMenu_Text"), Command = _mainViewModel!.ShowOtherCoursesCommand, Gesture = new KeyGesture(Key.F5) });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_clearOtherCoursesMenu_Text"), Command = _mainViewModel!.ClearOtherCoursesCommand, Gesture = new KeyGesture(Key.F5, KeyModifiers.Shift) });
+            return new NativeMenuItem { Header = L("MainFrame_viewMenu_Text"), Menu = menu };
         }
 
         private NativeMenuItem BuildAddMenu()
         {
             var menu = new NativeMenu();
-            menu.Items.Add(new NativeMenuItem { Header = "Start", Command = _mainViewModel!.AddStartCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Control", Command = _mainViewModel!.AddControlCommand, Gesture = new KeyGesture(Key.A, KeyModifiers.Meta) });
-            menu.Items.Add(new NativeMenuItem { Header = "Finish", Command = _mainViewModel!.AddFinishCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Descriptions", Command = _mainViewModel!.AddDescriptionsCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_addStartMenu_Text"), Command = _mainViewModel!.AddStartCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_addControlMenu_Text"), Command = _mainViewModel!.AddControlCommand, Gesture = new KeyGesture(Key.A, KeyModifiers.Meta) });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_addFinishMenu_Text"), Command = _mainViewModel!.AddFinishCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_addDescriptionsMenu_Text"), Command = _mainViewModel!.AddDescriptionsCommand });
 
             var mapExchangeMenu = new NativeMenu();
-            mapExchangeMenu.Items.Add(new NativeMenuItem { Header = "Map Flip", Command = _mainViewModel!.AddMapFlipControlCommand });
-            mapExchangeMenu.Items.Add(new NativeMenuItem { Header = "Map Exchange Control", Command = _mainViewModel!.AddMapExchangeControlCommand });
-            mapExchangeMenu.Items.Add(new NativeMenuItem { Header = "Map Exchange Separate", Command = _mainViewModel!.AddMapExchangeSeparateCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Map Exchange", Menu = mapExchangeMenu });
+            mapExchangeMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_mapFlipMenuItem_Text"), Command = _mainViewModel!.AddMapFlipControlCommand });
+            mapExchangeMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_mapExchangeControlMenuItem_Text"), Command = _mainViewModel!.AddMapExchangeControlCommand });
+            mapExchangeMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_mapExchangeSeparateMenuItem_Text"), Command = _mainViewModel!.AddMapExchangeSeparateCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_addMapExchangeMenu_Text"), Menu = mapExchangeMenu });
 
-            menu.Items.Add(new NativeMenuItem { Header = "Variation", Command = _mainViewModel!.AddVariationCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Text Line", Command = _mainViewModel!.AddTextLineCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_addVariationMenu_Text"), Command = _mainViewModel!.AddVariationCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_addTextLineMenu_Text"), Command = _mainViewModel!.AddTextLineCommand });
             menu.Items.Add(new NativeMenuItemSeparator());
-            menu.Items.Add(new NativeMenuItem { Header = "Map Issue", Command = _mainViewModel!.AddMapIssueCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Mandatory Crossing", Command = _mainViewModel!.AddMandatoryCrossingCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Optional Crossing", Command = _mainViewModel!.AddOptCrossingCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Out of Bounds", Command = _mainViewModel!.AddOutOfBoundsCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Dangerous", Command = _mainViewModel!.AddDangerousCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Construction", Command = _mainViewModel!.AddConstructionCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Water", Command = _mainViewModel!.AddWaterCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "First Aid", Command = _mainViewModel!.AddFirstAidCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Forbidden", Command = _mainViewModel!.AddForbiddenCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Boundary", Command = _mainViewModel!.AddBoundaryCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Registration Mark", Command = _mainViewModel!.AddRegMarkCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_addMapIssueMenu_Text"), Command = _mainViewModel!.AddMapIssueCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_addMandatoryCrossingMenu_Text"), Command = _mainViewModel!.AddMandatoryCrossingCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_addOptCrossingMenu_Text"), Command = _mainViewModel!.AddOptCrossingCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_addOutOfBoundsMenu_Text"), Command = _mainViewModel!.AddOutOfBoundsCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_addDangerousMenu_Text"), Command = _mainViewModel!.AddDangerousCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_addConstructionMenu_Text"), Command = _mainViewModel!.AddConstructionCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_addWaterMenu_Text"), Command = _mainViewModel!.AddWaterCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_addFirstAidMenu_Text"), Command = _mainViewModel!.AddFirstAidCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_addForbiddenMenu_Text"), Command = _mainViewModel!.AddForbiddenCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_addBoundaryMenu_Text"), Command = _mainViewModel!.AddBoundaryCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_addRegMarkMenu_Text"), Command = _mainViewModel!.AddRegMarkCommand });
             menu.Items.Add(new NativeMenuItemSeparator());
-            menu.Items.Add(new NativeMenuItem { Header = "White Out", Command = _mainViewModel!.AddWhiteOutCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Text", Command = _mainViewModel!.AddTextCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Image", Command = _mainViewModel!.AddImageCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Line", Command = _mainViewModel!.AddLineCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Rectangle", Command = _mainViewModel!.AddRectangleCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Ellipse", Command = _mainViewModel!.AddEllipseCommand });
-            return new NativeMenuItem { Header = "Add", Menu = menu };
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_whiteOutMenu_Text"), Command = _mainViewModel!.AddWhiteOutCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_addTextMenu_Text"), Command = _mainViewModel!.AddTextCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_addImageMenu_Text"), Command = _mainViewModel!.AddImageCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_addLineMenu_Text"), Command = _mainViewModel!.AddLineCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_addRectangleMenu_Text"), Command = _mainViewModel!.AddRectangleCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_addEllipseMenu_Text"), Command = _mainViewModel!.AddEllipseCommand });
+            return new NativeMenuItem { Header = L("MainFrame_addMenu_Text"), Menu = menu };
         }
 
         private NativeMenuItem BuildEventMenu()
         {
             var menu = new NativeMenu();
-            menu.Items.Add(new NativeMenuItem { Header = "Change Map File", Command = _mainViewModel!.ChangeMapFileCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_changeMapFileMenu_Text"), Command = _mainViewModel!.ChangeMapFileCommand });
             menu.Items.Add(new NativeMenuItemSeparator());
-            menu.Items.Add(new NativeMenuItem { Header = "Change Codes", Command = _mainViewModel!.ChangeCodesCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Auto Numbering", Command = _mainViewModel!.AutoNumberingCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Remove Unused Controls", Command = _mainViewModel!.RemoveUnusedControlsCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Move All Controls", Command = _mainViewModel!.MoveAllControlsCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_changeCodesMenu_Text"), Command = _mainViewModel!.ChangeCodesCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_autoNumberingMenu_Text"), Command = _mainViewModel!.AutoNumberingCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_removeUnusedControlsMenu_Text"), Command = _mainViewModel!.RemoveUnusedControlsCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_moveAllControlsMenu_Text"), Command = _mainViewModel!.MoveAllControlsCommand });
             menu.Items.Add(new NativeMenuItemSeparator());
-            menu.Items.Add(new NativeMenuItem { Header = "Punch Patterns", Command = _mainViewModel!.PunchPatternsCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_punchPatternsMenu_Text"), Command = _mainViewModel!.PunchPatternsCommand });
             menu.Items.Add(new NativeMenuItemSeparator());
 
             var iofMenu = new NativeMenu();
-            iofMenu.Items.Add(new NativeMenuItem { Header = "Description Std 2004", Command = _mainViewModel!.SetDescriptionStd2004Command });
-            iofMenu.Items.Add(new NativeMenuItem { Header = "Description Std 2018", Command = _mainViewModel!.SetDescriptionStd2018Command });
+            iofMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_descriptionStd2004Menu_Text"), Command = _mainViewModel!.SetDescriptionStd2004Command });
+            iofMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_descriptionStd2018Menu_Text"), Command = _mainViewModel!.SetDescriptionStd2018Command });
             iofMenu.Items.Add(new NativeMenuItemSeparator());
-            iofMenu.Items.Add(new NativeMenuItem { Header = "Map Std 2000", Command = _mainViewModel!.SetMapStd2000Command });
-            iofMenu.Items.Add(new NativeMenuItem { Header = "Map Std 2017", Command = _mainViewModel!.SetMapStd2017Command });
-            iofMenu.Items.Add(new NativeMenuItem { Header = "Map Std 2019", Command = _mainViewModel!.SetMapStdSpr2019Command });
-            menu.Items.Add(new NativeMenuItem { Header = "IOF Standards", Menu = iofMenu });
+            iofMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_mapStd2000Menu_Text"), Command = _mainViewModel!.SetMapStd2000Command });
+            iofMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_mapStd2017Menu_Text"), Command = _mainViewModel!.SetMapStd2017Command });
+            iofMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_mapStdSpr2019Menu_Text"), Command = _mainViewModel!.SetMapStdSpr2019Command });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_iOFStandardsToolStripMenuItem_Text"), Menu = iofMenu });
 
-            menu.Items.Add(new NativeMenuItem { Header = "Customize Descriptions", Command = _mainViewModel!.CustomizeDescriptionsCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Customize Course Appearance", Command = _mainViewModel!.CustomizeCourseAppearanceCommand });
-            return new NativeMenuItem { Header = "Event", Menu = menu };
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_customizeDescriptionsMenu_Text"), Command = _mainViewModel!.CustomizeDescriptionsCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_customizeCourseAppearanceMenu_Text"), Command = _mainViewModel!.CustomizeCourseAppearanceCommand });
+            return new NativeMenuItem { Header = L("MainFrame_eventMenu_Text"), Menu = menu };
         }
 
         private NativeMenuItem BuildCourseMenu()
         {
             var menu = new NativeMenu();
-            menu.Items.Add(new NativeMenuItem { Header = "Add Course", Command = _mainViewModel!.ShowAddCourseDialogCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Delete Course", Command = _mainViewModel!.DeleteCourseCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Duplicate Course", Command = _mainViewModel!.DuplicateCourseCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Properties", Command = _mainViewModel!.ShowCoursePropertiesCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_addCourseMenu_Text"), Command = _mainViewModel!.ShowAddCourseDialogCommand, Gesture = new KeyGesture(Key.N, KeyModifiers.Meta) });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_deleteCourseMenu_Text"), Command = _mainViewModel!.DeleteCourseCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_duplicateCourseMenu_Text"), Command = _mainViewModel!.DuplicateCourseCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_propertiesMenu_Text"), Command = _mainViewModel!.ShowCoursePropertiesCommand, Gesture = new KeyGesture(Key.OemComma, KeyModifiers.Meta | KeyModifiers.Shift) });
             menu.Items.Add(new NativeMenuItemSeparator());
-            menu.Items.Add(new NativeMenuItem { Header = "Course Order", Command = _mainViewModel!.ShowCourseOrderCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Course Load", Command = _mainViewModel!.ShowCourseLoadCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_courseOrderMenu_Text"), Command = _mainViewModel!.ShowCourseOrderCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_courseLoadMenu_Text"), Command = _mainViewModel!.ShowCourseLoadCommand });
             menu.Items.Add(new NativeMenuItemSeparator());
-            menu.Items.Add(new NativeMenuItem { Header = "Course Variation Report", Command = _mainViewModel!.ShowCourseVariationReportCommand });
-            return new NativeMenuItem { Header = "Course", Menu = menu };
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_courseVariationReportMenu_Text"), Command = _mainViewModel!.ShowCourseVariationReportCommand });
+            return new NativeMenuItem { Header = L("MainFrame_courseMenu_Text"), Menu = menu };
         }
 
         private NativeMenuItem BuildItemMenu()
         {
             var menu = new NativeMenu();
-            menu.Items.Add(new NativeMenuItem { Header = "Delete", Command = _mainViewModel!.DeleteSelectionCommand, Gesture = new KeyGesture(Key.Back, KeyModifiers.Meta) });
-            menu.Items.Add(new NativeMenuItem { Header = "Delete Fork", Command = _mainViewModel!.DeleteForkCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_deleteItemMenu_Text"), Command = _mainViewModel!.DeleteSelectionCommand, Gesture = new KeyGesture(Key.Back, KeyModifiers.Meta) });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_deleteForkMenu_Text"), Command = _mainViewModel!.DeleteForkCommand });
             menu.Items.Add(new NativeMenuItemSeparator());
-            menu.Items.Add(new NativeMenuItem { Header = "Add Bend", Command = _mainViewModel!.AddBendCommand, Gesture = new KeyGesture(Key.B, KeyModifiers.Meta) });
-            menu.Items.Add(new NativeMenuItem { Header = "Remove Bend", Command = _mainViewModel!.RemoveBendCommand, Gesture = new KeyGesture(Key.B, KeyModifiers.Meta | KeyModifiers.Shift) });
-            menu.Items.Add(new NativeMenuItem { Header = "Add Gap", Command = _mainViewModel!.AddGapCommand, Gesture = new KeyGesture(Key.G, KeyModifiers.Meta) });
-            menu.Items.Add(new NativeMenuItem { Header = "Remove Gap", Command = _mainViewModel!.RemoveGapCommand, Gesture = new KeyGesture(Key.G, KeyModifiers.Meta | KeyModifiers.Shift) });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_addBendMenu_Text"), Command = _mainViewModel!.AddBendCommand, Gesture = new KeyGesture(Key.B, KeyModifiers.Meta) });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_removeBendMenu_Text"), Command = _mainViewModel!.RemoveBendCommand, Gesture = new KeyGesture(Key.B, KeyModifiers.Meta | KeyModifiers.Shift) });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_addGapMenu_Text"), Command = _mainViewModel!.AddGapCommand, Gesture = new KeyGesture(Key.G, KeyModifiers.Meta) });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_removeGapMenu_Text"), Command = _mainViewModel!.RemoveGapCommand, Gesture = new KeyGesture(Key.G, KeyModifiers.Meta | KeyModifiers.Shift) });
             menu.Items.Add(new NativeMenuItemSeparator());
-            menu.Items.Add(new NativeMenuItem { Header = "Change Text", Command = _mainViewModel!.ChangeTextCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Change Line Appearance", Command = _mainViewModel!.ChangeLineAppearanceCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Rotate", Command = _mainViewModel!.RotateCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Stretch", Command = _mainViewModel!.StretchCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_changeTextMenu_Text"), Command = _mainViewModel!.ChangeTextCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_changeLineAppearanceMenu_Text"), Command = _mainViewModel!.ChangeLineAppearanceCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_rotateMenu_Text"), Command = _mainViewModel!.RotateCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_stretchMenu_Text"), Command = _mainViewModel!.StretchCommand });
 
             var flaggingMenu = new NativeMenu();
-            flaggingMenu.Items.Add(new NativeMenuItem { Header = "No Flagging", Command = _mainViewModel!.SetNoFlaggingCommand });
-            flaggingMenu.Items.Add(new NativeMenuItem { Header = "Entire Flagging", Command = _mainViewModel!.SetEntireFlaggingCommand });
-            flaggingMenu.Items.Add(new NativeMenuItem { Header = "Begin Flagging", Command = _mainViewModel!.SetBeginFlaggingCommand });
-            flaggingMenu.Items.Add(new NativeMenuItem { Header = "End Flagging", Command = _mainViewModel!.SetEndFlaggingCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Leg Flagging", Menu = flaggingMenu });
+            flaggingMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_noFlaggingMenu_Text"), Command = _mainViewModel!.SetNoFlaggingCommand });
+            flaggingMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_entireFlaggingMenu_Text"), Command = _mainViewModel!.SetEntireFlaggingCommand });
+            flaggingMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_beginFlaggingMenu_Text"), Command = _mainViewModel!.SetBeginFlaggingCommand });
+            flaggingMenu.Items.Add(new NativeMenuItem { Header = L("MainFrame_endFlaggingMenu_Text"), Command = _mainViewModel!.SetEndFlaggingCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_legFlaggingMenu_Text"), Menu = flaggingMenu });
 
             menu.Items.Add(new NativeMenuItemSeparator());
-            menu.Items.Add(new NativeMenuItem { Header = "Change Displayed Courses", Command = _mainViewModel!.ChangeDisplayedCoursesCommand });
-            return new NativeMenuItem { Header = "Item", Menu = menu };
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_changeDisplayedCoursesMenu_Text"), Command = _mainViewModel!.ChangeDisplayedCoursesCommand });
+            return new NativeMenuItem { Header = L("MainFrame_itemMenu_Text"), Menu = menu };
         }
 
         private NativeMenuItem BuildReportsMenu()
         {
             var menu = new NativeMenu();
-            menu.Items.Add(new NativeMenuItem { Header = "Course Summary", Command = _mainViewModel!.ShowCourseSummaryCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Event Audit", Command = _mainViewModel!.ShowEventAuditCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Leg Lengths", Command = _mainViewModel!.ShowLegLengthsCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Control Crossref", Command = _mainViewModel!.ShowControlCrossrefCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Control and Leg Load", Command = _mainViewModel!.ShowControlAndLegLoadCommand });
-            return new NativeMenuItem { Header = "Reports", Menu = menu };
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_courseSummaryMenu_Text"), Command = _mainViewModel!.ShowCourseSummaryCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_eventAuditMenu_Text"), Command = _mainViewModel!.ShowEventAuditCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_legLengthsMenu_Text"), Command = _mainViewModel!.ShowLegLengthsCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_controlCrossrefMenu_Text"), Command = _mainViewModel!.ShowControlCrossrefCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_controlAndLegLoadMenu_Text"), Command = _mainViewModel!.ShowControlAndLegLoadCommand });
+            return new NativeMenuItem { Header = L("MainFrame_reportMenu_Text"), Menu = menu };
         }
 
         private NativeMenuItem BuildHelpMenu()
         {
             var menu = new NativeMenu();
-            menu.Items.Add(new NativeMenuItem { Header = "Help Contents", Command = _mainViewModel!.HelpContentsCommand, Gesture = new KeyGesture(Key.F1) });
-            menu.Items.Add(new NativeMenuItem { Header = "Help Translated", Command = _mainViewModel!.HelpTranslatedCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_helpContentsMenu_Text"), Command = _mainViewModel!.HelpContentsCommand, Gesture = new KeyGesture(Key.F1) });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_helpTranslatedMenu_Text"), Command = _mainViewModel!.HelpTranslatedCommand });
             menu.Items.Add(new NativeMenuItemSeparator());
-            menu.Items.Add(new NativeMenuItem { Header = "Main Web Site", Command = _mainViewModel!.OpenMainWebSiteCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Support Web Site", Command = _mainViewModel!.OpenSupportWebSiteCommand });
-            menu.Items.Add(new NativeMenuItem { Header = "Donate Web Site", Command = _mainViewModel!.OpenDonateWebSiteCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_mainWebSiteToolMenu_Text"), Command = _mainViewModel!.OpenMainWebSiteCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_supportWebSiteMenu_Text"), Command = _mainViewModel!.OpenSupportWebSiteCommand });
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_donateWebSiteMenu_Text"), Command = _mainViewModel!.OpenDonateWebSiteCommand });
             menu.Items.Add(new NativeMenuItemSeparator());
-            menu.Items.Add(new NativeMenuItem { Header = "About", Command = _mainViewModel!.ShowAboutDialogCommand });
-            return new NativeMenuItem { Header = "Help", Menu = menu };
+            menu.Items.Add(new NativeMenuItem { Header = L("MainFrame_aboutMenu_Text"), Command = _mainViewModel!.ShowAboutDialogCommand });
+            return new NativeMenuItem { Header = L("MainFrame_helpMenu_Text"), Menu = menu };
         }
 
         // Updates the "Open Recent" menu with recent files
@@ -379,7 +405,7 @@ namespace AvPurplePen.Views
 
             // If no recent files, show a disabled placeholder
             if (_mainViewModel.RecentFiles.Count == 0) {
-                var placeholderItem = new NativeMenuItem { Header = "(No recent files)", IsEnabled = false };
+                var placeholderItem = new NativeMenuItem { Header = L("AvMainFrame_noRecentFiles_Text"), IsEnabled = false };
                 _openRecentMenu.Menu.Items.Add(placeholderItem);
                 return;
             }

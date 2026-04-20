@@ -4,7 +4,7 @@
 			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="150"
 			 x:Class="AvPurplePen.SelectionPanel">
-	<ScrollViewer Background="White"
+	<ScrollViewer Background="{DynamicResource SelectionPanelBackground}"
 	              HorizontalScrollBarVisibility="Disabled">
 		<StackPanel 
 			x:Name="textBlockStack">

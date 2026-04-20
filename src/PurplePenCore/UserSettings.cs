@@ -16,6 +16,7 @@ namespace PurplePen
     public class UserSettings
     {
         public string UILanguage;
+        public string UITheme = "System";
         public string LastLoadedFile;
         public float MapIntensity = 0.7F;
         public bool MapHighQuality = true;

@@ -17,6 +17,8 @@ namespace AvPurplePen
 {
     public partial class App : Application
     {
+        public new static App? Current => Application.Current as App;
+
         /// <summary>
         /// The main application window. Set during initialization and used by
         /// the IDialogService factory to create modal dialogs.
@@ -42,7 +44,33 @@ namespace AvPurplePen
 
             //RequestedThemeVariant = PurplePenTheme;
 
-            RequestedThemeVariant = ThemeVariant.Light;
+            RequestedThemeVariant = SettingNameToThemeVariant(UserSettings.Current.UITheme);
+        }
+
+        public static ThemeVariant SettingNameToThemeVariant(string? settingValue)
+        {
+            if (string.Equals(settingValue, "Light", StringComparison.OrdinalIgnoreCase)) {
+                return ThemeVariant.Light;
+            }
+
+            if (string.Equals(settingValue, "Dark", StringComparison.OrdinalIgnoreCase)) {
+                return ThemeVariant.Dark;
+            }
+
+            return ThemeVariant.Default;
+        }
+
+        public static string ThemeVariantToSettingName(ThemeVariant themeVariant)
+        {
+            if (themeVariant == ThemeVariant.Light) {
+                return "Light";
+            }
+
+            if (themeVariant == ThemeVariant.Dark) {
+                return "Dark";
+            }
+
+            return "System";
         }
 
         public override void OnFrameworkInitializationCompleted()

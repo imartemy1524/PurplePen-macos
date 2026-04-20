@@ -12,7 +12,7 @@
         d:DesignWidth="500" d:DesignHeight="400"
         x:Class="AvPurplePen.Views.CustomizeDescriptionsDialog"
         x:DataType="vm:CustomizeDescriptionsDialogViewModel"
-        Title="Customize Descriptions"
+        Title="{resx:Localize MainFrame_customizeDescriptionsMenu_Text}"
         Icon="/Assets/transparent.ico"
         Width="500" Height="400"
         CanResize="False"
@@ -28,15 +28,15 @@
     <DockPanel LastChildFill="True">
 
         <!-- Button Bar -->
-        <Border DockPanel.Dock="Bottom" BorderThickness="0,1,0,0" BorderBrush="#E0E0E0" Padding="16,12" Background="#F5F5F5">
+        <Border DockPanel.Dock="Bottom" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource DialogButtonBarBorderBrush}" Padding="16,12" Background="{DynamicResource DialogButtonBarBackground}">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
                 <Button x:Name="okButton"
-                        Content="OK"
+                        Content="{x:Static resx:UIText.OKButton}"
                         Command="{Binding OkCommand}"
                         MinWidth="90" Padding="12,6"
                         IsDefault="True"/>
                 <Button x:Name="cancelButton"
-                        Content="Cancel"
+                        Content="{x:Static resx:UIText.CancelButton}"
                         Command="{Binding CancelCommand}"
                         MinWidth="90" Padding="12,6"
                         IsCancel="True"/>
@@ -47,33 +47,35 @@
         <Border Padding="20">
             <StackPanel Spacing="16">
 
-                <TextBlock Text="Customize Course Descriptions"
+                <TextBlock Text="{resx:Localize MainFrame_customizeDescriptionsMenu_Text}"
                            FontWeight="Bold" FontSize="14"/>
 
-                <TextBlock Text="Select language for customization:"
-                           FontSize="12" Foreground="#666"/>
+                <TextBlock Text="{resx:Localize CustomSymbolText_labelChooseLanguage_Text}"
+                           FontSize="12" Foreground="{DynamicResource HintTextBrush}"/>
 
                 <!-- Language Selection -->
                 <StackPanel Spacing="6">
-                    <TextBlock Text="Language:" FontWeight="Bold" FontSize="13"/>
+                    <TextBlock Text="{resx:Localize CustomSymbolText_labelChooseLanguage_Text}" FontWeight="Bold" FontSize="13"/>
                     <ComboBox ItemsSource="{Binding AvailableLanguages}"
                               SelectedItem="{Binding CurrentLanguage}"
                               MinHeight="36"/>
                 </StackPanel>
 
                 <!-- Current Language Display -->
-                <Border BorderThickness="1" BorderBrush="#DDD" Background="#F9F9F9" Padding="12">
-                    <TextBlock Text="{Binding CurrentLanguage, StringFormat='Current: {0}'}"
-                               FontSize="12"/>
+                <Border BorderThickness="1" BorderBrush="{DynamicResource SectionDividerBrush}" Background="{DynamicResource PanelAltBackground}" Padding="12">
+                    <StackPanel Orientation="Horizontal" Spacing="4">
+                        <TextBlock Text="{resx:Localize AvCustomizeDescriptions_currentLanguageLabel_Text}" FontSize="12"/>
+                        <TextBlock Text="{Binding CurrentLanguage}" FontSize="12"/>
+                    </StackPanel>
                 </Border>
 
                 <!-- Option -->
-                <CheckBox Content="Set as default language for new events"
+                <CheckBox Content="{resx:Localize CustomSymbolText_checkBoxDefaultLanguage_Text}"
                           IsChecked="{Binding UseAsDefault, Mode=TwoWay}"/>
 
-                <TextBlock Text="Note: Full symbol text customization interface coming soon."
+                <TextBlock Text="{resx:Localize AvCustomizeDescriptions_note_Text}"
                            TextWrapping="Wrap"
-                           FontSize="11" Foreground="#888"/>
+                           FontSize="11" Foreground="{DynamicResource MutedTextBrush}"/>
 
             </StackPanel>
         </Border>

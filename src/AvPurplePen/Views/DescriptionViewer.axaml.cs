@@ -201,7 +201,7 @@ public partial class DescriptionViewer : UserControl
             FlyoutPresenterTheme = new ControlTheme(typeof(FlyoutPresenter)) {
                 BasedOn = (ControlTheme)this.FindResource(typeof(FlyoutPresenter))!,
                 Setters = { new Setter(FlyoutPresenter.PaddingProperty, new Thickness(3)), 
-                            new Setter(FlyoutPresenter.BackgroundProperty, new SolidColorBrush(Avalonia.Media.Color.FromRgb(0xFB, 0xF8, 0xED))) }
+                            new Setter(FlyoutPresenter.BackgroundProperty, GetBrushResource("DescriptionPopupFlyoutBackground", new SolidColorBrush(Avalonia.Media.Color.FromRgb(0xFB, 0xF8, 0xED)))) }
             },
             Content = descriptionPopup
         };
@@ -260,7 +260,7 @@ public partial class DescriptionViewer : UserControl
     private void DrawingView_Paint(object? sender, SkiaScrollableDrawingView.PaintEventArgs e)
     {
         RectangleF clipRectangle = Conv.ToRectangleF(e.LogicalViewPort);
-        e.Canvas.Clear(SKColors.White);
+        e.Canvas.Clear(GetSkColorResource("SelectionPanelBackground", SKColors.White));
 
         if (renderer != null && DescriptionData != null) {
             using (Skia_GraphicsTarget grTarget = new Skia_GraphicsTarget(e.Canvas)) {
@@ -287,6 +287,27 @@ public partial class DescriptionViewer : UserControl
                 grTarget.FillRectangle(selectionBrush, selectedRect);
             }
         }
+    }
+
+    private IBrush GetBrushResource(string key, IBrush fallback)
+    {
+        if (Application.Current?.TryFindResource(key, ActualThemeVariant, out object? resourceObject) == true &&
+            resourceObject is IBrush foundBrush) {
+            return foundBrush;
+        }
+
+        return fallback;
+    }
+
+    private SKColor GetSkColorResource(string key, SKColor fallback)
+    {
+        if (Application.Current?.TryFindResource(key, ActualThemeVariant, out object? resourceObject) == true &&
+            resourceObject is ISolidColorBrush foundBrush) {
+            Avalonia.Media.Color color = foundBrush.Color;
+            return new SKColor(color.R, color.G, color.B, color.A);
+        }
+
+        return fallback;
     }
 }
 

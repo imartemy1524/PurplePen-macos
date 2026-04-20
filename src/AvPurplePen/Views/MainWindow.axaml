@@ -90,8 +90,10 @@
                     <MenuItem x:Name="printAreaAllCoursesMenu" Header="{resx:Localize MainFrame_printAreaAllCoursesMenu_Text}" Command="{Binding SetPrintAreaAllCoursesCommand}"/>
                 </MenuItem>
                 <Separator/>
-                <MenuItem x:Name="programLanguageMenu" Header="{resx:Localize MainFrame_programLanguageMenu_Text}"
-                          Command="{Binding ShowSwitchLanguageDialogCommand}"/>
+                <MenuItem x:Name="settingsMenu" Header="{resx:Localize MainFrame_settingsMenu_Text}"
+                          InputGesture="{OnPlatform 'Ctrl+,', macOS='Cmd+,'}"
+                          HotKey="{OnPlatform 'Ctrl+OemComma', macOS='Meta+OemComma'}"
+                          Command="{Binding ShowSettingsDialogCommand}"/>
                 <Separator/>
                 <MenuItem x:Name="exitMenu" Header="{resx:Localize MainFrame_exitMenu_Text}" Command="{Binding ExitCommand}"/>
             </MenuItem>
@@ -447,11 +449,11 @@
                               Command="{Binding ShowMissingTranslationsCommand}"/>
                     <MenuItem x:Name="crashToolStripMenuItem" Header="{resx:Localize MainFrame_crashToolStripMenuItem_Text}"
                               Command="{Binding TriggerCrashCommand}"/>
-                    <MenuItem Header="MessageBox">
-                        <MenuItem Header="OK" Command="{Binding TestMessageBoxOkCommand}"/>
-                        <MenuItem Header="OK / Cancel" Command="{Binding TestMessageBoxOkCancelCommand}"/>
-                        <MenuItem Header="Yes / No" Command="{Binding TestMessageBoxYesNoCommand}"/>
-                        <MenuItem Header="Yes / No / Cancel" Command="{Binding TestMessageBoxYesNoCancelCommand}"/>
+                    <MenuItem Header="{resx:Localize AvDebug_messageBoxMenu_Text}">
+                        <MenuItem Header="{x:Static resx:UIText.OKButton}" Command="{Binding TestMessageBoxOkCommand}"/>
+                        <MenuItem Header="{resx:Localize AvDebug_messageBoxOkCancel_Text}" Command="{Binding TestMessageBoxOkCancelCommand}"/>
+                        <MenuItem Header="{resx:Localize AvDebug_messageBoxYesNo_Text}" Command="{Binding TestMessageBoxYesNoCommand}"/>
+                        <MenuItem Header="{resx:Localize AvDebug_messageBoxYesNoCancel_Text}" Command="{Binding TestMessageBoxYesNoCancelCommand}"/>
                     </MenuItem>
                 </MenuItem>
                 <!-- Translate submenu -->
@@ -754,14 +756,14 @@
                   Theme="{DynamicResource CardTabStrip}"
                   ItemsSource="{Binding TabNames}"
                   SelectedIndex="{Binding SelectedTabIndex}"
-                  Background="#E0E0E0">
+                  Background="{DynamicResource TabStripBackground}">
         </TabStrip>
 
         <!-- ==================== STATUS BAR ==================== -->
         <!-- Status bar at the bottom with status text, zoom controls, and coordinate display. -->
         <Grid x:Name="statusBar" DockPanel.Dock="Bottom" Height="26"
               ColumnDefinitions="*,Auto,Auto,Auto,Auto"
-              Background="#F0F2F4">
+              Background="{DynamicResource StatusBarBackground}">
 
             <!-- Status message (Spring = fills available space) -->
             <TextBlock x:Name="statusLabel" Grid.Column="0"
@@ -783,7 +785,7 @@
                     Value="{Binding ZoomSliderValue, Mode=TwoWay}"/>
 
             <!-- Coordinate display -->
-            <Border Grid.Column="4" BorderBrush="Gray" BorderThickness="1" Margin="2,2,6,2"
+            <Border Grid.Column="4" BorderBrush="{DynamicResource CoordinateBorderBrush}" BorderThickness="1" Margin="2,2,6,2"
                     CornerRadius="2" Padding="4,0">
                 <TextBlock x:Name="locationDisplay"
                            Text="{Binding StatusBarLocationDisplay}"
@@ -802,7 +804,7 @@
             <Grid Grid.Column="0" RowDefinitions="*,Auto,200" >
 
                 <!-- Description/Topology area with radio button toggle -->
-                <Grid x:Name="leftColumnPanel" Grid.Row="0" Background="White" ClipToBounds="True"
+                <Grid x:Name="leftColumnPanel" Grid.Row="0" Background="{DynamicResource PanelBackground}" ClipToBounds="True"
                       RowDefinitions="*,Auto">
 
                     <!-- Panel that overlays descriptionControl and panelTopology.
@@ -849,7 +851,7 @@
 
                     <!-- Radio buttons to toggle between Descriptions and Topology/Ordering views -->
                     <Grid Grid.Row="1" ColumnDefinitions="*,*"
-                          Background="#f5f5f5" >
+                          Background="{DynamicResource PanelAltBackground}" >
                         <Grid.Styles>
                             <Style Selector="RadioButton:not(:checked)">
                                 <Setter Property="Padding" Value="6,3"/>
@@ -933,7 +935,7 @@
                            VerticalAlignment="Bottom"
                            HorizontalAlignment="Left"
                            Margin="12,0,0,12"
-                           Background="White" CornerRadius="8" Padding="16"
+                           Background="{DynamicResource CardBackground}" CornerRadius="8" Padding="16"
                            BoxShadow="0 4 16 rgba(0,0,0,0.2)"
                            MaxWidth="320"
                            ZIndex="10">
@@ -942,35 +944,35 @@
                             <TextBlock Text="{Binding MoveAllControlsInstructions}"
                                       FontSize="12" FontWeight="Bold"
                                       TextWrapping="Wrap"
-                                      Foreground="#333"/>
+                                      Foreground="{DynamicResource CardTextPrimary}"/>
 
                             <!-- Transformation values (shown after first location selected) -->
                             <StackPanel x:Name="transformationValuesPanel" Spacing="6">
                                 <Grid ColumnDefinitions="100,*" RowDefinitions="Auto,Auto">
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="X Offset:" FontSize="11" Foreground="#666"/>
-                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding MoveAllControlsXOffset, StringFormat=0.##}" FontSize="11" Foreground="#333"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{resx:Localize SelectLocationsForMove_labelXOffset_Text}" FontSize="11" Foreground="{DynamicResource CardTextSecondary}"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding MoveAllControlsXOffset, StringFormat=0.##}" FontSize="11" Foreground="{DynamicResource CardTextPrimary}"/>
 
-                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="Y Offset:" FontSize="11" Foreground="#666"/>
-                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding MoveAllControlsYOffset, StringFormat=0.##}" FontSize="11" Foreground="#333"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="0" Text="{resx:Localize SelectLocationsForMove_labelYOffset_Text}" FontSize="11" Foreground="{DynamicResource CardTextSecondary}"/>
+                                    <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding MoveAllControlsYOffset, StringFormat=0.##}" FontSize="11" Foreground="{DynamicResource CardTextPrimary}"/>
                                 </Grid>
 
                                 <!-- Scale row (for MoveScale and MoveRotateScale) -->
                                 <Grid ColumnDefinitions="100,*" RowDefinitions="Auto" x:Name="scaleRow">
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Scale:" FontSize="11" Foreground="#666"/>
-                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding MoveAllControlsScale, StringFormat=0.####}" FontSize="11" Foreground="#333"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{resx:Localize SelectLocationsForMove_labelScale_Text}" FontSize="11" Foreground="{DynamicResource CardTextSecondary}"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding MoveAllControlsScale, StringFormat=0.####}" FontSize="11" Foreground="{DynamicResource CardTextPrimary}"/>
                                 </Grid>
 
                                 <!-- Rotation row (for MoveRotate and MoveRotateScale) -->
                                 <Grid ColumnDefinitions="100,*" RowDefinitions="Auto" x:Name="rotationRow">
-                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="Rotation:" FontSize="11" Foreground="#666"/>
-                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding MoveAllControlsRotation, StringFormat=0.##}°" FontSize="11" Foreground="#333"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="0" Text="{resx:Localize SelectLocationsForMove_labelRotation_Text}" FontSize="11" Foreground="{DynamicResource CardTextSecondary}"/>
+                                    <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding MoveAllControlsRotation, StringFormat=0.##}°" FontSize="11" Foreground="{DynamicResource CardTextPrimary}"/>
                                 </Grid>
                             </StackPanel>
 
                             <!-- Confirm/Cancel buttons (shown at Confirm stage) -->
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-                                <Button Content="Cancel" Padding="10,6" FontSize="11" MinWidth="75" Click="CancelMoveAllControls_Click"/>
-                                <Button Content="Confirm" Padding="10,6" FontSize="11" MinWidth="75" Background="#4CAF50" Foreground="White" Click="ConfirmMoveAllControls_Click"/>
+                                <Button Content="{x:Static resx:UIText.CancelButton}" Padding="10,6" FontSize="11" MinWidth="75" Click="CancelMoveAllControls_Click"/>
+                                <Button Content="{resx:Localize SelectLocationsForMove_buttonConfirm_Text}" Padding="10,6" FontSize="11" MinWidth="75" Background="{DynamicResource CardSuccessBackground}" Foreground="{DynamicResource CardSuccessForeground}" Click="ConfirmMoveAllControls_Click"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>

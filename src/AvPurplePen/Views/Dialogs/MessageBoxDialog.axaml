@@ -15,7 +15,7 @@
         x:Class="AvPurplePen.Views.MessageBoxDialog"
         Classes="dialog"
         x:DataType="vm:MessageBoxDialogViewModel"
-        Title="Purple Pen"
+        Title="{resx:Localize MiscText_AppTitle}"
         Icon="/Assets/transparent.ico"
         Width="400"
         SizeToContent="Height"

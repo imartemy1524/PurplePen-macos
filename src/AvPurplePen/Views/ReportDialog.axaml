@@ -30,7 +30,7 @@
     <DockPanel LastChildFill="True">
 
         <!-- Button Bar -->
-        <Border DockPanel.Dock="Bottom" BorderThickness="0,1,0,0" BorderBrush="#E0E0E0" Padding="16,12" Background="#F5F5F5">
+        <Border DockPanel.Dock="Bottom" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource DialogButtonBarBorderBrush}" Padding="16,12" Background="{DynamicResource DialogButtonBarBackground}">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
                 <Button x:Name="printButton"
                         Content="{resx:Localize ReportDialog_printButton_Text}"

@@ -3751,4 +3751,79 @@ For printing competition maps, it is suggested that courses be exported to OCAD 
   <data name="ReportDialog_okButton_Text" xml:space="preserve">
     <value>OK</value>
   </data>
+  <data name="AvMainFrame_openRecentMenu_Text" xml:space="preserve">
+    <value>Open Recent</value>
+  </data>
+  <data name="AvMainFrame_noRecentFiles_Text" xml:space="preserve">
+    <value>(No recent files)</value>
+  </data>
+  <data name="AvAutoNumbering_optionsLabel_Text" xml:space="preserve">
+    <value>Options:</value>
+  </data>
+  <data name="AvChangeText_textLabel_Text" xml:space="preserve">
+    <value>Text:</value>
+  </data>
+  <data name="AvChangeText_styleLabel_Text" xml:space="preserve">
+    <value>Style:</value>
+  </data>
+  <data name="AvChangeMapFile_mapTypeLabel_Text" xml:space="preserve">
+    <value>Map Type:</value>
+  </data>
+  <data name="AvChangeMapFile_note_Text" xml:space="preserve">
+    <value>Note: To change the map file, please re-open the file selection dialog. File browser functionality coming soon.</value>
+  </data>
+  <data name="AvCustomizeDescriptions_currentLanguageLabel_Text" xml:space="preserve">
+    <value>Current:</value>
+  </data>
+  <data name="AvCustomizeDescriptions_note_Text" xml:space="preserve">
+    <value>Note: Full symbol text customization interface coming soon.</value>
+  </data>
+  <data name="AvCourseAppearance_centerDotDiameter_Text" xml:space="preserve">
+    <value>Center Dot Diameter (0 = none):</value>
+  </data>
+  <data name="AvCourseAppearance_numberOptions_Text" xml:space="preserve">
+    <value>Number Options:</value>
+  </data>
+  <data name="AvCourseAppearance_boldNumbers_Text" xml:space="preserve">
+    <value>Bold numbers</value>
+  </data>
+  <data name="AvCourseAppearance_useRobotoFont_Text" xml:space="preserve">
+    <value>Use Roboto font</value>
+  </data>
+  <data name="AvCourseAppearance_mapStandard_Text" xml:space="preserve">
+    <value>Map Standard:</value>
+  </data>
+  <data name="AvDebug_messageBoxMenu_Text" xml:space="preserve">
+    <value>MessageBox</value>
+  </data>
+  <data name="AvDebug_messageBoxOkCancel_Text" xml:space="preserve">
+    <value>OK / Cancel</value>
+  </data>
+  <data name="AvDebug_messageBoxYesNo_Text" xml:space="preserve">
+    <value>Yes / No</value>
+  </data>
+  <data name="AvDebug_messageBoxYesNoCancel_Text" xml:space="preserve">
+    <value>Yes / No / Cancel</value>
+  </data>
+  <data name="MainFrame_settingsMenu_Text" xml:space="preserve">
+    <value>Settings...</value>
+  </data>
+  <data name="Settings_intro_Text" xml:space="preserve">
+    <value>Configure application appearance and language.</value>
+  </data>
+  <data name="Settings_languageLabel_Text" xml:space="preserve">
+    <value>Language:</value>
+  </data>
+  <data name="Settings_themeLabel_Text" xml:space="preserve">
+    <value>Theme:</value>
+  </data>
+  <data name="Settings_themeSystem_Text" xml:space="preserve">
+    <value>System</value>
+  </data>
+  <data name="Settings_themeLight_Text" xml:space="preserve">
+    <value>Light</value>
+  </data>
+  <data name="Settings_themeDark_Text" xml:space="preserve">
+    <value>Dark</value>
+  </data>
 </root>

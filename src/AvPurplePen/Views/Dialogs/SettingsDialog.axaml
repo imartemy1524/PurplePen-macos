@@ -1,0 +1,86 @@
+<!--
+    SettingsDialog.axaml
+    Application settings dialog (language and theme).
+-->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:PurplePen.ViewModels"
+        xmlns:resx="using:AvPurplePen"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        d:DesignWidth="420" d:DesignHeight="280"
+        x:Class="AvPurplePen.Views.SettingsDialog"
+        Classes="dialog"
+        x:DataType="vm:SettingsDialogViewModel"
+        Title="{resx:Localize MainFrame_settingsMenu_Text}"
+        Icon="/Assets/transparent.ico"
+        Width="420" Height="280"
+        CanResize="False"
+        CanMinimize="False"
+        CanMaximize="False"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+    <Design.DataContext>
+        <vm:SettingsDialogViewModel/>
+    </Design.DataContext>
+
+    <DockPanel Margin="16">
+        <StackPanel DockPanel.Dock="Bottom"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Spacing="8"
+                    Margin="0,16,0,0">
+            <Button x:Name="okButton"
+                    Content="{x:Static resx:UIText.OKButton}"
+                    Width="84"
+                    HorizontalContentAlignment="Center"
+                    Click="OkButton_Click"
+                    IsDefault="True"/>
+            <Button x:Name="cancelButton"
+                    Content="{x:Static resx:UIText.CancelButton}"
+                    Width="84"
+                    HorizontalContentAlignment="Center"
+                    Click="CancelButton_Click"
+                    IsCancel="True"/>
+        </StackPanel>
+
+        <StackPanel Spacing="14">
+            <TextBlock Text="{resx:Localize Settings_intro_Text}"
+                       TextWrapping="Wrap"/>
+
+            <Grid ColumnDefinitions="120,*"
+                  RowDefinitions="Auto,Auto"
+                  RowSpacing="10"
+                  ColumnSpacing="8">
+                <TextBlock Grid.Row="0"
+                           Grid.Column="0"
+                           VerticalAlignment="Center"
+                           Text="{resx:Localize Settings_languageLabel_Text}"/>
+                <ComboBox Grid.Row="0"
+                          Grid.Column="1"
+                          ItemsSource="{Binding AvailableLanguages}"
+                          SelectedItem="{Binding SelectedLanguage, Mode=TwoWay}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:LanguageItem">
+                            <TextBlock Text="{Binding DisplayName}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+
+                <TextBlock Grid.Row="1"
+                           Grid.Column="0"
+                           VerticalAlignment="Center"
+                           Text="{resx:Localize Settings_themeLabel_Text}"/>
+                <ComboBox Grid.Row="1"
+                          Grid.Column="1"
+                          SelectedIndex="{Binding SelectedThemeIndex, Mode=TwoWay}">
+                    <ComboBoxItem Content="{resx:Localize Settings_themeSystem_Text}"/>
+                    <ComboBoxItem Content="{resx:Localize Settings_themeLight_Text}"/>
+                    <ComboBoxItem Content="{resx:Localize Settings_themeDark_Text}"/>
+                </ComboBox>
+            </Grid>
+        </StackPanel>
+    </DockPanel>
+</Window>

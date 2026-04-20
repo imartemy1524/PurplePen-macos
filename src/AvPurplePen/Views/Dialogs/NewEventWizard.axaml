@@ -32,8 +32,8 @@
     <DockPanel>
         <Border DockPanel.Dock="Top"
                 Height="56"
-                Background="White"
-                BorderBrush="#D0D0D0"
+                Background="{DynamicResource PanelBackground}"
+                BorderBrush="{DynamicResource SectionDividerBrush}"
                 BorderThickness="0,0,0,1"
                 Padding="18,12">
             <Grid>
@@ -157,8 +157,8 @@
                 </HeaderedContentControl>
                 <Border x:Name="infoDisplayPanel"
                         IsVisible="{Binding IsMapFileInfoVisible}"
-                        Background="#F2F7F1"
-                        BorderBrush="#8EB58C"
+                        Background="{DynamicResource InfoBannerBackground}"
+                        BorderBrush="{DynamicResource InfoBannerBorder}"
                         BorderThickness="1"
                         Padding="8">
                     <TextBlock Text="{resx:Localize NewEventMapFile_infoMessage_Text}"
@@ -166,8 +166,8 @@
                 </Border>
                 <Border x:Name="errorDisplayPanel"
                         IsVisible="{Binding IsMapFileErrorVisible}"
-                        Background="#FFF3F3"
-                        BorderBrush="#C87878"
+                        Background="{DynamicResource ErrorBannerBackground}"
+                        BorderBrush="{DynamicResource ErrorBannerBorder}"
                         BorderThickness="1"
                         Padding="8">
                     <TextBlock x:Name="errorMessage"
@@ -428,8 +428,8 @@
                            TextWrapping="Wrap"/>
                 <Border x:Name="finalErrorDisplayPanel"
                         IsVisible="{Binding IsFinalErrorVisible}"
-                        Background="#FFF3F3"
-                        BorderBrush="#C87878"
+                        Background="{DynamicResource ErrorBannerBackground}"
+                        BorderBrush="{DynamicResource ErrorBannerBorder}"
                         BorderThickness="1"
                         Padding="8">
                     <TextBlock x:Name="finalErrorMessage"

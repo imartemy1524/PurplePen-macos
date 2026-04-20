@@ -12,9 +12,92 @@
     </Application.DataTemplates>
 
     <Application.Resources>
+        <ResourceDictionary>
         <FontFamily x:Key="DefaultFontFamily">avares://AvPurplePen/Assets/UIFonts#Source Sans 3</FontFamily>
         <!-- Override Semi.Avalonia's default font (Inter) with our embedded font -->
         <FontFamily x:Key="SemiFontFamilyRegular">avares://AvPurplePen/Assets/UIFonts#Source Sans 3</FontFamily>
+
+        <ResourceDictionary.ThemeDictionaries>
+            <ResourceDictionary x:Key="Light">
+                <SolidColorBrush x:Key="MenuItemForeground" Color="#101010"/>
+                <SolidColorBrush x:Key="DialogBackground" Color="#F9F6F1"/>
+                <SolidColorBrush x:Key="DialogButtonBarBackground" Color="#F5F5F5"/>
+                <SolidColorBrush x:Key="DialogButtonBarBorderBrush" Color="#E0E0E0"/>
+                <SolidColorBrush x:Key="InputBackground" Color="#FBFBFB"/>
+                <SolidColorBrush x:Key="InputActiveBackground" Color="#FFFFFF"/>
+                <SolidColorBrush x:Key="TabItemLineHeaderSelectedForeground" Color="#000000"/>
+                <Color x:Key="ToolbarTopColor">#F8F8F8</Color>
+                <Color x:Key="ToolbarBottomColor">#E0E0E0</Color>
+                <SolidColorBrush x:Key="ToolbarHoverBackground" Color="#30000000"/>
+                <SolidColorBrush x:Key="ToolbarHoverBorderBrush" Color="#50000000"/>
+                <SolidColorBrush x:Key="ToolbarTextForeground" Color="#000000"/>
+                <SolidColorBrush x:Key="ToolbarSeparatorBackground" Color="#A0A0A0"/>
+                <SolidColorBrush x:Key="StatusBarBackground" Color="#F0F2F4"/>
+                <SolidColorBrush x:Key="TabStripBackground" Color="#E0E0E0"/>
+                <SolidColorBrush x:Key="PanelBackground" Color="#FFFFFF"/>
+                <SolidColorBrush x:Key="PanelAltBackground" Color="#F5F5F5"/>
+                <SolidColorBrush x:Key="CoordinateBorderBrush" Color="#808080"/>
+                <SolidColorBrush x:Key="CardBackground" Color="#FFFFFF"/>
+                <SolidColorBrush x:Key="CardTextPrimary" Color="#333333"/>
+                <SolidColorBrush x:Key="CardTextSecondary" Color="#666666"/>
+                <SolidColorBrush x:Key="CardSuccessBackground" Color="#4CAF50"/>
+                <SolidColorBrush x:Key="CardSuccessForeground" Color="#FFFFFF"/>
+                <SolidColorBrush x:Key="SectionDividerBrush" Color="#E0E0E0"/>
+                <SolidColorBrush x:Key="SubtleTextBrush" Color="#646464"/>
+                <SolidColorBrush x:Key="HintTextBrush" Color="#666666"/>
+                <SolidColorBrush x:Key="MutedTextBrush" Color="#888888"/>
+                <SolidColorBrush x:Key="PopupHoverBackground" Color="#FFCCE5FF"/>
+                <SolidColorBrush x:Key="PopupPressedBackground" Color="#FF99CCEE"/>
+                <SolidColorBrush x:Key="PopupAccentBorder" Color="#FF3078C0"/>
+                <SolidColorBrush x:Key="InfoBannerBackground" Color="#F2F7F1"/>
+                <SolidColorBrush x:Key="InfoBannerBorder" Color="#8EB58C"/>
+                <SolidColorBrush x:Key="ErrorBannerBackground" Color="#FFF3F3"/>
+                <SolidColorBrush x:Key="ErrorBannerBorder" Color="#C87878"/>
+                <SolidColorBrush x:Key="WarningTextBrush" Color="#8A4B00"/>
+                <SolidColorBrush x:Key="DescriptionPopupFlyoutBackground" Color="#FBF8ED"/>
+                <SolidColorBrush x:Key="SelectionPanelBackground" Color="#FFFFFF"/>
+            </ResourceDictionary>
+
+            <ResourceDictionary x:Key="Dark">
+                <SolidColorBrush x:Key="MenuItemForeground" Color="#EAEAEA"/>
+                <SolidColorBrush x:Key="DialogBackground" Color="#1F1F1F"/>
+                <SolidColorBrush x:Key="DialogButtonBarBackground" Color="#272727"/>
+                <SolidColorBrush x:Key="DialogButtonBarBorderBrush" Color="#3A3A3A"/>
+                <SolidColorBrush x:Key="InputBackground" Color="#2A2A2A"/>
+                <SolidColorBrush x:Key="InputActiveBackground" Color="#323232"/>
+                <SolidColorBrush x:Key="TabItemLineHeaderSelectedForeground" Color="#F0F0F0"/>
+                <Color x:Key="ToolbarTopColor">#2D2D2D</Color>
+                <Color x:Key="ToolbarBottomColor">#222222</Color>
+                <SolidColorBrush x:Key="ToolbarHoverBackground" Color="#30FFFFFF"/>
+                <SolidColorBrush x:Key="ToolbarHoverBorderBrush" Color="#55FFFFFF"/>
+                <SolidColorBrush x:Key="ToolbarTextForeground" Color="#ECECEC"/>
+                <SolidColorBrush x:Key="ToolbarSeparatorBackground" Color="#5E5E5E"/>
+                <SolidColorBrush x:Key="StatusBarBackground" Color="#24292E"/>
+                <SolidColorBrush x:Key="TabStripBackground" Color="#2B2B2B"/>
+                <SolidColorBrush x:Key="PanelBackground" Color="#1E1E1E"/>
+                <SolidColorBrush x:Key="PanelAltBackground" Color="#2A2A2A"/>
+                <SolidColorBrush x:Key="CoordinateBorderBrush" Color="#5F5F5F"/>
+                <SolidColorBrush x:Key="CardBackground" Color="#2A2A2A"/>
+                <SolidColorBrush x:Key="CardTextPrimary" Color="#F2F2F2"/>
+                <SolidColorBrush x:Key="CardTextSecondary" Color="#C4C4C4"/>
+                <SolidColorBrush x:Key="CardSuccessBackground" Color="#2E7D32"/>
+                <SolidColorBrush x:Key="CardSuccessForeground" Color="#FFFFFF"/>
+                <SolidColorBrush x:Key="SectionDividerBrush" Color="#3C3C3C"/>
+                <SolidColorBrush x:Key="SubtleTextBrush" Color="#B5B5B5"/>
+                <SolidColorBrush x:Key="HintTextBrush" Color="#B8B8B8"/>
+                <SolidColorBrush x:Key="MutedTextBrush" Color="#989898"/>
+                <SolidColorBrush x:Key="PopupHoverBackground" Color="#334A5D"/>
+                <SolidColorBrush x:Key="PopupPressedBackground" Color="#3E627C"/>
+                <SolidColorBrush x:Key="PopupAccentBorder" Color="#5FA8F8"/>
+                <SolidColorBrush x:Key="InfoBannerBackground" Color="#203428"/>
+                <SolidColorBrush x:Key="InfoBannerBorder" Color="#4F8D61"/>
+                <SolidColorBrush x:Key="ErrorBannerBackground" Color="#3A2124"/>
+                <SolidColorBrush x:Key="ErrorBannerBorder" Color="#B06A74"/>
+                <SolidColorBrush x:Key="WarningTextBrush" Color="#E6B35A"/>
+                <SolidColorBrush x:Key="DescriptionPopupFlyoutBackground" Color="#2C2A24"/>
+                <SolidColorBrush x:Key="SelectionPanelBackground" Color="#1E1E1E"/>
+            </ResourceDictionary>
+        </ResourceDictionary.ThemeDictionaries>
 
         <!-- Override Semi.Avalonia's menu popup max height (default 400) to prevent scrolling -->
         <x:Double x:Key="MenuFlyoutMaxHeight">10000</x:Double>
@@ -35,20 +118,11 @@
         <!-- ComboBox dropdown item padding: default is "12 8" (horiz vert). -->
         <Thickness x:Key="ComboBoxItemDefaultPadding">12 4</Thickness>
 
-        <!-- Menu item text: full black -->
-        <SolidColorBrush x:Key="MenuItemForeground" Color="Black"/>
         <!-- Menu and ComboBox item hover background: Blue5 at 25% opacity -->
         <SolidColorBrush x:Key="MenuItemPointeroverBackground" Color="{StaticResource SemiBlue5Color}" Opacity="0.25"/>
         <SolidColorBrush x:Key="ComboBoxItemPointeroverBackground" Color="{StaticResource SemiBlue5Color}" Opacity="0.25"/>
         <SolidColorBrush x:Key="ComboBoxItemSelectedBackground" Color="Transparent"/>
         <SolidColorBrush x:Key="ComboBoxItemSelectedPointeroverBackground" Color="{StaticResource SemiBlue5Color}" Opacity="0.25"/>
-
-        <!-- Dialog background color -->
-        <SolidColorBrush x:Key="DialogBackground" Color="#F9F6F1"/>
-
-        <!-- Input control background colors -->
-        <SolidColorBrush x:Key="InputBackground" Color="#FBFBFB"/>
-        <SolidColorBrush x:Key="InputActiveBackground" Color="#FFFFFF"/>
 
         <!-- Dark grey border for input controls, popups, splitters, group boxes -->
         <SolidColorBrush x:Key="DarkGreyBorder" Color="{StaticResource SemiGrey3Color}"/>
@@ -64,14 +138,12 @@
         <SolidColorBrush x:Key="ToolTipBackground" Color="{StaticResource SemiYellow1Color}"/>
         <StaticResource x:Key="ToolTipBorderBrush" ResourceKey="DarkGreyBorder"/>
 
-        <!-- Tab strip: selected tab text full black (default is SemiColorText0 / #1C1F23) -->
-        <SolidColorBrush x:Key="TabItemLineHeaderSelectedForeground" Color="Black"/>
-
         <!-- Tab strip: regular weight for selected tabs (default is SemiBold/600) -->
         <FontWeight x:Key="TabItemSelectedFontWeight">Regular</FontWeight>
         <!-- Tab strip: compact height (default is 32) -->
         <x:Double x:Key="TabItemCardDefaultHeight">24</x:Double>
 
+        </ResourceDictionary>
     </Application.Resources>
 
     <Application.Styles>
@@ -266,8 +338,8 @@
             <Setter Property="Background">
                 <Setter.Value>
                     <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
-                        <GradientStop Color="#F8F8F8" Offset="0"/>
-                        <GradientStop Color="#E0E0E0" Offset="1"/>
+                        <GradientStop Color="{DynamicResource ToolbarTopColor}" Offset="0"/>
+                        <GradientStop Color="{DynamicResource ToolbarBottomColor}" Offset="1"/>
                     </LinearGradientBrush>
                 </Setter.Value>
             </Setter>
@@ -286,15 +358,15 @@
         <Style Selector="StackPanel.toolbar > Button /template/ ContentPresenter#PART_ContentPresenter">
         </Style>
         <Style Selector="StackPanel.toolbar > Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="Background" Value="#30000000"/>
-            <Setter Property="BorderBrush" Value="#50000000"/>
+            <Setter Property="Background" Value="{DynamicResource ToolbarHoverBackground}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource ToolbarHoverBorderBrush}"/>
         </Style>
 
         <!-- Toolbar text: smaller font size -->
         <Style Selector="StackPanel.toolbar TextBlock">
             <Setter Property="FontSize" Value="12.5"/>
             <Setter Property="FontWeight" Value="Regular"/>
-            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="Foreground" Value="{DynamicResource ToolbarTextForeground}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
@@ -307,7 +379,7 @@
             <Setter Property="Width" Value="1"/>
             <Setter Property="Height" Value="20"/>
             <Setter Property="Margin" Value="2,3"/>
-            <Setter Property="Background" Value="#A0A0A0"/>
+            <Setter Property="Background" Value="{DynamicResource ToolbarSeparatorBackground}"/>
         </Style>
 
         <!-- Status bar zoom slider: smaller thumb and track to fit in 26px status bar -->
@@ -356,7 +428,7 @@
     </Application.Styles>
     <NativeMenu.Menu>
         <NativeMenu>
-            <NativeMenuItem Header="About Purple Pen" />
+            <NativeMenuItem Header="{x:Static local:UIText.MainFrame_aboutMenu_Text}" />
         </NativeMenu>
     </NativeMenu.Menu>
 

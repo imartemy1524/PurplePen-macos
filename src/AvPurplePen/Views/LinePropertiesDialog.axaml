@@ -12,7 +12,7 @@
         d:DesignWidth="500" d:DesignHeight="600"
         x:Class="AvPurplePen.Views.LinePropertiesDialog"
         x:DataType="vm:LinePropertiesDialogViewModel"
-        Title="Line Properties"
+        Title="{resx:Localize MainFrame_changeLineAppearanceMenu_Text}"
         Icon="/Assets/transparent.ico"
         Width="500" Height="600"
         CanResize="False"
@@ -28,15 +28,15 @@
     <DockPanel LastChildFill="True">
 
         <!-- Button Bar -->
-        <Border DockPanel.Dock="Bottom" BorderThickness="0,1,0,0" BorderBrush="#E0E0E0" Padding="16,12" Background="#F5F5F5">
+        <Border DockPanel.Dock="Bottom" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource DialogButtonBarBorderBrush}" Padding="16,12" Background="{DynamicResource DialogButtonBarBackground}">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
                 <Button x:Name="okButton"
-                        Content="OK"
+                        Content="{x:Static resx:UIText.OKButton}"
                         Command="{Binding OkCommand}"
                         MinWidth="90" Padding="12,6"
                         IsDefault="True"/>
                 <Button x:Name="cancelButton"
-                        Content="Cancel"
+                        Content="{x:Static resx:UIText.CancelButton}"
                         Command="{Binding CancelCommand}"
                         MinWidth="90" Padding="12,6"
                         IsCancel="True"/>
@@ -51,11 +51,11 @@
                 <TextBlock Text="{Binding Explanation}"
                            TextWrapping="Wrap"
                            FontSize="12"
-                           Foreground="#646464"/>
+                           Foreground="{DynamicResource SubtleTextBrush}"/>
 
                 <!-- Color -->
                 <StackPanel Spacing="8">
-                    <TextBlock Text="Color:" FontWeight="Bold" FontSize="13"/>
+                    <TextBlock Text="{resx:Localize LinePropertiesDialog_label1_Text}" FontWeight="Bold" FontSize="13"/>
                     <ComboBox x:Name="colorCombo"
                               ItemsSource="{Binding ColorOptions}"
                               SelectedIndex="{Binding SelectedColorIndex, Mode=TwoWay}"
@@ -64,7 +64,7 @@
 
                 <!-- Line Kind (conditionally visible) -->
                 <StackPanel Spacing="8" IsVisible="{Binding ShowLineKind}">
-                    <TextBlock Text="Line Style:" FontWeight="Bold" FontSize="13"/>
+                    <TextBlock Text="{resx:Localize LinePropertiesDialog_label2_Text}" FontWeight="Bold" FontSize="13"/>
                     <ComboBox x:Name="lineKindCombo"
                               ItemsSource="{Binding LineKindOptions}"
                               SelectedIndex="{Binding SelectedLineKind, Mode=TwoWay}"
@@ -73,7 +73,7 @@
 
                 <!-- Line Width -->
                 <StackPanel Spacing="8">
-                    <TextBlock Text="Line Width (mm):" FontWeight="Bold" FontSize="13"/>
+                    <TextBlock Text="{resx:Localize LinePropertiesDialog_labelWidth_Text}" FontWeight="Bold" FontSize="13"/>
                     <NumericUpDown Value="{Binding LineWidth, Mode=TwoWay}"
                                    Minimum="0.1" Maximum="10"
                                    Increment="0.1"
@@ -82,7 +82,7 @@
 
                 <!-- Gap Size (only for Double/Dashed) -->
                 <StackPanel Spacing="8" x:Name="gapSizePanel">
-                    <TextBlock Text="Gap Size (mm):" FontWeight="Bold" FontSize="13"/>
+                    <TextBlock Text="{resx:Localize LinePropertiesDialog_labelGapSize_Text}" FontWeight="Bold" FontSize="13"/>
                     <NumericUpDown Value="{Binding GapSize, Mode=TwoWay}"
                                    Minimum="0.1" Maximum="10"
                                    Increment="0.1"
@@ -91,7 +91,7 @@
 
                 <!-- Dash Size (only for Dashed) -->
                 <StackPanel Spacing="8" x:Name="dashSizePanel">
-                    <TextBlock Text="Dash Size (mm):" FontWeight="Bold" FontSize="13"/>
+                    <TextBlock Text="{resx:Localize LinePropertiesDialog_labelDashSize_Text}" FontWeight="Bold" FontSize="13"/>
                     <NumericUpDown Value="{Binding DashSize, Mode=TwoWay}"
                                    Minimum="0.1" Maximum="10"
                                    Increment="0.1"
@@ -100,7 +100,7 @@
 
                 <!-- Corner Radius (conditionally visible) -->
                 <StackPanel Spacing="8" IsVisible="{Binding ShowRadius}">
-                    <TextBlock Text="Corner Radius (mm):" FontWeight="Bold" FontSize="13"/>
+                    <TextBlock Text="{resx:Localize LinePropertiesDialog_labelCornerRadius_Text}" FontWeight="Bold" FontSize="13"/>
                     <NumericUpDown Value="{Binding CornerRadius, Mode=TwoWay}"
                                    Minimum="0" Maximum="50"
                                    Increment="0.1"

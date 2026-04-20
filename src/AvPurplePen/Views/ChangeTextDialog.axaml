@@ -12,7 +12,7 @@
         d:DesignWidth="500" d:DesignHeight="600"
         x:Class="AvPurplePen.Views.ChangeTextDialog"
         x:DataType="vm:ChangeTextDialogViewModel"
-        Title="Edit Text"
+        Title="{resx:Localize MiscText_ChangeTextTitle}"
         Icon="/Assets/transparent.ico"
         Width="500" Height="600"
         CanResize="False"
@@ -28,15 +28,15 @@
     <DockPanel LastChildFill="True">
 
         <!-- Button Bar -->
-        <Border DockPanel.Dock="Bottom" BorderThickness="0,1,0,0" BorderBrush="#E0E0E0" Padding="16,12" Background="#F5F5F5">
+        <Border DockPanel.Dock="Bottom" BorderThickness="0,1,0,0" BorderBrush="{DynamicResource DialogButtonBarBorderBrush}" Padding="16,12" Background="{DynamicResource DialogButtonBarBackground}">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
                 <Button x:Name="okButton"
-                        Content="OK"
+                        Content="{x:Static resx:UIText.OKButton}"
                         Command="{Binding OkCommand}"
                         MinWidth="90" Padding="12,6"
                         IsDefault="True"/>
                 <Button x:Name="cancelButton"
-                        Content="Cancel"
+                        Content="{x:Static resx:UIText.CancelButton}"
                         Command="{Binding CancelCommand}"
                         MinWidth="90" Padding="12,6"
                         IsCancel="True"/>
@@ -51,11 +51,11 @@
                 <TextBlock Text="{Binding Explanation}"
                            TextWrapping="Wrap"
                            FontSize="12"
-                           Foreground="#646464"/>
+                           Foreground="{DynamicResource SubtleTextBrush}"/>
 
                 <!-- Text Content -->
                 <StackPanel Spacing="8">
-                    <TextBlock Text="Text:" FontWeight="Bold" FontSize="13"/>
+                    <TextBlock Text="{resx:Localize AvChangeText_textLabel_Text}" FontWeight="Bold" FontSize="13"/>
                     <TextBox x:Name="userTextBox"
                              Text="{Binding UserText, Mode=TwoWay}"
                              MinHeight="100"
@@ -66,7 +66,7 @@
 
                 <!-- Font Selection -->
                 <StackPanel Spacing="8">
-                    <TextBlock Text="Font:" FontWeight="Bold" FontSize="13"/>
+                    <TextBlock Text="{resx:Localize ChangeText_label1_Text}" FontWeight="Bold" FontSize="13"/>
                     <ComboBox x:Name="fontCombo"
                               ItemsSource="{Binding AvailableFonts}"
                               SelectedItem="{Binding SelectedFontName, Mode=TwoWay}"
@@ -75,20 +75,20 @@
 
                 <!-- Font Styles -->
                 <StackPanel Spacing="8">
-                    <TextBlock Text="Style:" FontWeight="Bold" FontSize="13"/>
+                    <TextBlock Text="{resx:Localize AvChangeText_styleLabel_Text}" FontWeight="Bold" FontSize="13"/>
                     <StackPanel Orientation="Horizontal" Spacing="16">
-                        <CheckBox Content="Bold"
+                        <CheckBox Content="{resx:Localize ChangeText_checkBoxBold_Text}"
                                   IsChecked="{Binding FontBold, Mode=TwoWay}"/>
-                        <CheckBox Content="Italic"
+                        <CheckBox Content="{resx:Localize ChangeText_checkBoxItalic_Text}"
                                   IsChecked="{Binding FontItalic, Mode=TwoWay}"/>
                     </StackPanel>
                 </StackPanel>
 
                 <!-- Font Size -->
                 <StackPanel Spacing="8">
-                    <TextBlock Text="Font Size:" FontWeight="Bold" FontSize="13"/>
+                    <TextBlock Text="{resx:Localize ChangeText_label3_Text}" FontWeight="Bold" FontSize="13"/>
                     <StackPanel Spacing="8">
-                        <CheckBox Content="Automatic size"
+                        <CheckBox Content="{resx:Localize ChangeText_checkBoxAutoFontSize_Text}"
                                   IsChecked="{Binding FontSizeAutomatic, Mode=TwoWay}"/>
                         <NumericUpDown Value="{Binding FontSize, Mode=TwoWay}"
                                        Minimum="6" Maximum="72"

@@ -2455,18 +2455,37 @@ namespace PurplePen.ViewModels
         }
 
         /// <summary>
-        /// Shows the Switch Language dialog and applies the selected language.
+        /// Shows the application Settings dialog and applies selected values.
+        /// </summary>
+        [RelayCommand]
+        private async Task ShowSettingsDialog()
+        {
+            SettingsDialogViewModel vm = new SettingsDialogViewModel(
+                Services.UILanguage.LanguageCode,
+                Services.UITheme.ThemeName);
+
+            bool result = await Services.DialogService.ShowDialogAsync(vm);
+
+            if (result && vm.SelectedLanguage != null) {
+                string languageCode = vm.SelectedLanguage.Code;
+                string themeCode = vm.GetSelectedThemeCode();
+
+                Services.UILanguage.LanguageCode = languageCode;
+                Services.UITheme.ThemeName = themeCode;
+
+                UserSettings.Current.UILanguage = languageCode;
+                UserSettings.Current.UITheme = themeCode;
+                UserSettings.Current.Save();
+            }
+        }
+
+        /// <summary>
+        /// Backward-compatible command alias that opens the settings dialog.
         /// </summary>
         [RelayCommand]
         private async Task ShowSwitchLanguageDialog()
         {
-            string currentCode = Services.UILanguage.LanguageCode;
-            SwitchLanguageDialogViewModel vm = new SwitchLanguageDialogViewModel(currentCode, SwitchLanguageDialogViewModel.CreateDefaultLanguages());
-            bool result = await Services.DialogService.ShowDialogAsync(vm);
-
-            if (result && vm.SelectedLanguage != null) {
-                Services.UILanguage.LanguageCode = vm.SelectedLanguage.Code;
-            }
+            await ShowSettingsDialog();
         }
 
         #endregion // Help and web commands
