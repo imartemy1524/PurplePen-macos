@@ -1,0 +1,160 @@
+<!--
+    CreateKmlFiles.axaml
+
+    Dialog for exporting KML course files.
+-->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:PurplePen.ViewModels"
+        xmlns:resx="using:AvPurplePen"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        d:DesignWidth="700" d:DesignHeight="620"
+        x:Class="AvPurplePen.Views.CreateKmlFiles"
+        x:DataType="vm:CreateKmlFilesViewModel"
+        Classes="dialog"
+        Title="{resx:Localize CreateKmlFiles_Text}"
+        Icon="/Assets/transparent.ico"
+        Width="700" Height="620"
+        CanResize="False"
+        CanMinimize="False"
+        CanMaximize="False"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+    <Design.DataContext>
+        <vm:CreateKmlFilesViewModel/>
+    </Design.DataContext>
+
+    <DockPanel Margin="12">
+        <StackPanel DockPanel.Dock="Bottom"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Spacing="8"
+                    Margin="0,16,0,0">
+            <Button x:Name="createButton"
+                    Content="{resx:Localize CreateKmlFiles_createButton_Text}"
+                    Width="85"
+                    HorizontalContentAlignment="Center"
+                    IsDefault="True"
+                    IsEnabled="{Binding IsOkEnabled}"
+                    Click="CreateButton_Click"/>
+            <Button x:Name="cancelButton"
+                    Content="{resx:Localize CreateKmlFiles_cancelButton_Text}"
+                    Width="85"
+                    HorizontalContentAlignment="Center"
+                    IsCancel="True"
+                    Click="CancelButton_Click"/>
+        </StackPanel>
+
+        <Grid RowDefinitions="*,Auto,Auto"
+              RowSpacing="12">
+            <Border Grid.Row="0"
+                    Classes="groupBox"
+                    Padding="12">
+                <Grid RowDefinitions="Auto,*,Auto"
+                      RowSpacing="8">
+                    <TextBlock Grid.Row="0"
+                               Classes="groupHeader"
+                               Text="{resx:Localize CreateKmlFiles_coursesGroupBox_Text}"/>
+
+                    <ListBox x:Name="courseListBox"
+                             Grid.Row="1"
+                             ItemsSource="{Binding CourseSelection.Courses}"
+                             SelectedItem="{Binding CourseSelection.SelectedCourse, Mode=TwoWay}"
+                             MinHeight="120">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate x:DataType="vm:PdfCourseItemViewModel">
+                                <CheckBox Content="{Binding Name}"
+                                          IsChecked="{Binding IsSelected, Mode=TwoWay}"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <WrapPanel Grid.Row="2"
+                               HorizontalAlignment="Right">
+                        <Button Content="{resx:Localize CourseSelector_selectAll_Text}"
+                                Command="{Binding CourseSelection.SelectAllCoursesCommand}"
+                                MinWidth="82"
+                                Margin="0,0,8,8"/>
+                        <Button Content="{resx:Localize CourseSelector_selectNone_Text}"
+                                Command="{Binding CourseSelection.SelectNoCoursesCommand}"
+                                MinWidth="82"
+                                Margin="0,0,8,8"/>
+                        <Button MinWidth="150"
+                                Command="{Binding CourseSelection.ChooseVariationsCommand}"
+                                IsVisible="{Binding CourseSelection.IsChooseVariationsVisible}"
+                                IsEnabled="{Binding CourseSelection.IsChooseVariationsEnabled}"
+                                Margin="0,0,0,8">
+                            <TextBlock Text="{resx:Localize CourseSelector_buttonChooseVariations_Text}"
+                                       TextWrapping="Wrap"
+                                       TextAlignment="Center"/>
+                        </Button>
+                    </WrapPanel>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="1"
+                    Classes="groupBox"
+                    Padding="12">
+                <StackPanel Spacing="10">
+                    <TextBlock Classes="groupHeader"
+                               Text="{resx:Localize CreateKmlFiles_outputGroupBox_Text}"/>
+                    <Grid ColumnDefinitions="Auto,*"
+                          RowDefinitions="Auto,Auto"
+                          ColumnSpacing="10"
+                          RowSpacing="8">
+                        <TextBlock Grid.Row="0" Grid.Column="0"
+                                   Text="{resx:Localize CreateKmlFiles_filesLabel_Text}"
+                                   VerticalAlignment="Center"/>
+                        <ComboBox Grid.Row="0" Grid.Column="1"
+                                  SelectedIndex="{Binding FileCreationIndex, Mode=TwoWay}">
+                            <ComboBoxItem Content="{resx:Localize CreateKmlFiles_filesCombo_Items}"/>
+                            <ComboBoxItem Content="{resx:Localize CreateKmlFiles_filesCombo_Items1}"/>
+                        </ComboBox>
+
+                        <TextBlock Grid.Row="1" Grid.Column="0"
+                                   Text="{resx:Localize CreateKmlFiles_fileNamePrefixLabel_Text}"
+                                   VerticalAlignment="Center"/>
+                        <TextBox Grid.Row="1" Grid.Column="1"
+                                 Text="{Binding FilePrefix, Mode=TwoWay}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Row="2"
+                    Classes="groupBox"
+                    Padding="12">
+                <StackPanel Spacing="8">
+                    <TextBlock Classes="groupHeader"
+                               Text="{resx:Localize CreateKmlFiles_folderGroupBox_Text}"/>
+                    <RadioButton GroupName="KmlOutputFolder"
+                                 IsChecked="{Binding OutputFolder.IsCoursesDirectory, Mode=TwoWay}">
+                        <TextBlock Text="{resx:Localize CreateKmlFiles_coursesDirectory_Text}"
+                                   TextWrapping="Wrap"/>
+                    </RadioButton>
+                    <RadioButton GroupName="KmlOutputFolder"
+                                 IsChecked="{Binding OutputFolder.IsMapDirectory, Mode=TwoWay}">
+                        <TextBlock Text="{resx:Localize CreateKmlFiles_mapDirectory_Text}"
+                                   TextWrapping="Wrap"/>
+                    </RadioButton>
+                    <RadioButton GroupName="KmlOutputFolder"
+                                 IsChecked="{Binding OutputFolder.IsOtherDirectory, Mode=TwoWay}">
+                        <TextBlock Text="{resx:Localize CreateKmlFiles_otherDirectory_Text}"
+                                   TextWrapping="Wrap"/>
+                    </RadioButton>
+                    <Grid ColumnDefinitions="*,Auto"
+                          ColumnSpacing="8"
+                          IsVisible="{Binding OutputFolder.IsOtherDirectoryVisible}">
+                        <TextBox Grid.Column="0"
+                                 Text="{Binding OutputFolder.OutputDirectory, Mode=TwoWay}"/>
+                        <Button Grid.Column="1"
+                                Content="{resx:Localize CreateKmlFiles_selectOtherDirectoryButton_Text}"
+                                Command="{Binding OutputFolder.SelectOtherDirectoryCommand}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </DockPanel>
+</Window>

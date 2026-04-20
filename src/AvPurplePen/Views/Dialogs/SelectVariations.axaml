@@ -1,0 +1,117 @@
+<!--
+    SelectVariations.axaml
+
+    Dialog for choosing relay/course variation export behavior.
+-->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:PurplePen.ViewModels"
+        xmlns:resx="using:AvPurplePen"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        d:DesignWidth="560" d:DesignHeight="520"
+        x:Class="AvPurplePen.Views.SelectVariations"
+        x:DataType="vm:SelectVariationsViewModel"
+        Classes="dialog"
+        Title="{resx:Localize SelectVariations_Text}"
+        Icon="/Assets/transparent.ico"
+        Width="560" Height="520"
+        CanResize="True"
+        CanMinimize="False"
+        CanMaximize="False"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+    <Design.DataContext>
+        <vm:SelectVariationsViewModel/>
+    </Design.DataContext>
+
+    <DockPanel Margin="12">
+        <StackPanel DockPanel.Dock="Bottom"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Spacing="8"
+                    Margin="0,16,0,0">
+            <Button x:Name="okButton"
+                    Content="{resx:Localize OKButton}"
+                    Width="85"
+                    HorizontalContentAlignment="Center"
+                    IsDefault="True"
+                    Click="OkButton_Click"/>
+            <Button x:Name="cancelButton"
+                    Content="{resx:Localize CancelButton}"
+                    Width="85"
+                    HorizontalContentAlignment="Center"
+                    IsCancel="True"
+                    Click="CancelButton_Click"/>
+        </StackPanel>
+
+        <StackPanel Spacing="12">
+            <Grid ColumnDefinitions="Auto,*"
+                  ColumnSpacing="10">
+                <TextBlock Grid.Column="0"
+                           Text="{resx:Localize SelectVariations_label1_Text}"
+                           VerticalAlignment="Center"/>
+                <ComboBox x:Name="variationModeCombo"
+                          Grid.Column="1"
+                          SelectedIndex="{Binding VariationModeIndex, Mode=TwoWay}">
+                    <ComboBoxItem Content="{resx:Localize SelectVariations_comboBoxVariations_Items}"/>
+                    <ComboBoxItem Content="{resx:Localize SelectVariations_comboBoxVariations_Items1}"/>
+                    <ComboBoxItem Content="{resx:Localize SelectVariations_comboBoxVariations_Items2}"/>
+                </ComboBox>
+            </Grid>
+
+            <TextBlock Text="{resx:Localize SelectVariations_labelAllVariations_Text}"
+                       TextWrapping="Wrap"
+                       IsVisible="{Binding IsCombinedMode}"/>
+            <TextBlock Text="{resx:Localize SelectVariations_labelSeparateVariations_Text}"
+                       TextWrapping="Wrap"
+                       IsVisible="{Binding IsSeparateVariationMode}"/>
+            <TextBlock Text="{resx:Localize SelectVariations_labelByLeg_Text}"
+                       TextWrapping="Wrap"
+                       IsVisible="{Binding IsRelayLegModeAvailable}"/>
+            <TextBlock Text="{resx:Localize SelectVariations_labelByLegNotAvailable_Text}"
+                       TextWrapping="Wrap"
+                       IsVisible="{Binding IsRelayLegModeUnavailable}"/>
+
+            <StackPanel Spacing="8"
+                        IsVisible="{Binding IsSeparateVariationMode}">
+                <CheckBox Content="{resx:Localize SelectVariations_checkBoxSelectIndividualVariations_Text}"
+                          IsChecked="{Binding SelectIndividualVariations, Mode=TwoWay}"/>
+                <ListBox ItemsSource="{Binding VariationOptions}"
+                         Height="220"
+                         IsVisible="{Binding IsVariationListVisible}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:VariationOptionViewModel">
+                            <CheckBox Content="{Binding Code}"
+                                      IsChecked="{Binding IsSelected, Mode=TwoWay}"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </StackPanel>
+
+            <StackPanel Spacing="10"
+                        IsVisible="{Binding IsRelayLegModeAvailable}">
+                <TextBlock Text="{Binding TeamCount, StringFormat={x:Static resx:UIText.SelectVariations_labelNumberOfTeams_Text}}"
+                           TextWrapping="Wrap"/>
+                <TextBlock Text="{resx:Localize SelectVariations_label2_Text}"
+                           TextWrapping="Wrap"/>
+                <StackPanel Orientation="Horizontal"
+                            Spacing="8"
+                            VerticalAlignment="Center">
+                    <NumericUpDown Minimum="{Binding MinTeamValue}"
+                                   Maximum="{Binding LastTeamValue}"
+                                   Value="{Binding FirstTeamValue, Mode=TwoWay}"
+                                   Width="100"/>
+                    <TextBlock Text="{resx:Localize SelectVariations_label3_Text}"
+                               VerticalAlignment="Center"/>
+                    <NumericUpDown Minimum="{Binding FirstTeamValue}"
+                                   Maximum="{Binding MaxTeamValue}"
+                                   Value="{Binding LastTeamValue, Mode=TwoWay}"
+                                   Width="100"/>
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+    </DockPanel>
+</Window>

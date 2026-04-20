@@ -1,0 +1,104 @@
+<!--
+    CreateGpx.axaml
+
+    Dialog for exporting GPX waypoint/course data.
+-->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:PurplePen.ViewModels"
+        xmlns:resx="using:AvPurplePen"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        d:DesignWidth="620" d:DesignHeight="560"
+        x:Class="AvPurplePen.Views.CreateGpx"
+        x:DataType="vm:CreateGpxViewModel"
+        Classes="dialog"
+        Title="{resx:Localize CreateGpx_Text}"
+        Icon="/Assets/transparent.ico"
+        Width="620" Height="560"
+        CanResize="False"
+        CanMinimize="False"
+        CanMaximize="False"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+    <Design.DataContext>
+        <vm:CreateGpxViewModel/>
+    </Design.DataContext>
+
+    <DockPanel Margin="12">
+        <StackPanel DockPanel.Dock="Bottom"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Spacing="8"
+                    Margin="0,16,0,0">
+            <Button x:Name="okButton"
+                    Content="{resx:Localize OKButton}"
+                    Width="85"
+                    HorizontalContentAlignment="Center"
+                    IsDefault="True"
+                    IsEnabled="{Binding IsOkEnabled}"
+                    Click="OkButton_Click"/>
+            <Button x:Name="cancelButton"
+                    Content="{resx:Localize CancelButton}"
+                    Width="85"
+                    HorizontalContentAlignment="Center"
+                    IsCancel="True"
+                    Click="CancelButton_Click"/>
+        </StackPanel>
+
+        <StackPanel Spacing="12">
+            <TextBlock Text="{resx:Localize CreateGpx_headerLabel_Text}"
+                       TextWrapping="Wrap"/>
+
+            <Border Classes="groupBox"
+                    Padding="12">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Bottom"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                Spacing="8"
+                                Margin="0,10,0,0">
+                        <Button Content="{resx:Localize CourseSelector_selectAll_Text}"
+                                Command="{Binding CourseSelection.SelectAllCoursesCommand}"/>
+                        <Button Content="{resx:Localize CourseSelector_selectNone_Text}"
+                                Command="{Binding CourseSelection.SelectNoCoursesCommand}"/>
+                    </StackPanel>
+
+                    <StackPanel Spacing="8">
+                        <TextBlock Classes="groupHeader"
+                                   Text="{resx:Localize CreateGpx_coursesGroupBox_Text}"/>
+                        <ListBox x:Name="courseListBox"
+                                 ItemsSource="{Binding CourseSelection.Courses}"
+                                 SelectedItem="{Binding CourseSelection.SelectedCourse, Mode=TwoWay}"
+                                 Height="280">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="vm:PdfCourseItemViewModel">
+                                    <CheckBox Content="{Binding Name}"
+                                              IsChecked="{Binding IsSelected, Mode=TwoWay}"/>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <Border Classes="groupBox"
+                    Padding="12">
+                <StackPanel Spacing="8">
+                    <TextBlock Classes="groupHeader"
+                               Text="{resx:Localize CreateGpx_waypointGroupBox_Text}"/>
+                    <Grid ColumnDefinitions="Auto,*"
+                          ColumnSpacing="10">
+                        <TextBlock Grid.Column="0"
+                                   Text="{resx:Localize CreateGpx_namePrefixLabel_Text}"
+                                   VerticalAlignment="Center"/>
+                        <TextBox Grid.Column="1"
+                                 Text="{Binding CodePrefix, Mode=TwoWay}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </DockPanel>
+</Window>

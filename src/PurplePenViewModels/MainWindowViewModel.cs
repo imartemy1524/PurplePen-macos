@@ -35,6 +35,11 @@ namespace PurplePen.ViewModels
         bool updatingTabs = false;  // Guard to prevent re-entrant controller calls during UpdateTabs.
 #if PORTING
         CoursePdfSettings? coursePdfSettingsPrevious = null;
+        OcadCreationSettings? ocadCreationSettingsPrevious = null;
+        BitmapCreationSettings? bitmapCreationSettingsPrevious = null;
+        RouteGadgetCreationSettings? routeGadgetCreationSettingsPrevious = null;
+        GpxCreationSettings? gpxCreationSettingsPrevious = null;
+        ExportKmlSettings? exportKmlSettingsPrevious = null;
 #endif
 
         [ObservableProperty]
@@ -220,6 +225,10 @@ namespace PurplePen.ViewModels
                 ShowRectangle(mapDisplay.MapBounds);
 
                 // Reset the OCAD file creating settings dialog to default settings.
+                ocadCreationSettingsPrevious = null;
+                bitmapCreationSettingsPrevious = null;
+#endif
+#if PORTING
                 ocadCreationSettingsPrevious = null;
                 bitmapCreationSettingsPrevious = null;
 #endif

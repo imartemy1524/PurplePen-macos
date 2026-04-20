@@ -1,0 +1,114 @@
+<!--
+    CreateRouteGadget.axaml
+
+    Dialog for exporting RouteGadget XML/GIF files.
+-->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:PurplePen.ViewModels"
+        xmlns:resx="using:AvPurplePen"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        d:DesignWidth="620" d:DesignHeight="460"
+        x:Class="AvPurplePen.Views.CreateRouteGadget"
+        x:DataType="vm:CreateRouteGadgetViewModel"
+        Classes="dialog"
+        Title="{resx:Localize CreateRouteGadget_Text}"
+        Icon="/Assets/transparent.ico"
+        Width="620"
+        SizeToContent="Height"
+        CanResize="False"
+        CanMinimize="False"
+        CanMaximize="False"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False">
+
+    <Design.DataContext>
+        <vm:CreateRouteGadgetViewModel/>
+    </Design.DataContext>
+
+    <DockPanel Margin="12">
+        <StackPanel DockPanel.Dock="Bottom"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right"
+                    Spacing="8"
+                    Margin="0,16,0,0">
+            <Button x:Name="createButton"
+                    Content="{resx:Localize CreateRouteGadget_createButton_Text}"
+                    Width="85"
+                    HorizontalContentAlignment="Center"
+                    IsDefault="True"
+                    IsEnabled="{Binding IsOkEnabled}"
+                    Click="CreateButton_Click"/>
+            <Button x:Name="cancelButton"
+                    Content="{resx:Localize CreateRouteGadget_cancelButton_Text}"
+                    Width="85"
+                    HorizontalContentAlignment="Center"
+                    IsCancel="True"
+                    Click="CancelButton_Click"/>
+        </StackPanel>
+
+        <StackPanel Spacing="12">
+            <TextBlock Text="{resx:Localize CreateRouteGadget_label2_Text}"
+                       TextWrapping="Wrap"/>
+
+            <Border Classes="groupBox"
+                    Padding="12">
+                <StackPanel Spacing="8">
+                    <TextBlock Classes="groupHeader"
+                               Text="{resx:Localize CreateRouteGadget_nameGroupBox_Text}"/>
+                    <TextBlock Text="{resx:Localize CreateRouteGadget_label1_Text}"
+                               TextWrapping="Wrap"/>
+                    <TextBox x:Name="fileNameTextBox"
+                             Text="{Binding FileBaseName, Mode=TwoWay}"/>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="groupBox"
+                    Padding="12">
+                <StackPanel Spacing="8">
+                    <TextBlock Classes="groupHeader"
+                               Text="{resx:Localize CreateRouteGadget_folderGroupBox_Text}"/>
+                    <RadioButton GroupName="RouteGadgetOutputFolder"
+                                 Content="{resx:Localize CreateRouteGadget_coursesDirectory_Text}"
+                                 IsChecked="{Binding OutputFolder.IsCoursesDirectory, Mode=TwoWay}"/>
+                    <RadioButton GroupName="RouteGadgetOutputFolder"
+                                 Content="{resx:Localize CreateRouteGadget_mapDirectory_Text}"
+                                 IsChecked="{Binding OutputFolder.IsMapDirectory, Mode=TwoWay}"/>
+                    <RadioButton GroupName="RouteGadgetOutputFolder"
+                                 Content="{resx:Localize CreateRouteGadget_otherDirectory_Text}"
+                                 IsChecked="{Binding OutputFolder.IsOtherDirectory, Mode=TwoWay}"/>
+                    <Grid ColumnDefinitions="*,Auto"
+                          ColumnSpacing="8"
+                          IsVisible="{Binding OutputFolder.IsOtherDirectoryVisible}">
+                        <TextBox Grid.Column="0"
+                                 Text="{Binding OutputFolder.OutputDirectory, Mode=TwoWay}"/>
+                        <Button Grid.Column="1"
+                                Content="{resx:Localize CreateRouteGadget_selectOtherDirectoryButton_Text}"
+                                Command="{Binding OutputFolder.SelectOtherDirectoryCommand}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <Border Classes="groupBox"
+                    Padding="12">
+                <StackPanel Spacing="8">
+                    <TextBlock Classes="groupHeader"
+                               Text="{resx:Localize CreateRouteGadget_groupBox1_Text}"/>
+                    <Grid ColumnDefinitions="Auto,*"
+                          ColumnSpacing="10">
+                        <TextBlock Grid.Column="0"
+                                   Text="{resx:Localize CreateRouteGadget_labelIofXml_Text}"
+                                   VerticalAlignment="Center"/>
+                        <ComboBox Grid.Column="1"
+                                  SelectedIndex="{Binding XmlVersionIndex, Mode=TwoWay}">
+                            <ComboBoxItem Content="{resx:Localize CreateRouteGadget_comboBoxIofXml_Items}"/>
+                            <ComboBoxItem Content="{resx:Localize CreateRouteGadget_comboBoxIofXml_Items1}"/>
+                        </ComboBox>
+                    </Grid>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </DockPanel>
+</Window>

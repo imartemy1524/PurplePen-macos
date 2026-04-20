@@ -130,7 +130,8 @@ namespace PurplePen
                     if (existingControl.IsNone) {
                         return StatusBarText.AddingControl;
                     } else {
-                        return string.Format(mapExchangeType != MapExchangeType.None && QueryEvent.CourseUsesControl(eventDB, selectionMgr.Selection.ActiveCourseDesignator, existingControl) ? 
+                        CourseDesignator courseDesignator = GetEditableCourseDesignator(selectionMgr.Selection.ActiveCourseDesignator);
+                        return string.Format(mapExchangeType != MapExchangeType.None && QueryEvent.CourseUsesControl(eventDB, courseDesignator, existingControl) ? 
                                                     StatusBarText.AddingMapExchangeToControl : StatusBarText.AddingExistingControl, 
                                              eventDB.GetControl(existingControl).code);
                     }
@@ -221,7 +222,7 @@ namespace PurplePen
                                               out LegInsertionLoc legInsertionLoc)
         {
             SelectionInfo selection = selectionMgr.Selection;
-            courseDesignator = selection.ActiveCourseDesignator;
+            courseDesignator = GetEditableCourseDesignator(selection.ActiveCourseDesignator);
             courseControlId1 = Id<CourseControl>.None;
             courseControlId2 = Id<CourseControl>.None;
             legInsertionLoc = LegInsertionLoc.Normal;
@@ -243,6 +244,19 @@ namespace PurplePen
 
             if (courseDesignator.IsNotAllControls)
                 QueryEvent.FindControlInsertionPoint(eventDB, courseDesignator, ref courseControlId1, ref courseControlId2, ref legInsertionLoc);
+        }
+
+        // Course changes are made against the underlying course topology, not a single
+        // variation path. Loop variations can make the active variation path stale or
+        // path-specific, while the all-variations designator still contains the editable
+        // course-control graph.
+        private static CourseDesignator GetEditableCourseDesignator(CourseDesignator courseDesignator)
+        {
+            if (courseDesignator.IsVariation) {
+                return courseDesignator.WithAllVariations();
+            }
+
+            return courseDesignator;
         }
 
         public override DragAction LeftButtonDown(Pane pane, PointF location, float pixelSize, ref bool displayUpdateNeeded)
