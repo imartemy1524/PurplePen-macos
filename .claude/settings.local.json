@@ -58,7 +58,12 @@
       "Bash(xargs basename:*)",
       "Bash(ls -1 /Users/im/Projects/trash/PurplePen/src/PurplePenViewModels/*DialogViewModel.cs)",
       "Bash(cat)",
-      "Read(//tmp/**)"
+      "Read(//tmp/**)",
+      "Bash(grep:*)",
+      "Bash(bash scripts/build-macos-app.sh)",
+      "Bash(kill %1)",
+      "Bash(wait %1)",
+      "Bash(/Users/im/Projects/trash/PurplePen/src/AvPurplePen/bin/Debug/net10.0/AvPurplePen)"
     ]
   }
 }

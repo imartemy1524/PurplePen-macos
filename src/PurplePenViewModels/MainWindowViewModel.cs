@@ -172,6 +172,12 @@ namespace PurplePen.ViewModels
         private Id<Special> moveAllControlsSecondSpecial;
         private bool moveAllControlsMapUpdated = false;
 
+        [ObservableProperty]
+        private ObservableCollection<string> recentFiles = new();
+
+        // Public property to get the currently open file name
+        public string CurrentFileName => controller?.FileName ?? "";
+
         #region State change notifications.
 
         /// <summary>
@@ -205,6 +211,10 @@ namespace PurplePen.ViewModels
 
             if (controller.HasStateChanged(ref changeNum)) {
                 UpdateWindowTitle();
+                // Clear the title cache for the current file so any title changes are reflected
+                if (!string.IsNullOrEmpty(controller.FileName)) {
+                    UserSettings.ClearTitleCache(controller.FileName);
+                }
                 UpdateMapFile();
                 UpdateTabs();
                 UpdateCourse();

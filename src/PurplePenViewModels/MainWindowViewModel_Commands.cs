@@ -115,7 +115,48 @@ namespace PurplePen.ViewModels
             if (result && fileOpenVM.SelectedFile != null) {
                 string newFilename = fileOpenVM.SelectedFile;
                 bool success = await controller.LoadNewFile(newFilename);
+                if (success) {
+                    UserSettings.Current.AddRecentFile(newFilename);
+                    UserSettings.Current.Save();
+                    UpdateRecentFiles();
+                }
             }
+        }
+
+        /// <summary>
+        /// Executes the File/Open Recent command for a specific file.
+        /// </summary>
+        [RelayCommand]
+        private async Task OpenRecentFile(string filePath)
+        {
+            if (controller == null || string.IsNullOrEmpty(filePath))
+                return;
+
+            bool success = await controller.LoadNewFile(filePath);
+            if (success) {
+                UserSettings.Current.AddRecentFile(filePath);
+                UserSettings.Current.Save();
+                UpdateRecentFiles();
+            }
+        }
+
+        /// <summary>
+        /// Updates the RecentFiles observable collection from UserSettings.
+        /// </summary>
+        private void UpdateRecentFiles()
+        {
+            RecentFiles.Clear();
+            foreach (var file in UserSettings.Current.RecentFiles) {
+                RecentFiles.Add(file);
+            }
+        }
+
+        /// <summary>
+        /// Called when recent files have changed - initializes the recent files list.
+        /// </summary>
+        public void OnRecentFilesChanged()
+        {
+            UpdateRecentFiles();
         }
 
         /// <summary>

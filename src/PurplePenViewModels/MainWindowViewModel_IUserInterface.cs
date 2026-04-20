@@ -19,6 +19,8 @@ namespace PurplePen.ViewModels
             DescriptionViewerViewModel.SymbolDB = symbolDB;
             DescriptionViewerViewModel.Controller = controller;
             CoursePartBannerViewModel.Controller = controller;
+
+            UpdateRecentFiles();
         }
 
         public Size Size => new Size(0, 0);

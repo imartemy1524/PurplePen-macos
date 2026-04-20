@@ -1,6 +1,47 @@
-# Session Notes: Native Menu Migration to XAML (2026-04-20)
+# Session Notes: Open Recent Files Feature + Menu Fix (2026-04-20)
 
-## Native Menu Migration - COMPLETE
+## Open Recent Files Feature - COMPLETE
+
+Implemented "Open Recent" submenu in File menu that displays the last 10 opened .ppen files with event titles extracted from the .ppen XML. Recently opened files are stored in user settings. Currently open file is marked with IsChecked in the menu.
+
+**Files Modified:**
+- UserSettings.cs - Added `RecentFiles` list, `GetEventTitle(filePath)` method to extract titles from first 10KB of .ppen files, and cache management methods
+- MainWindowViewModel.cs - Added `RecentFiles` ObservableCollection, `CurrentFileName` property to expose controller's filename, and cache clearing on state changes
+- MainWindowViewModel_Commands.cs - Added `OpenRecentFile(filePath)` command and `UpdateRecentFiles()` method
+- MainWindowViewModel_IUserInterface.cs - Initialize() now calls UpdateRecentFiles()
+- MainWindow.axaml.cs - Reverted to code-based menu building with integrated Open Recent menu support
+
+**How it Works:**
+1. User opens a .ppen file → FileOpenPurplePenFile command adds it to recent list via UserSettings.AddRecentFile()
+2. UserSettings.Current.Save() persists the list to PurplePenSettings.json
+3. UpdateRecentFiles() populates the RecentFiles ObservableCollection
+4. Open Recent menu is dynamically populated with event titles extracted from each file
+5. GetEventTitle() reads only first 10KB of .ppen file to extract `<title>` tag via regex (lightweight, no full file load)
+6. Title cache prevents repeated file reads for same files
+7. Cache is cleared whenever event state changes (title edits are detected)
+8. Currently open file is marked with IsChecked = true
+9. Clicking a recent file opens it via OpenRecentFileCommand with the full path
+
+**Title Extraction:**
+- .ppen files are XML format with structure: `<title>Event Name</title>`
+- GetEventTitle() reads only first 10KB to find title tag
+- Falls back to filename (without .ppen extension) if title not found or file doesn't exist
+- Results are cached to avoid repeated file reads
+- Cache is cleared per-file when controller state changes (detects title edits)
+
+**Recent Files Storage:**
+- Location: `~/.config/PurplePen/PurplePenSettings.json` (Windows/Linux) or `~/Library/Application Support/PurplePen/PurplePenSettings.json` (macOS)
+- Format: JSON list of up to 10 file paths, newest first
+- Persistence: Automatic via UserSettings.Save() on successful file open
+
+**Menu Indication:**
+- Currently open file displays with IsChecked checkmark (macOS native style)
+- File title shown instead of .ppen filename
+- "(No recent files)" placeholder shown if list is empty
+
+**Build Status:** ✓ Successful. App launches and menu displays correctly.
+
+## Native Menu Migration - COMPLETE (Previous Work)
 
 Moved macOS native menu definition from code-behind to XAML markup for cleaner architecture.
 
