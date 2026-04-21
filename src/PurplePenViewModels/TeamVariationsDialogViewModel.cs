@@ -13,7 +13,6 @@ using PurplePen;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Net;
@@ -345,13 +344,7 @@ namespace PurplePen.ViewModels
                 RefreshReport();
             }
 
-            string tempFile = Path.Combine(Path.GetTempPath(), "PurplePen-RelayVariations.html");
-            await File.WriteAllTextAsync(tempFile, ReportHtml, Encoding.UTF8);
-
-            Process.Start(new ProcessStartInfo {
-                FileName = tempFile,
-                UseShellExecute = true
-            });
+            await Services.ExternalLauncher.OpenHtmlContentAsync(ReportTitle, ReportHtml);
         }
     }
 }

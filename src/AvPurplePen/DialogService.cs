@@ -129,18 +129,26 @@ namespace AvPurplePen
                 options.SuggestedFileType = options.FileTypeFilter[zeroBasedIndex];
             }
 
-            if (viewModel.InitialDirectory != null) {
-                options.SuggestedStartLocation = await storage.TryGetFolderFromPathAsync(viewModel.InitialDirectory);
-            }
+            options.SuggestedStartLocation = await ResolveSuggestedStartLocationAsync(storage, viewModel.InitialDirectoryBookmark, viewModel.InitialDirectory);
 
             IReadOnlyList<IStorageFile> files = await storage.OpenFilePickerAsync(options);
 
             if (files.Count > 0) {
-                viewModel.SelectedFile = files[0].Path.LocalPath;
+                IStorageFile selectedFile = files[0];
+                string? localPath = selectedFile.TryGetLocalPath();
+                string? bookmarkId = await TrySaveBookmarkAsync(selectedFile);
+
+                viewModel.SelectedFile = localPath;
+                viewModel.SelectedFileReference = new SelectedStorageFile(
+                    localPath,
+                    bookmarkId,
+                    openReadStream: () => selectedFile.OpenReadAsync(),
+                    openWriteStream: () => selectedFile.OpenWriteAsync());
                 return true;
             }
 
             viewModel.SelectedFile = null;
+            viewModel.SelectedFileReference = null;
             return false;
         }
 
@@ -190,17 +198,24 @@ namespace AvPurplePen
                 DefaultExtension = viewModel.DefaultExtension
             };
 
-            if (viewModel.InitialDirectory != null) {
-                options.SuggestedStartLocation = await storage.TryGetFolderFromPathAsync(viewModel.InitialDirectory);
-            }
+            options.SuggestedStartLocation = await ResolveSuggestedStartLocationAsync(storage, viewModel.InitialDirectoryBookmark, viewModel.InitialDirectory);
 
             IStorageFile? file = await storage.SaveFilePickerAsync(options);
             if (file != null) {
-                viewModel.SelectedFile = file.Path.LocalPath;
+                string? localPath = file.TryGetLocalPath();
+                string? bookmarkId = await TrySaveBookmarkAsync(file);
+
+                viewModel.SelectedFile = localPath;
+                viewModel.SelectedFileReference = new SelectedStorageFile(
+                    localPath,
+                    bookmarkId,
+                    openReadStream: () => file.OpenReadAsync(),
+                    openWriteStream: () => file.OpenWriteAsync());
                 return true;
             }
 
             viewModel.SelectedFile = null;
+            viewModel.SelectedFileReference = null;
             return false;
         }
 
@@ -218,18 +233,75 @@ namespace AvPurplePen
                 Title = viewModel.Title
             };
 
-            if (viewModel.InitialDirectory != null) {
-                options.SuggestedStartLocation = await storage.TryGetFolderFromPathAsync(viewModel.InitialDirectory);
-            }
+            options.SuggestedStartLocation = await ResolveSuggestedStartLocationAsync(storage, viewModel.InitialDirectoryBookmark, viewModel.InitialDirectory);
 
             IReadOnlyList<IStorageFolder> folders = await storage.OpenFolderPickerAsync(options);
             if (folders.Count > 0) {
-                viewModel.SelectedFolder = folders[0].Path.LocalPath;
+                IStorageFolder selectedFolder = folders[0];
+                string? localPath = selectedFolder.TryGetLocalPath();
+                string? bookmarkId = await TrySaveBookmarkAsync(selectedFolder);
+
+                viewModel.SelectedFolder = localPath;
+                viewModel.SelectedFolderReference = new SelectedStorageFolder(localPath, bookmarkId);
                 return true;
             }
 
             viewModel.SelectedFolder = null;
+            viewModel.SelectedFolderReference = null;
             return false;
+        }
+
+        /// <summary>
+        /// Resolves a suggested start location using a bookmark id when available;
+        /// otherwise falls back to an OS path when supported by the platform.
+        /// </summary>
+        /// <param name="storage">Storage provider used to resolve the location.</param>
+        /// <param name="bookmarkId">Optional folder bookmark id.</param>
+        /// <param name="localPath">Optional local folder path.</param>
+        /// <returns>The suggested folder location for picker options, or null.</returns>
+        private static async Task<IStorageFolder?> ResolveSuggestedStartLocationAsync(IStorageProvider storage, string? bookmarkId, string? localPath)
+        {
+            if (!string.IsNullOrEmpty(bookmarkId)) {
+                try {
+                    IStorageBookmarkFolder? bookmarkFolder = await storage.OpenFolderBookmarkAsync(bookmarkId);
+                    if (bookmarkFolder != null) {
+                        return bookmarkFolder;
+                    }
+                }
+                catch {
+                    // Ignore bookmark resolution failures and fall through to path resolution.
+                }
+            }
+
+            if (!string.IsNullOrEmpty(localPath)) {
+                try {
+                    return await storage.TryGetFolderFromPathAsync(localPath);
+                }
+                catch {
+                    // Ignore path resolution failures on platforms without local paths.
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Attempts to create a bookmark for a selected storage item.
+        /// </summary>
+        /// <param name="item">The selected storage item.</param>
+        /// <returns>The bookmark id, or null if bookmarking is unavailable or denied.</returns>
+        private static async Task<string?> TrySaveBookmarkAsync(IStorageItem item)
+        {
+            if (!item.CanBookmark) {
+                return null;
+            }
+
+            try {
+                return await item.SaveBookmarkAsync();
+            }
+            catch {
+                return null;
+            }
         }
     }
 }

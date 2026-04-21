@@ -19,8 +19,15 @@ namespace PurplePen.ViewModels
 
         /// <summary>
         /// The initial directory to browse from, or null to use the platform default.
+        /// This is a legacy local-path hint.
         /// </summary>
         public string? InitialDirectory { get; set; }
+
+        /// <summary>
+        /// Optional bookmark id of the initial folder to browse from.
+        /// Used on platforms where local paths are unavailable.
+        /// </summary>
+        public string? InitialDirectoryBookmark { get; set; }
 
         /// <summary>
         /// The initially suggested file name, or null to use the platform default.
@@ -39,9 +46,16 @@ namespace PurplePen.ViewModels
         public string? DefaultExtension { get; set; }
 
         /// <summary>
-        /// After the dialog closes, the full path of the selected file, or null if
-        /// the user cancelled.
+        /// After the dialog closes, the full local path of the selected file
+        /// when available, or null if the platform does not expose paths.
+        /// Prefer <see cref="SelectedFileReference"/> for cross-platform access.
         /// </summary>
         public string? SelectedFile { get; set; }
+
+        /// <summary>
+        /// After the dialog closes, the selected file reference containing bookmark
+        /// and stream access delegates, or null if cancelled.
+        /// </summary>
+        public SelectedStorageFile? SelectedFileReference { get; set; }
     }
 }

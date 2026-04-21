@@ -32,6 +32,7 @@ namespace PurplePen
         public static IDialogService DialogService => serviceProvider.GetRequiredService<IDialogService>();
         public static IUILanguage UILanguage => serviceProvider.GetRequiredService<IUILanguage>();
         public static IUITheme UITheme => serviceProvider.GetRequiredService<IUITheme>();
+        public static IExternalLauncher ExternalLauncher => serviceProvider.GetRequiredService<IExternalLauncher>();
     }
 
 }

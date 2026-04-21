@@ -6,9 +6,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Diagnostics;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace PurplePen.ViewModels
 {
@@ -39,82 +37,33 @@ namespace PurplePen.ViewModels
         /// Print the report.
         /// </summary>
         [RelayCommand]
-        private void Print()
+        private async Task Print()
         {
-            OpenHtmlInDefaultBrowser();
+            await OpenHtmlInDefaultBrowserAsync();
         }
 
         /// <summary>
         /// Print preview the report.
         /// </summary>
         [RelayCommand]
-        private void PrintPreview()
+        private async Task PrintPreview()
         {
-            OpenHtmlInDefaultBrowser();
+            await OpenHtmlInDefaultBrowserAsync();
         }
 
         /// <summary>
         /// Opens the HTML content in the default browser for printing.
         /// </summary>
-        private void OpenHtmlInDefaultBrowser()
+        private async Task OpenHtmlInDefaultBrowserAsync()
         {
-            try
-            {
-                string tempPath = Path.Combine(Path.GetTempPath(), $"PurplePen_{Path.GetRandomFileName()}.html");
-
-                // Wrap the report content with proper HTML structure
-                string fullHtml = $@"<!DOCTYPE html>
-<html>
-<head>
-<meta charset='UTF-8'>
-<title>{ReportTitle}</title>
-<style>
-body {{
-    font-family: Calibri, Arial, Helvetica, sans-serif;
-    font-size: 12pt;
-    margin: 20px;
-}}
-table {{
-    border-collapse: collapse;
-}}
-th, td {{
-    border: 1px solid #999;
-    padding: 8px;
-}}
-th {{
-    background-color: #f0f0f0;
-    font-weight: bold;
-}}
-h1, h2, h3 {{
-    color: #333;
-}}
-</style>
-</head>
-<body>
-<h1>{ReportTitle}</h1>
-{htmlContent}
-</body>
-</html>";
-
-                File.WriteAllText(tempPath, fullHtml, Encoding.UTF8);
-
-                // Open in default browser
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                {
-                    Process.Start(new ProcessStartInfo(tempPath) { UseShellExecute = true });
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                {
-                    Process.Start("open", new string[] { tempPath });
-                }
-                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                {
-                    Process.Start("xdg-open", new string[] { tempPath });
+            try {
+                bool launched = await Services.ExternalLauncher.OpenHtmlContentAsync(ReportTitle, htmlContent);
+                if (!launched) {
+                    Debug.WriteLine("Failed to launch report preview.");
                 }
             }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Failed to open browser: {ex}");
+            catch (Exception ex) {
+                Debug.WriteLine($"Failed to open browser: {ex}");
             }
         }
     }

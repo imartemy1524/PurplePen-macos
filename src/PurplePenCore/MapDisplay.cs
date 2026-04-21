@@ -541,6 +541,11 @@ namespace PurplePen
                 if (pdfMapFile == null) {
                     this.mapType = MapType.None;
                     bitmap = null;
+                    if (string.IsNullOrWhiteSpace(errorText)) {
+                        throw new InvalidOperationException(MiscText.PdfConversionFailed);
+                    }
+
+                    throw new InvalidOperationException(errorText);
                 }
                 else {
                     using (Stream stream = new FileStream(pdfMapFile.PngFileName, FileMode.Open, FileAccess.Read)) {

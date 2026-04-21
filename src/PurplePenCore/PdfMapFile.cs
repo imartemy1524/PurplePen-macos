@@ -11,6 +11,8 @@ namespace PurplePen
     // Manages a PDF map file and converting it to a bitmap.
     public class PdfMapFile : IDisposable
     {
+        private const string BrowserUnsupportedMessage = "PDF map import is not supported in browser builds.";
+
         private string pdfFileName;
         private string pngFileName;
         private ConversionStatus status;
@@ -53,6 +55,9 @@ namespace PurplePen
         {
             get
             {
+                if (IsBrowserRuntime())
+                    return false;
+
                 return FindPdfConverterExe() != null;
             }
         }
@@ -75,6 +80,12 @@ namespace PurplePen
         // Try to begin conversion into bitmap. 
         public ConversionStatus BeginConversion()
         {
+            if (IsBrowserRuntime()) {
+                conversionOutput = BrowserUnsupportedMessage;
+                status = ConversionStatus.Failure;
+                return status;
+            }
+
             if (!SourceExists) {
                 conversionOutput = string.Format("File '{0}' does not exist.", pdfFileName);
                 status = ConversionStatus.Failure;
@@ -174,6 +185,9 @@ namespace PurplePen
 
         internal string FindPdfConverterExe()
         {
+            if (IsBrowserRuntime())
+                return null;
+
             Uri uri = new Uri(typeof(PdfMapFile).Assembly.Location);
             string applicationDirectory = Path.GetDirectoryName(uri.LocalPath);
             string dllPath = Path.Combine(applicationDirectory, "PdfConverter.dll");
@@ -192,6 +206,15 @@ namespace PurplePen
                 return dllPath;
 
             return null;
+        }
+
+        private static bool IsBrowserRuntime()
+        {
+#if NET8_0_OR_GREATER
+            return OperatingSystem.IsBrowser();
+#else
+            return false;
+#endif
         }
 
         private static bool IsCurrentProcessDotNetHost()

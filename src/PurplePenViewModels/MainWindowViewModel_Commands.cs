@@ -8,7 +8,6 @@ using PurplePen.Graphics2D;
 using PurplePen.MapModel;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Text;
@@ -1963,10 +1962,10 @@ namespace PurplePen.ViewModels
         private async Task OpenFileWithDefaultApplication(string fileName)
         {
             try {
-                ProcessStartInfo processStartInfo = new ProcessStartInfo(fileName) {
-                    UseShellExecute = true
-                };
-                Process.Start(processStartInfo);
+                bool launched = await Services.ExternalLauncher.OpenLocalPathAsync(fileName);
+                if (!launched) {
+                    await ErrorMessage("Opening files in an external application is not supported on this platform.");
+                }
             }
             catch (Exception ex) {
                 await ErrorMessage(ex.Message);

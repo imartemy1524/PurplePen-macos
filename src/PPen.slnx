@@ -91,6 +91,8 @@
     <Project Path="PdfiumViewer/PdfiumViewer/PdfiumViewer.csproj" Id="438914b6-5d1c-482c-b942-5c0e057eef6f" />
   </Folder>
   <Folder Name="/Purple Pen/">
+    <Project Path="AvPurplePen.App/AvPurplePen.App.csproj" />
+    <Project Path="AvPurplePen.Browser/AvPurplePen.Browser.csproj" />
     <Project Path="AvPurplePen/AvPurplePen.csproj" Id="e36ee026-b338-4927-8e6b-8cfca9007148">
       <BuildType Solution="StorePkg|*" Project="Release" />
     </Project>
